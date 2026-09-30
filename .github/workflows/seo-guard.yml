@@ -21,8 +21,10 @@ jobs:
           node-version: "24"
           cache: "npm"
 
+      # npm install, как на Vercel: npm ci падает на lock-файле из macOS
+      # (npm теряет Linux-зависимости wasm-сборок @emnapi/* — известный баг npm)
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Build (Astro) + SEO assert
         env:
