@@ -56,7 +56,7 @@ export const CompareSlider: React.FC<CompareSliderProps> = ({
         };
     }, [isDragging, handleMove]);
 
-    if (!originalUrl && !generatedUrl) return <div className="w-full h-full bg-black/10 flex items-center justify-center text-zinc-500">No images</div>;
+    if (!originalUrl && !generatedUrl) return <div className="w-full h-full bg-black/10 flex items-center justify-center text-slate-500">No images</div>;
     // If only one image check
     if (!originalUrl && generatedUrl) return <img src={generatedUrl} className="w-full h-full object-contain" />;
     if (originalUrl && !generatedUrl) return <img src={originalUrl} className="w-full h-full object-contain" />;

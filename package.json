@@ -12,6 +12,7 @@
     "prerender": "node scripts/prerender.mjs",
     "seo:assert:dist": "node scripts/seo-assert-dist.mjs",
     "preview": "vite preview",
+    "covers": "node scripts/render-covers.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

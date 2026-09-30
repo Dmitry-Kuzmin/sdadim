@@ -22,9 +22,9 @@ function Section({ id, title, children }: { id: string; title: string; children:
   return (
     <section id={id} className="scroll-mt-24">
       <div className="flex items-center gap-3 mb-2">
-        <code className="text-[11px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded font-mono">{`<${id.replace(/-/g,"")}/>`}</code>
+        <code className="text-[11px] text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded font-mono">{`<${id.replace(/-/g,"")}/>`}</code>
       </div>
-      <h2 className="text-xl font-black text-white mb-6 border-b border-white/5 pb-3">{title}</h2>
+      <h2 className="text-xl font-bold text-slate-900 mb-6 border-b border-slate-200 pb-3">{title}</h2>
       {children}
     </section>
   );
@@ -50,15 +50,15 @@ const NAV = [
 
 export default function ArticleKitDemo() {
   return (
-    <div className="min-h-screen bg-[#050B14]">
+    <div className="min-h-screen bg-white">
       {/* Sticky nav */}
-      <div className="sticky top-16 z-40 border-b border-white/5 bg-[#050B14]/90 backdrop-blur-xl">
+      <div className="sticky top-16 z-40 border-b border-slate-200 bg-white/85 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 h-11 flex items-center gap-1 overflow-x-auto">
           {NAV.map((n) => (
             <a
               key={n.id}
               href={`#${n.id}`}
-              className="shrink-0 px-3 py-1 rounded-lg text-xs font-semibold text-zinc-500 hover:text-white hover:bg-white/5 transition-colors"
+              className="shrink-0 px-3 py-1 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors"
             >
               {n.label}
             </a>
@@ -68,18 +68,18 @@ export default function ArticleKitDemo() {
 
       <div className="max-w-3xl mx-auto px-4 pt-10 pb-24">
         {/* Header */}
-        <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-white transition-colors mb-8">
+        <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Блог
         </Link>
 
         <div className="mb-12">
-          <span className="text-[10px] uppercase tracking-widest font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full">
+          <span className="text-[10px] uppercase tracking-widest font-bold text-blue-600 bg-blue-500/10 px-2.5 py-1 rounded-full">
             Для авторов
           </span>
-          <h1 className="text-4xl font-black text-white mt-4 mb-3">Article UI Kit</h1>
-          <p className="text-zinc-400 leading-relaxed">
+          <h1 className="text-4xl font-bold text-slate-900 mt-4 mb-3">Article UI Kit</h1>
+          <p className="text-slate-600 leading-relaxed">
             15 готовых компонентов для оформления статей. Все адаптивны, анимированы и работают в тёмной теме.
-            Импортируй нужные из <code className="text-blue-300 text-sm">@/components/ui/article</code>.
+            Импортируй нужные из <code className="text-blue-700 text-sm">@/components/ui/article</code>.
           </p>
         </div>
 
@@ -87,13 +87,13 @@ export default function ArticleKitDemo() {
 
           {/* BANNER */}
           <Section id="banner" title="Banner — умный рекламный баннер">
-            <p className="text-sm text-zinc-500 mb-4">Автоматически подтягивает дату старта и число мест из Supabase. Три варианта: <code className="text-blue-300">default</code>, <code className="text-blue-300">compact</code>, <code className="text-blue-300">inline</code>.</p>
+            <p className="text-sm text-slate-500 mb-4">Автоматически подтягивает дату старта и число мест из Supabase. Три варианта: <code className="text-blue-700">default</code>, <code className="text-blue-700">compact</code>, <code className="text-blue-700">inline</code>.</p>
             <ArticleBanner variant="default" basePrice={199} />
             <ArticleBanner variant="compact" basePrice={199} />
             <div className="mt-4">
               <ArticleBanner variant="inline" basePrice={199} />
             </div>
-            <pre className="mt-4 text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`import { ArticleBanner } from "@/components/ui/article";
+            <pre className="mt-4 text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`import { ArticleBanner } from "@/components/ui/article";
 
 // В середине статьи:
 <ArticleBanner variant="compact" />
@@ -109,13 +109,13 @@ export default function ArticleKitDemo() {
 
           {/* CALLOUT */}
           <Section id="callout" title="Callout — врезка / выделение">
-            <p className="text-sm text-zinc-500 mb-4">5 типов: <code className="text-blue-300">info · tip · warning · danger · success</code></p>
+            <p className="text-sm text-slate-500 mb-4">5 типов: <code className="text-blue-700">info · tip · warning · danger · success</code></p>
             <ArticleCallout type="info">Это полезная информация, которую стоит выделить из основного текста.</ArticleCallout>
             <ArticleCallout type="tip" title="Лайфхак">Записывайтесь за 2 недели до старта — так вы получите доступ к закрытому Telegram-чату потока.</ArticleCallout>
             <ArticleCallout type="warning">Данные в базе вопросов DGT обновляются каждые 6 месяцев. Проверяйте актуальность.</ArticleCallout>
             <ArticleCallout type="danger">Без прохождения Psicotécnico вас не допустят к экзамену. Не откладывайте!</ArticleCallout>
             <ArticleCallout type="success">Студенты с ежедневной практикой 20 минут сдают с первого раза в 9 из 10 случаев.</ArticleCallout>
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleCallout type="warning" title="Важно знать">
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleCallout type="warning" title="Важно знать">
   Текст врезки...
 </ArticleCallout>`}</pre>
           </Section>
@@ -132,7 +132,7 @@ export default function ArticleKitDemo() {
                 { question: "Что происходит, если не сдал с первого раза?", answer: "Вы можете пересдать через 30 дней. Студентам нашего курса мы предоставляем бессрочный доступ к материалам и поддержку куратора до успешной сдачи." },
               ]}
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleAccordion
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleAccordion
   title="FAQ"
   items={[
     { question: "...", answer: "..." },
@@ -145,7 +145,7 @@ export default function ArticleKitDemo() {
           {/* SPOILER */}
           <Section id="spoiler" title="Spoiler — одиночный раскрываемый блок">
             <ArticleSpoiler label="Полный список документов для Cita Previa">
-              <ul className="space-y-1.5 text-zinc-400">
+              <ul className="space-y-1.5 text-slate-600">
                 <li>• Паспорт или NIE (оригинал + копия)</li>
                 <li>• Эмпадрональенто (прописка)</li>
                 <li>• Результат Psicotécnico</li>
@@ -153,7 +153,7 @@ export default function ArticleKitDemo() {
                 <li>• 2 фотографии паспортного формата</li>
               </ul>
             </ArticleSpoiler>
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleSpoiler label="Полный список документов">
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleSpoiler label="Полный список документов">
   <p>Контент внутри...</p>
 </ArticleSpoiler>`}</pre>
           </Section>
@@ -167,33 +167,33 @@ export default function ArticleKitDemo() {
                 {
                   label: "Категория B",
                   content: (
-                    <div className="text-sm text-zinc-400 space-y-2">
+                    <div className="text-sm text-slate-600 space-y-2">
                       <p>Стандартные права категории B (легковой автомобиль). Экзамен: 30 вопросов, максимум 3 ошибки.</p>
-                      <p>Минимальный возраст: <strong className="text-white">18 лет</strong>.</p>
+                      <p>Минимальный возраст: <strong className="text-slate-900">18 лет</strong>.</p>
                     </div>
                   ),
                 },
                 {
                   label: "Категория A",
                   content: (
-                    <div className="text-sm text-zinc-400 space-y-2">
+                    <div className="text-sm text-slate-600 space-y-2">
                       <p>Права на мотоцикл. Сначала нужно получить A2, через 2 года можно получить A.</p>
-                      <p>Минимальный возраст: <strong className="text-white">20 лет (A2)</strong> и <strong className="text-white">24 года (A)</strong>.</p>
+                      <p>Минимальный возраст: <strong className="text-slate-900">20 лет (A2)</strong> и <strong className="text-slate-900">24 года (A)</strong>.</p>
                     </div>
                   ),
                 },
                 {
                   label: "Категория AM",
                   content: (
-                    <div className="text-sm text-zinc-400 space-y-2">
+                    <div className="text-sm text-slate-600 space-y-2">
                       <p>Мопед до 50cc и микромобильность. Самый простой экзамен.</p>
-                      <p>Минимальный возраст: <strong className="text-white">15 лет</strong>.</p>
+                      <p>Минимальный возраст: <strong className="text-slate-900">15 лет</strong>.</p>
                     </div>
                   ),
                 },
               ]}
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleTabs
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleTabs
   tabs={[
     { label: "Категория B", content: <p>...</p> },
     { label: "Категория A", content: <p>...</p> },
@@ -210,7 +210,7 @@ export default function ArticleKitDemo() {
               author="Анна Котова"
               role="Мадрид, поток #12"
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleQuote
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleQuote
   text="..."
   author="Имя Фамилия"
   role="Должность"
@@ -223,23 +223,23 @@ export default function ArticleKitDemo() {
           <Section id="list" title="List — стильный список">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-zinc-600 mb-2 uppercase tracking-wider font-bold">check</p>
+                <p className="text-xs text-slate-400 mb-2 uppercase tracking-wider font-bold">check</p>
                 <ArticleList type="check" items={["На русском языке", "Живые уроки", "Куратор 24/7", "Документы под ключ"]} />
               </div>
               <div>
-                <p className="text-xs text-zinc-600 mb-2 uppercase tracking-wider font-bold">cross</p>
+                <p className="text-xs text-slate-400 mb-2 uppercase tracking-wider font-bold">cross</p>
                 <ArticleList type="cross" items={["Без знания испанского", "Без практики", "Без поддержки"]} />
               </div>
               <div>
-                <p className="text-xs text-zinc-600 mb-2 uppercase tracking-wider font-bold">arrow</p>
+                <p className="text-xs text-slate-400 mb-2 uppercase tracking-wider font-bold">arrow</p>
                 <ArticleList type="arrow" items={["Шаг 1: Psicotécnico", "Шаг 2: Cita Previa", "Шаг 3: Экзамен"]} />
               </div>
               <div>
-                <p className="text-xs text-zinc-600 mb-2 uppercase tracking-wider font-bold">number</p>
+                <p className="text-xs text-slate-400 mb-2 uppercase tracking-wider font-bold">number</p>
                 <ArticleList type="number" items={["Изучи теорию", "Пройди тесты", "Сдай экзамен"]} />
               </div>
             </div>
-            <pre className="mt-4 text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleList
+            <pre className="mt-4 text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleList
   type="check"  // check | cross | arrow | number
   title="Что входит"
   items={["Пункт A", "Пункт B"]}
@@ -261,7 +261,7 @@ export default function ArticleKitDemo() {
               ]}
               caption="Актуально для 2024–2025 года. Цены могут отличаться в зависимости от региона."
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleTable
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleTable
   headers={["Этап", "Срок", "Стоимость"]}
   rows={[["Psicotécnico", "30 мин", "€40–60"]]}
   caption="Подпись таблицы"
@@ -284,7 +284,7 @@ export default function ArticleKitDemo() {
                 { feature: "Цена", a: "€350+", b: "от €199" },
               ]}
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleComparison
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleComparison
   headerA="Автошкола"
   headerB="Sdadim"
   rows={[
@@ -306,7 +306,7 @@ export default function ArticleKitDemo() {
                 { icon: "🤖", title: "AI-помощник", description: "Задавай вопросы в чат и получай ответы за 30 секунд.", badge: "24/7" },
               ]}
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleCardGrid
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleCardGrid
   cols={3}  // 2 | 3
   cards={[
     { icon: "📚", title: "...", description: "...", badge: "DGT" },
@@ -326,7 +326,7 @@ export default function ArticleKitDemo() {
                 { value: "14", label: "Потоков прошло", note: "с 2022 года" },
               ]}
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleStats
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleStats
   stats={[
     { value: "9/10", label: "Сдают с первого раза", note: "2024" },
   ]}
@@ -348,7 +348,7 @@ export default function ArticleKitDemo() {
               description="Запись на экзамен, проверка статуса, документы"
               external
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleLinkCard
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleLinkCard
   href="https://..."
   title="Заголовок"
   description="Описание"
@@ -365,7 +365,7 @@ export default function ArticleKitDemo() {
               alt="Студентка с водительским удостоверением Испании"
               caption="Алина из Барселоны после успешной сдачи теории DGT, поток #11"
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleImage
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleImage
   src="/assets/photo.png"
   alt="Описание для SEO"
   caption="Подпись под фото"
@@ -377,12 +377,12 @@ export default function ArticleKitDemo() {
 
           {/* VIDEO */}
           <Section id="video" title="Video — YouTube / видео">
-            <p className="text-sm text-zinc-500 mb-4">Ленивая загрузка — превью показывается сразу, iframe подгружается только по клику.</p>
+            <p className="text-sm text-slate-500 mb-4">Ленивая загрузка — превью показывается сразу, iframe подгружается только по клику.</p>
             <ArticleVideo
               youtubeId="dQw4w9WgXcQ"
               caption="Пример: разбор самых сложных вопросов DGT 2024"
             />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleVideo
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleVideo
   youtubeId="VIDEO_ID"
   caption="Подпись"
 />
@@ -397,15 +397,15 @@ export default function ArticleKitDemo() {
           <Section id="divider" title="Divider — разделитель">
             <ArticleDivider />
             <ArticleDivider label="Метод подготовки" />
-            <pre className="text-xs bg-white/[0.03] border border-white/5 rounded-xl p-4 overflow-x-auto text-zinc-400 font-mono">{`<ArticleDivider />
+            <pre className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto text-slate-600 font-mono">{`<ArticleDivider />
 <ArticleDivider label="Раздел" />`}</pre>
           </Section>
 
           {/* Footer note */}
-          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-center">
-            <p className="text-sm font-bold text-white mb-1">Готово к использованию</p>
-            <p className="text-sm text-zinc-500">
-              Все компоненты в <code className="text-blue-300">src/components/ui/article.tsx</code>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center">
+            <p className="text-sm font-bold text-slate-900 mb-1">Готово к использованию</p>
+            <p className="text-sm text-slate-500">
+              Все компоненты в <code className="text-blue-700">src/components/ui/article.tsx</code>
             </p>
           </div>
 

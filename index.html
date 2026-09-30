@@ -4,7 +4,18 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#050B14" />
+    <meta name="theme-color" content="#ffffff" />
+    <script>
+      // Тема до первой отрисовки: сохранённый выбор, иначе системная
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          var dark = t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.classList.toggle("dark", dark);
+          document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#0a0e16" : "#ffffff");
+        } catch (e) {}
+      })();
+    </script>
     <meta name="google-site-verification" content="y3ZuWwlxngRU8JRF2t3nNsQTVMN0Aioto91zqB9UZO0" />
     <title>Сдадим — Онлайн-курс теории DGT</title>
     <meta name="description" content="Сдай теоретический экзамен DGT с первого раза. Живые уроки, разбор документов и поддержка куратора." />

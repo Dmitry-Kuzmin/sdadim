@@ -16,16 +16,18 @@
 
   body {
     font-family: "Inter", system-ui, sans-serif;
-    background-color: #050B14;
-    color: #ffffff;
+    /* Inter: прямой «1», однокомнатная «a» нет — оставляем классику, но с альтернативными цифрами */
+    font-feature-settings: "cv11", "ss01";
+    background-color: rgb(var(--surface));
+    color: rgb(var(--c-slate-900));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.6;
   }
 
   ::selection {
-    background: rgba(59, 130, 246, 0.3);
-    color: #fff;
+    background: rgb(var(--c-blue-100));
+    color: rgb(var(--c-slate-900));
   }
 
   ::-webkit-scrollbar {
@@ -34,13 +36,18 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #0a1628;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #1e3a5f;
+    background: rgb(var(--c-slate-300));
     border-radius: 3px;
   }
+}
+
+/* Светлые обложки блога не «слепят» в тёмной теме */
+html.dark img[src^="/assets/blog/"] {
+  filter: brightness(0.86) contrast(1.04);
 }
 
 @keyframes heroFloat {
@@ -60,5 +67,17 @@
 
   .text-balance {
     text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Тонкая сетка-подложка для hero */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(var(--c-slate-900) / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--c-slate-900) / 0.05) 1px, transparent 1px);
+    background-size: 44px 44px;
   }
 }

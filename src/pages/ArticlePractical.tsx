@@ -64,8 +64,8 @@ export default function ArticlePractical() {
   useSEO();
 
   return (
-    <div className="min-h-screen bg-[#050B14]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
 
           {/* ── Main ─────────────────────────────────────────────────── */}
@@ -74,23 +74,23 @@ export default function ArticlePractical() {
             {/* Breadcrumb */}
             <Link
               to="/blog"
-              className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-white transition-colors mb-8"
+              className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-8"
             >
               <ArrowLeft className="w-4 h-4" /> Все статьи
             </Link>
 
             {/* Header */}
             <div className="mb-8">
-              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full mb-4">
+              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-full mb-4">
                 Практика DGT
               </span>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-5">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
                 Как сдать практический экзамен по вождению с первого раза: секреты и ловушки
               </h1>
-              <p className="text-lg text-zinc-400 leading-relaxed mb-5">
+              <p className="text-lg text-slate-600 leading-relaxed mb-5">
                 Получение водительских прав в Испании — это не только важный шаг, но и серьёзное испытание нервов. Многие заваливают тест не из-за неумения водить, а из-за психологического давления и хитрых задач экзаменатора. Разбираем алгоритм успешной сдачи.
               </p>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-600">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400">
                 <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> 3 апреля 2025</span>
                 <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> 10 мин чтения</span>
                 <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Проверено инструкторами Sdadim</span>
@@ -120,10 +120,10 @@ export default function ArticlePractical() {
             <ArticleDivider label="До запуска двигателя (Comprobaciones previas)" />
 
             {/* ── РАЗДЕЛ 1: ВОПРОСЫ ── */}
-            <h2 id="voprosy-ekzamenatora" className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24">
+            <h2 id="voprosy-ekzamenatora" className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">
               1. Неожиданный допрос до старта
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Экзамен начинается ещё до того, как вы пристегнули ремень. Экзаменатор может (и имеет право) попросить вас показать базовые элементы автомобиля. Если вы путаетесь на этом этапе — нервозность обеспечена.
             </p>
 
@@ -131,8 +131,8 @@ export default function ArticlePractical() {
               {
                 label: "Под капотом",
                 content: (
-                  <div className="text-sm text-zinc-400 space-y-3">
-                    <p>Экзаменатор спросит: <strong className="text-white">"¿Dónde está la varilla del aceite?"</strong> (Где щуп для масла?).</p>
+                  <div className="text-sm text-slate-600 space-y-3">
+                    <p>Экзаменатор спросит: <strong className="text-slate-900">"¿Dónde está la varilla del aceite?"</strong> (Где щуп для масла?).</p>
                     <ArticleList type="check" items={[
                       "Знать, где капот и как его открыть из салона",
                       "Знать цвет щупа уровня масла (обычно желтый или оранжевый)",
@@ -145,8 +145,8 @@ export default function ArticlePractical() {
               {
                 label: "Свет и датчики",
                 content: (
-                  <div className="text-sm text-zinc-400 space-y-3">
-                    <p>Экзаменатор попросит: <strong className="text-white">"Encienda las luces de cruce"</strong> (Включите ближний свет).</p>
+                  <div className="text-sm text-slate-600 space-y-3">
+                    <p>Экзаменатор попросит: <strong className="text-slate-900">"Encienda las luces de cruce"</strong> (Включите ближний свет).</p>
                     <ArticleList type="check" items={[
                       "Безошибочно переключать габариты (posición), ближний (cruce) и дальний (carretera)",
                       "Знать, как включить противотуманки (niebla)",
@@ -158,8 +158,8 @@ export default function ArticlePractical() {
               {
                 label: "Управление",
                 content: (
-                  <div className="text-sm text-zinc-400 space-y-3">
-                    <p>Могут попросить: <strong className="text-white">"Desbloquee el volante"</strong> (Разблокируйте руль).</p>
+                  <div className="text-sm text-slate-600 space-y-3">
+                    <p>Могут попросить: <strong className="text-slate-900">"Desbloquee el volante"</strong> (Разблокируйте руль).</p>
                     <p>Вы должны уметь одной рукой покачивать руль, а другой плавно поворачивать ключ в замке зажигания, чтобы снять блокировку рулевой колонки.</p>
                   </div>
                 ),
@@ -168,14 +168,14 @@ export default function ArticlePractical() {
 
 
             {/* ── РАЗДЕЛ 2: ПСИХОЛОГИЯ ── */}
-            <h2 id="nastroy-i-posadka" className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24">
+            <h2 id="nastroy-i-posadka" className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">
               2. Рутина, которая спасает нервы
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
-              Нервозность — ваш главный враг. Если вы чувствуете, что дрожат колени — попросите: <strong className="text-emerald-400">"Un momento, por favor, estoy un poco nervioso"</strong>. Вам дадут выдохнуть, это абсолютно нормально.
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
+              Нервозность — ваш главный враг. Если вы чувствуете, что дрожат колени — попросите: <strong className="text-emerald-600">"Un momento, por favor, estoy un poco nervioso"</strong>. Вам дадут выдохнуть, это абсолютно нормально.
             </p>
             
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Далее, чтобы всё прошло гладко, проведите ритуал настроек рабочего места (оценивается экзаменатором!):
             </p>
 
@@ -203,10 +203,10 @@ export default function ArticlePractical() {
             <ArticleDivider label="На дороге (Circulación)" />
 
             {/* ── РАЗДЕЛ 3: МАРШРУТ ── */}
-            <h2 id="staruem" className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24">
+            <h2 id="staruem" className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">
               3. Заводим авто и стартуем
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Правильный запуск показывает уверенность: выжмите сцепление (если механика), убедитесь что коробка в "нейтрали", ручник затянут. Перед тем как тронуться, обязательно посмотрите в левое зеркало и <strong>поверните голову</strong> (мертвая зона!). Экзаменатор очень следит за движением вашей шеи, а не только глаз.
             </p>
 
@@ -217,10 +217,10 @@ export default function ArticlePractical() {
             />
 
             {/* ── РАЗДЕЛ 4: ЛОВУШКИ ── */}
-            <h2 id="lovushki" className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24">
+            <h2 id="lovushki" className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">
               4. Остерегайтесь «Ловушек» экзаменатора
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Инспекторы (Examinadores) могут давать инструкции, которые формально приведут к нарушению ПДД. Их задача — проверить, слепо ли вы подчиняетесь или думаете своей головой.
             </p>
 
@@ -243,10 +243,10 @@ export default function ArticlePractical() {
             />
 
             {/* ── РАЗДЕЛ 5: ПРАКТИКА И ОШИБКИ ── */}
-            <h2 id="sistemnaya-podgotovka" className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24">
+            <h2 id="sistemnaya-podgotovka" className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">
               5. Главное правило: не спешите (Sin prisa)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Экзаменатор оценивает не скорость, а плавность и предсказуемость. Одна из самых частых ошибок — поспешное выкатывание на перекрестки и круговые (Glorietas) без полного контроля происходящего.
             </p>
             
@@ -256,7 +256,7 @@ export default function ArticlePractical() {
               "Превышение скорости. (В Испании строгий лимит: 30 км/ч в городе, 50 км/ч на широких проспектах).",
             ]} />
             
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mt-4 mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mt-4 mb-4">
               <strong>Совет Sdadim:</strong> Лучший способ подготовиться — изучить маршруты, где будет проходить экзамен именно в вашем городе (Zona de examen). Мы предоставляем эти данные нашим студентам!
             </p>
 
@@ -264,8 +264,8 @@ export default function ArticlePractical() {
 
             {/* Финальный CTA */}
             <div className="bg-gradient-to-r from-blue-900/30 to-blue-500/10 border border-blue-500/20 rounded-2xl p-6 lg:p-10 text-center">
-              <h3 className="text-2xl lg:text-3xl font-black text-white mb-4">Забирайте свои 3 бесплатных урока вождения!</h3>
-              <p className="text-zinc-300 mb-8 max-w-2xl mx-auto">
+              <h3 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-4">Забирайте свои 3 бесплатных урока вождения!</h3>
+              <p className="text-slate-700 mb-8 max-w-2xl mx-auto">
                 Систематическая подготовка — залог успеха. Мы понимаем, насколько важно сдать с первого раза. Получите теорию на понятном русском языке, интерактивного ИИ-репетитора и поддержку от начала и до самого получения прав.
               </p>
               <a
@@ -286,8 +286,8 @@ export default function ArticlePractical() {
             <div className="sticky top-24 space-y-5">
 
               {/* TOC */}
-              <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4">Содержание</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Содержание</p>
                 <nav className="space-y-2 text-sm">
                   {[
                     ["#voprosy-ekzamenatora",  "Допрос до старта"],
@@ -299,7 +299,7 @@ export default function ArticlePractical() {
                     <a
                       key={href}
                       href={href}
-                      className="block text-zinc-400 hover:text-white transition-colors leading-snug"
+                      className="block text-slate-600 hover:text-slate-900 transition-colors leading-snug"
                     >
                       {label}
                     </a>
@@ -308,8 +308,8 @@ export default function ArticlePractical() {
               </div>
               
               <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-                <p className="text-white font-bold text-sm mb-2">🎁 Бонус от платформы</p>
-                <p className="text-zinc-400 text-xs leading-relaxed mb-4">
+                <p className="text-slate-900 font-bold text-sm mb-2">🎁 Бонус от платформы</p>
+                <p className="text-slate-600 text-xs leading-relaxed mb-4">
                   При приобретении теоретического курса на нашей платформе, <strong>вы получаете 3 урока практики с инструктором абсолютно бесплатно!</strong>
                 </p>
               </div>

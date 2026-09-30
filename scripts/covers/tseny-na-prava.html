@@ -1,0 +1,45 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #dcfce7; }
+  .receipt { left: 560px; top: 70px; width: 560px; padding: 44px 48px 60px; transform: rotate(2deg); border-radius: 18px 18px 0 0; }
+  /* зубчатый низ чека */
+  .receipt:after { content: ""; position: absolute; left: 0; right: 0; bottom: -18px; height: 18px;
+    background: linear-gradient(-45deg, transparent 12px, #fff 0) 0 0 / 24px 18px, linear-gradient(45deg, transparent 12px, #fff 0) 0 0 / 24px 18px; }
+  .head { text-align: center; padding-bottom: 22px; border-bottom: 2px dashed var(--line); }
+  .head h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin-top: 8px; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; padding: 17px 0; font-size: 21px; color: #334155; border-bottom: 1px solid #f1f5f9; }
+  .row small { display: block; font-size: 15px; color: var(--soft); margin-top: 3px; }
+  .row b { font-weight: 600; color: var(--ink); }
+  .row.muted { color: var(--soft); }
+  .row.muted b { color: var(--soft); text-decoration: line-through; text-decoration-color: #cbd5e1; }
+  .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 26px; margin-top: 8px; border-top: 2px dashed var(--line); }
+  .total span { font-size: 22px; font-weight: 600; }
+  .total b { font-size: 52px; font-weight: 800; letter-spacing: -.03em; }
+  .note { position: absolute; right: 64px; bottom: 150px; font-size: 32px; transform: rotate(-6deg); color: var(--green); }
+  .calc { left: 1180px; top: 560px; width: 300px; padding: 26px; transform: rotate(-6deg); }
+  .screen { background: #0f172a; color: #fff; border-radius: 12px; padding: 16px 18px; text-align: right; font-size: 40px; font-weight: 700; letter-spacing: -.02em; }
+  .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+  .keys span { height: 44px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #475569; font-size: 18px; }
+  .keys span.a { background: var(--blue); color: #fff; }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="card receipt">
+    <div class="head"><div class="eyebrow">Permiso B · 2026</div><h1>Сколько стоят права</h1></div>
+    <div class="row"><span>Tasa DGT<small>пошлина, до двух провалов</small></span><b class="tabular">94,05 €</b></div>
+    <div class="row"><span>Теория<small>курс на русском</small></span><b class="tabular">199 €</b></div>
+    <div class="row"><span>Медкомиссия<small>psicotécnico</small></span><b class="tabular">45 €</b></div>
+    <div class="row"><span>Matrícula автошколы<small>запись на практику</small></span><b class="tabular">100 €</b></div>
+    <div class="row"><span>Уроки вождения<small>20 × 40 €</small></span><b class="tabular">800 €</b></div>
+    <div class="row"><span>Выставление на экзамен<small>машина автошколы</small></span><b class="tabular">70 €</b></div>
+    <div class="total"><span>Итого</span><b class="tabular">≈ 1 308 €</b></div>
+    <div class="note hand">всё с первого раза ✓</div>
+  </div>
+  <div class="card calc">
+    <div class="screen tabular">1308</div>
+    <div class="keys"><span>7</span><span>8</span><span>9</span><span>÷</span><span>4</span><span>5</span><span>6</span><span>×</span><span>1</span><span>2</span><span>3</span><span class="a">=</span></div>
+  </div>
+  <div class="chip" style="left:110px; top:330px; width:330px"><div class="n tabular">94,05 €</div><div class="t">пошлина DGT — до двух провалов</div></div>
+  <div class="chip" style="left:150px; top:580px; width:300px"><div class="t" style="margin:0"><span class="dot" style="background:var(--green)"></span><b>Калькулятор</b><br>внутри статьи</div></div>
+</body></html>

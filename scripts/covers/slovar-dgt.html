@@ -1,0 +1,45 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #ede9fe; }
+  .fc { width: 620px; height: 380px; padding: 44px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+  .fc .term { font-size: 64px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; }
+  .fc .tr { font-size: 26px; color: #475569; margin-top: 14px; }
+  .fc .foot { display: flex; justify-content: space-between; align-items: center; font-size: 17px; color: var(--soft); }
+  .pill { display: inline-flex; align-items: center; gap: 8px; background: #f1f5f9; color: #475569; border-radius: 999px; padding: 8px 14px; font-size: 16px; font-weight: 600; }
+  .pill.blue { background: var(--blue-soft); color: #1d4ed8; }
+  .c1 { left: 600px; top: 150px; transform: rotate(-7deg); background: #f1f5f9; box-shadow: 0 20px 50px -24px rgba(15,23,42,.25); }
+  .c2 { left: 640px; top: 200px; transform: rotate(4deg); background: #f8fafc; }
+  .c3 { left: 560px; top: 290px; transform: rotate(-2deg); }
+  .sign { width: 110px; height: 96px; position: relative; }
+  .sign:before { content: ""; position: absolute; inset: 0; background: var(--red); clip-path: polygon(50% 100%, 0 0, 100% 0); }
+  .sign:after { content: ""; position: absolute; left: 18px; right: 18px; top: 12px; height: 60px; background: #fff; clip-path: polygon(50% 100%, 0 0, 100% 0); }
+  .words { position: absolute; left: 110px; top: 250px; display: flex; flex-direction: column; gap: 14px; }
+  .word { background: #fff; border-radius: 16px; padding: 16px 22px; box-shadow: var(--shadow-sm); font-size: 21px; width: 360px; display: flex; justify-content: space-between; }
+  .word b { font-weight: 700; }
+  .word span { color: var(--muted); }
+  .note { position: absolute; left: 1270px; top: 660px; font-size: 34px; transform: rotate(-5deg); }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="words">
+    <div class="word"><b>Glorieta</b><span>кольцо</span></div>
+    <div class="word"><b>Adelantar</b><span>обгонять</span></div>
+    <div class="word"><b>Arcén</b><span>обочина</span></div>
+    <div class="word"><b>Carril</b><span>полоса</span></div>
+    <div class="word"><b>Calzada</b><span>проезжая часть</span></div>
+  </div>
+  <div class="card fc c1"></div>
+  <div class="card fc c2"></div>
+  <div class="card fc c3">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start">
+      <div>
+        <div class="term">Ceda el paso</div>
+        <div class="tr">Уступите дорогу</div>
+      </div>
+      <div class="sign"></div>
+    </div>
+    <div class="foot"><span class="pill blue">Señales</span><span class="tabular">12 / 240</span></div>
+  </div>
+  <div class="note hand">запомнила ✓</div>
+</body></html>

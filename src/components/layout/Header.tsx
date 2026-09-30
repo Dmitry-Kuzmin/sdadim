@@ -1,87 +1,120 @@
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/hooks/useTheme";
 
 const NAV_LINKS = [
-  { href: "/", label: "Курс" },
+  { href: "/#how", label: "Как проходит" },
+  { href: "/#pricing", label: "Цены" },
+  { href: "/#faq", label: "Вопросы" },
   { href: "/blog", label: "Блог" },
-  { href: "/legal/terms", label: "Документы" },
 ];
+
+function ThemeToggle({ className }: { className?: string }) {
+  const { theme, toggle } = useTheme();
+  const dark = theme === "dark";
+  return (
+    <button
+      onClick={toggle}
+      aria-label={dark ? "Светлая тема" : "Тёмная тема"}
+      title={dark ? "Светлая тема" : "Тёмная тема"}
+      className={cn(
+        "relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900",
+        className
+      )}
+    >
+      <Sun className={cn("absolute h-[18px] w-[18px] transition-all duration-300", dark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-50 opacity-0")} />
+      <Moon className={cn("absolute h-[18px] w-[18px] transition-all duration-300", dark ? "rotate-90 scale-50 opacity-0" : "rotate-0 scale-100 opacity-100")} />
+    </button>
+  );
+}
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => setMenuOpen(false), [pathname]);
+
+  const isActive = (href: string) => !href.includes("#") && pathname.startsWith(href);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#050B14]/80 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-          <img src="/favicon-s.svg" alt="Sdadim" className="w-8 h-8 rounded-[22%] shadow-lg shadow-blue-500/20" />
-          <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-white/90 leading-none">Sdadim</span>
-            <span className="text-[9px] text-zinc-400 font-bold tracking-[0.1em] leading-tight uppercase mt-0.5">by Skilyapp</span>
-          </div>
+    <header
+      className={cn(
+        "sticky top-0 z-50 border-b bg-white/80 backdrop-blur-xl transition-colors",
+        scrolled || menuOpen ? "border-slate-200/80" : "border-transparent"
+      )}
+    >
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <Link to="/" className="flex items-center gap-2.5" aria-label="Sdadim — на главную">
+          <img src="/favicon-s.svg" alt="" className="h-8 w-8 rounded-[22%]" />
+          <span className="text-[17px] font-semibold tracking-tight text-slate-900">Sdadim</span>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
-          {NAV_LINKS.map((link) => (
-            <NavLink
-              key={link.href}
-              to={link.href}
-              className={({ isActive }) =>
-                cn(
-                  "text-sm font-medium transition-colors",
-                  isActive ? "text-white" : "text-zinc-400 hover:text-white"
-                )
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
-          <a
-            href="https://t.me/skilyapp_bot?start=course"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
-          >
-            Занять место →
-          </a>
-        </nav>
-
-        {/* Mobile burger */}
-        <button
-          className="md:hidden p-2 text-zinc-400 hover:text-white transition-colors"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Меню"
-        >
-          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </div>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="md:hidden border-t border-white/5 bg-[#050B14] px-4 py-4 flex flex-col gap-4">
+        <nav className="hidden items-center gap-1 md:flex">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               to={link.href}
-              className="text-sm font-medium text-zinc-300 hover:text-white transition-colors"
-              onClick={() => setMenuOpen(false)}
+              className={cn(
+                "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                isActive(link.href) ? "text-slate-900" : "text-slate-500 hover:text-slate-900"
+              )}
             >
               {link.label}
             </Link>
           ))}
-          <a
-            href="https://t.me/skilyapp_bot?start=course"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold text-center"
-            onClick={() => setMenuOpen(false)}
+          <ThemeToggle className="ml-2" />
+          <Link
+            to="/#pricing"
+            className="ml-2 rounded-full bg-inverse px-4 py-2 text-sm font-medium text-on-inverse transition-colors hover:bg-inverse/85"
           >
-            Занять место →
-          </a>
+            Записаться
+          </Link>
+        </nav>
+
+        <div className="-mr-2 flex items-center gap-1 md:hidden">
+        <ThemeToggle />
+        <button
+          className="p-2 text-slate-700"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+        </div>
+      </div>
+
+      {menuOpen && (
+        <div className="border-t border-slate-100 bg-white px-4 pb-6 pt-2 md:hidden">
+          <nav className="flex flex-col">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="border-b border-slate-100 py-4 text-base font-medium text-slate-900"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <Link
+            to="/#pricing"
+            onClick={() => setMenuOpen(false)}
+            className="mt-5 block rounded-xl bg-inverse py-3.5 text-center text-base font-medium text-on-inverse"
+          >
+            Записаться на курс
+          </Link>
         </div>
       )}
     </header>

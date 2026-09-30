@@ -15,6 +15,8 @@ import {
   ArticleBanner,
 } from "@/components/ui/article";
 import { cn } from "@/lib/utils";
+import { getPlans } from "@/components/ui/pricing-cards";
+import { budget, eur, MARKET, round, TASA_DGT } from "@/lib/license-costs";
 
 // ─── SEO ──────────────────────────────────────────────────────────────────────
 
@@ -34,7 +36,7 @@ function useSEO() {
     };
 
     setMeta('meta[name="description"]', "name",
-      "Полный разбор цен на получение водительских прав в Испании в 2026 году. Пошлина DGT 94.05€, автошколы, скрытые платежи (Tramitación) и интерактивный калькулятор."
+      "Полный разбор цен на водительские права в Испании в 2026 году: пошлина DGT 94,05€ и когда её платят повторно, автошкола, медкомиссия, пересдачи. Калькулятор бюджета."
     );
     setMeta('meta[property="og:title"]', "property", "Цены на водительские права в Испании 2026 + Калькулятор");
     setMeta('meta[property="og:image"]', "property", "https://sdadim.eu/assets/blog/tseny-na-prava.jpg");
@@ -54,155 +56,125 @@ function useSEO() {
 }
 
 // ─── Calculator Component ──────────────────────────────────────────────────
+// Вся математика — в @/lib/license-costs (общая с квизом на главной и migran.es)
+
+const PLANS = getPlans();
+const SCHOOL = "school";
+
+function Stepper({ label, hint, value, onChange }: { label: string; hint: string; value: number; onChange: (n: number) => void }) {
+  return (
+    <div className="pt-4 border-t border-slate-200 flex items-center justify-between gap-4">
+      <div>
+        <p className="text-sm font-semibold text-slate-700">{label}</p>
+        <p className="text-xs text-slate-500">{hint}</p>
+      </div>
+      <div className="flex gap-2" role="radiogroup" aria-label={label}>
+        {[1, 2, 3, 4].map((num) => (
+          <button key={num} role="radio" aria-checked={value === num} onClick={() => onChange(num)}
+            className={cn("w-10 h-10 rounded-lg text-sm font-bold transition-all", value === num ? "bg-amber-500 text-black" : "bg-slate-100 text-slate-900 hover:bg-slate-200")}>
+            {num}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function CostsCalculator() {
-  const [practicalClasses, setPracticalClasses] = useState(20);
-  const [theoryAttempts, setTheoryAttempts] = useState(1);
-  const [practicalAttempts, setPracticalAttempts] = useState(1);
+  const [theoryChoice, setTheoryChoice] = useState<string>(PLANS[0].id);
+  const [lessons, setLessons] = useState(20);
+  const [theoryTry, setTheoryTry] = useState(1);
+  const [drivingTry, setDrivingTry] = useState(1);
 
-  // Constants 2026
-  const TASA_DGT = 94.05; // Tasa 2.1
-  const CLASSIC_MATRICULA = 150;
-  const SDADIM_COURSE = 199;
-  const CLASSIC_THEORY = 250;
-  const COST_PER_CLASS = 33;
-  const EXAM_CAR_RENT = 45;
-  const TRAMITACION = 35; // Autoescuela fee to book exam
+  const plan = PLANS.find((p) => p.id === theoryChoice);
+  const theory = plan
+    ? { label: `Курс Сдадим, «${plan.name}»`, price: plan.price }
+    : { label: "Пакет теории в автошколе", price: MARKET.schoolTheory };
 
-  // Calculate logic
-  // One Tasa 94.05€ covers 3 attempts total (e.g. 1 theory pass + 2 practical attempts, or 2 theory + 1 practical).
-  const totalAttempts = theoryAttempts + practicalAttempts;
-  const extraTasasCount = Math.floor((totalAttempts - 1) / 3);
-  const totalTasaCost = (1 + extraTasasCount) * TASA_DGT;
-
-  // Each exam attempt has a Tramitación fee from autoescuela
-  const totalTramitacion = (theoryAttempts + practicalAttempts) * TRAMITACION;
-  
-  // Each practical exam requires car rental
-  const totalCarRent = practicalAttempts * EXAM_CAR_RENT;
-
-  // Sdadim gives 3 free classes out of the needed classes if they buy course
-  const sdadimClassesToPay = Math.max(0, practicalClasses - 3);
-
-  // Totals
-  const sdadimTotal = SDADIM_COURSE 
-    + totalTasaCost 
-    + totalCarRent 
-    + (totalTramitacion) 
-    + (sdadimClassesToPay * COST_PER_CLASS);
-
-  const classicTotal = CLASSIC_MATRICULA
-    + CLASSIC_THEORY 
-    + totalTasaCost 
-    + totalCarRent 
-    + (totalTramitacion) 
-    + (practicalClasses * COST_PER_CLASS);
+  const current = budget({ theory, lessons, theoryTry, drivingTry });
+  const firstTry = budget({ theory, lessons, theoryTry: 1, drivingTry: 1 });
+  const retakes = round(current.total - firstTry.total);
 
   return (
-    <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 md:p-8 my-10 shadow-2xl relative overflow-hidden">
+    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 my-10 shadow-2xl relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-blue-500" />
-      
+
       <div className="text-center mb-8">
-        <h3 className="text-2xl font-black text-white flex items-center justify-center gap-2">
-          <Euro className="w-6 h-6 text-emerald-400" /> Интерактивный Калькулятор 2026
+        <h3 className="text-2xl font-bold text-slate-900 flex items-center justify-center gap-2">
+          <Euro className="w-6 h-6 text-emerald-600" /> Калькулятор стоимости прав 2026
         </h3>
-        <p className="text-sm text-zinc-400 mt-2">Посчитайте свои реальные расходы с учетом пересдач и пошлин</p>
+        <p className="text-sm text-slate-600 mt-2">Полный бюджет с пересдачами и повторной пошлиной DGT</p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-10">
         {/* Контролы */}
-        <div className="space-y-6">
-          
-          <div className="space-y-4 bg-black/20 p-5 rounded-xl border border-white/5">
-            <div>
-              <div className="flex justify-between mb-2">
-                <label className="text-sm font-semibold text-zinc-300">Уроки практики (по 45 мин)</label>
-                <span className="text-sm font-bold text-emerald-400">{practicalClasses} уроков</span>
-              </div>
-              <input 
-                type="range" min="10" max="60" value={practicalClasses} 
-                onChange={(e) => setPracticalClasses(Number(e.target.value))}
-                className="w-full accent-emerald-500 h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
-              />
-              <p className="text-xs text-zinc-500 mt-2">Среднему водителю с нуля требуется 30-40 занятий.</p>
+        <div className="space-y-4 bg-white p-5 rounded-xl border border-slate-200 self-start">
+          <div>
+            <p className="text-sm font-semibold text-slate-700 mb-2">Как готовитесь к теории</p>
+            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Как готовитесь к теории">
+              {[...PLANS.map((p) => ({ id: p.id, label: p.name, price: p.price })), { id: SCHOOL, label: "Автошкола", price: MARKET.schoolTheory }].map((o) => (
+                <button key={o.id} role="radio" aria-checked={theoryChoice === o.id} onClick={() => setTheoryChoice(o.id)}
+                  className={cn("rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+                    theoryChoice === o.id ? "border-emerald-500 bg-emerald-500/10 text-slate-900" : "border-slate-200 text-slate-600 hover:border-slate-300")}>
+                  <span className="block font-semibold">{o.label}</span>
+                  <span className="text-xs text-slate-500">{o.id === SCHOOL ? "≈ " : ""}{o.price} €</span>
+                </button>
+              ))}
             </div>
-
-            <div className="pt-4 border-t border-zinc-800">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-zinc-300">Попытки Теории</p>
-                  <p className="text-xs text-zinc-500">Экзамен DGT</p>
-                </div>
-                <div className="flex gap-2">
-                  {[1,2,3,4].map(num => (
-                    <button key={num} onClick={() => setTheoryAttempts(num)} 
-                      className={cn("w-10 h-10 rounded-lg text-sm font-bold transition-all", theoryAttempts === num ? "bg-amber-500 text-black" : "bg-zinc-800 text-white hover:bg-zinc-700")}>
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-zinc-800">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-zinc-300">Попытки Практики</p>
-                  <p className="text-xs text-zinc-500">Город / Автодром</p>
-                </div>
-                <div className="flex gap-2">
-                  {[1,2,3,4].map(num => (
-                    <button key={num} onClick={() => setPracticalAttempts(num)} 
-                      className={cn("w-10 h-10 rounded-lg text-sm font-bold transition-all", practicalAttempts === num ? "bg-amber-500 text-black" : "bg-zinc-800 text-white hover:bg-zinc-700")}>
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {extraTasasCount > 0 && (
-              <div className="text-xs text-red-400 bg-red-400/10 p-3 rounded-lg border border-red-400/20">
-                ⚠️ Вы исчерпали лимит из 3 попыток на пошлину. Придется оплатить Tasa 2.1 заново (+94.05€).
-              </div>
-            )}
           </div>
+
+          <div className="pt-4 border-t border-slate-200">
+            <div className="flex justify-between mb-2">
+              <label htmlFor="calc-lessons" className="text-sm font-semibold text-slate-700">Уроки вождения (по 45 мин)</label>
+              <span className="text-sm font-bold text-emerald-600 tabular-nums">{lessons}</span>
+            </div>
+            <input id="calc-lessons" type="range" min="0" max="60" value={lessons}
+              onChange={(e) => setLessons(Number(e.target.value))}
+              className="w-full accent-emerald-500 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
+            <p className="text-xs text-slate-500 mt-2">Опытному водителю — 2–5 уроков, новичку — от 20.</p>
+          </div>
+
+          <Stepper label="С какой попытки теория" hint="Экзамен DGT, 30 вопросов" value={theoryTry} onChange={setTheoryTry} />
+          <Stepper label="С какой попытки вождение" hint="Экзамен в городе" value={drivingTry} onChange={setDrivingTry} />
+
+          {current.nTasas > 1 && (
+            <div className="text-xs text-red-600 bg-red-400/10 p-3 rounded-lg border border-red-400/20">
+              ⚠️ Одна пошлина покрывает два провала. У вас их {theoryTry - 1 + drivingTry - 1} — пошлин понадобится {current.nTasas} (+{eur(TASA_DGT * (current.nTasas - 1))}).
+            </div>
+          )}
         </div>
 
         {/* Результат */}
         <div className="space-y-4">
-          {/* Sdadim Box */}
-          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-5 relative">
-            <div className="absolute top-3 right-3 text-[10px] font-bold tracking-widest uppercase bg-emerald-500 text-black px-2 py-0.5 rounded-full">Выбор Sdadim</div>
-            <p className="text-sm text-zinc-400 mb-1">Обучение с нами</p>
-            <p className="text-4xl font-black text-white">{sdadimTotal.toFixed(2)} €</p>
-            
-            <div className="mt-4 space-y-2 text-xs text-zinc-400">
-              <div className="flex justify-between"><span>Курс (Sdadim)</span> <span>199.00 €</span></div>
-              <div className="flex justify-between text-emerald-400"><span>Матрикула</span> <span>0.00 € (Нет)</span></div>
-              <div className="flex justify-between text-emerald-400"><span>Практика ({practicalClasses} уроков)</span> <span>{sdadimClassesToPay * COST_PER_CLASS} € (-3 беспл.)</span></div>
-              <div className="flex justify-between"><span>Услуги автошколы (Записи)</span> <span>{totalTramitacion} €</span></div>
-              <div className="flex justify-between"><span>Аренда авто (Экзамены)</span> <span>{totalCarRent} €</span></div>
-              <div className="flex justify-between text-yellow-400 font-bold border-t border-zinc-800 pt-2"><span>Tasa DGT 2.1</span> <span>{totalTasaCost.toFixed(2)} €</span></div>
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-5">
+            <p className="text-sm text-slate-600 mb-1">Итого</p>
+            <p className="text-4xl font-bold text-slate-900 tabular-nums">{eur(current.total)}</p>
+            <div className="mt-4 space-y-2 text-xs text-slate-600">
+              {current.rows.map((r) => (
+                <div key={r.label} className="flex justify-between gap-4">
+                  <span>{r.label}{r.note && <span className="text-slate-400"> · {r.note}</span>}</span>
+                  <span className="tabular-nums whitespace-nowrap">{eur(r.value)}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Classic Box */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-            <p className="text-sm text-zinc-500 mb-1">Обычная автошкола (В среднем)</p>
-            <p className="text-3xl font-black text-zinc-300">{classicTotal.toFixed(2)} €</p>
-            
-            <div className="mt-4 space-y-2 text-xs text-zinc-500">
-              <div className="flex justify-between"><span>Теоретический блок</span> <span>250.00 €</span></div>
-              <div className="flex justify-between text-red-400"><span>Матрикула (Зачисление)</span> <span>150.00 €</span></div>
-              <div className="flex justify-between"><span>Практика ({practicalClasses} уроков)</span> <span>{practicalClasses * COST_PER_CLASS} €</span></div>
-              <div className="flex justify-between"><span>Остальные сборы и DGT</span> <span>{(totalTramitacion + totalCarRent + totalTasaCost).toFixed(2)} €</span></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white border border-slate-200 rounded-xl p-4">
+              <p className="text-xs text-slate-500">Всё с первого раза</p>
+              <p className="text-xl font-bold text-emerald-600 tabular-nums">{eur(firstTry.total)}</p>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-xl p-4">
+              <p className="text-xs text-slate-500">Пересдачи стоят</p>
+              <p className={cn("text-xl font-bold tabular-nums", retakes > 0 ? "text-red-600" : "text-slate-400")}>
+                {retakes > 0 ? `+${eur(retakes)}` : "0 €"}
+              </p>
             </div>
           </div>
-          
-          <div className="text-sm font-bold text-center text-emerald-400 pt-2">
-            Ваша экономия: {(classicTotal - sdadimTotal).toFixed(2)} €
-          </div>
+
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Цены автошколы — средние по Испании: запись {MARKET.matricula} €, урок {MARKET.lesson} €, выставление на экзамен {MARKET.examPresentation} €. Пошлина DGT {eur(TASA_DGT)} — официальная.
+          </p>
         </div>
       </div>
     </div>
@@ -215,27 +187,27 @@ export default function ArticleCosts() {
   useSEO();
 
   return (
-    <div className="min-h-screen bg-[#050B14]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
 
           <main className="lg:col-span-8">
-            <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-white transition-colors mb-8">
+            <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-8">
               <ArrowLeft className="w-4 h-4" /> Все статьи
             </Link>
 
             <div className="mb-8">
-              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full mb-4">
+              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-full mb-4">
                 Финансы
               </span>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-5">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
                 Сколько реально стоят водительские права в Испании в 2026 году?
               </h1>
-              <p className="text-lg text-zinc-400 leading-relaxed mb-5">
+              <p className="text-lg text-slate-600 leading-relaxed mb-5">
                 Получение водительских прав в Испании предполагает несколько статей расходов, некоторые из которых можно избежать (привет, матрикула!), а другие зависят от вашей подготовки и дотошности автошколы. Разбираем всё до копейки.
               </p>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-600">
-                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> 5 апреля 2025</span>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400">
+                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Обновлено 30 сентября 2026</span>
                 <span className="flex items-center gap-1.5"><Receipt className="w-3.5 h-3.5" /> Актуально на 2026 год</span>
               </div>
             </div>
@@ -247,10 +219,10 @@ export default function ArticleCosts() {
               fullWidth
             />
 
-            <h2 className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5">
+            <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200">
               Из чего состоят базовые траты?
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Вам нужно понимать, что в Испании нет системы "заплатил один раз за всё и забыл". У вас будут постоянные мини-траты при каждом шаге. Пройдемся по списку от самых скрытых до самых очевидных.
             </p>
 
@@ -262,27 +234,27 @@ export default function ArticleCosts() {
                 badge: "От 80€ до 220€",
               },
               {
-                icon: "🚦",
-                title: "Tramitación (Запись)",
-                description: "Сбор автошколы за то, что они передают ваши документы в DGT для сдачи экзамена.",
-                badge: "Около 35€ за КАЖДЫЙ экзамен",
+                icon: "🚘",
+                title: "Выставление на экзамен",
+                description: "Автошкола везёт вас на экзамен по вождению на своей машине с двойными педалями и инструктором. Платите за КАЖДУЮ попытку.",
+                badge: "В среднем 70€ за попытку",
               },
               {
-                icon: "🚘",
-                title: "Аренда Экзаменационного Авто",
-                description: "На практическом экзамене вы платите автошколе за использование их машины с педалями.",
-                badge: "В среднем 45€",
+                icon: "🩺",
+                title: "Медкомиссия (Psicotécnico)",
+                description: "Обязательная справка из медцентра — без неё DGT не допустит к экзамену. Цену назначает центр.",
+                badge: "Около 45€",
               },
               {
                 icon: "⚖️",
                 title: "Tasa DGT (Tasa 2.1)",
-                description: "Официальный сбор государства. Дает право на 3 попытки сдачи (в сумме за теорию и практику).",
-                badge: "Строго 94.05 €",
+                description: "Официальный сбор государства. Действует до второго проваленного экзамена — сданный экзамен попытку не тратит.",
+                badge: "Строго 94,05 €",
               },
             ]} />
 
             <ArticleCallout type="warning" title="Как работает Tasa DGT">
-              Сумма 94.05€ дает вам <strong>3 Convocatorias</strong> (попытки). Если вы сдали теорию с 1-го раза, то у вас останется 2 попытки на практику. Если вы завалили теорию 2 раза и сдали с 3-го, у вас не останется попыток, и для практики вам придется заплатить 94.05€ заново!
+              Пошлина 94,05€ даёт <strong>две convocatorias</strong> — то есть право на два провала (RD 818/2009, art. 50). Сданный экзамен попытку не тратит: теория с 1-го раза → на вождение остаются 2 попытки. Автошколы говорят «3 convocatorias», имея в виду то же самое. Но если вы провалили теорию дважды, для третьей попытки пошлину придётся оплатить заново — ещё 94,05€.
             </ArticleCallout>
 
             {/* Внедрим калькулятор прямо сюда */}
@@ -290,10 +262,10 @@ export default function ArticleCosts() {
 
             <ArticleDivider label="Можно ли сэкономить?" />
 
-            <h2 className="text-2xl font-black text-white mt-8 mb-4 pb-3 border-b border-white/5">
+            <h2 className="text-2xl font-bold text-slate-900 mt-8 mb-4 pb-3 border-b border-slate-200">
               Как не переплатить "посредникам"?
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Самый большой вычет из вашего кошелька — это бесконечные пошлины за пересдачу (Renovación de Papeles) и матрикула в классических автошколах. Если вы выбрали испанскую автошколу, готовьтесь платить за каждый чих.
             </p>
 
@@ -302,7 +274,7 @@ export default function ArticleCosts() {
               items={[
                 {
                   question: "Есть ли у вас Матрикула?",
-                  answer: "Нет. Вы покупаете теоретический курс, и он уже включает в себя доступ ко всему материалу навсегда. Никаких скрытых 'регистрационных сборов'.",
+                  answer: "Нет. Вы платите только за курс — без регистрационных сборов. Матрикулу за практику берёт автошкола, в которой вы будете водить: сравнивайте школы, где она входит в пакет уроков.",
                 },
                 {
                   question: "Сколько стоят практические уроки?",
@@ -313,16 +285,16 @@ export default function ArticleCosts() {
             
             <div className="mt-12 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-8 mb-10">
               <div className="flex items-center gap-3 mb-4">
-                <ShieldCheck className="w-8 h-8 text-emerald-400" />
-                <h3 className="text-2xl font-black text-white">Резюме 2026 года</h3>
+                <ShieldCheck className="w-8 h-8 text-emerald-600" />
+                <h3 className="text-2xl font-bold text-slate-900">Резюме 2026 года</h3>
               </div>
-              <p className="text-zinc-300 mb-0">
-                Минималистичный бюджет на получение прав при сдаче с первого раза (с 20 уроками практики): <br/><strong className="text-white text-xl">около 800 - 1000 €</strong>. 
+              <p className="text-slate-700 mb-0">
+                Новичок, всё с первого раза, 20 уроков вождения, теория с Сдадим: <br/><strong className="text-slate-900 text-xl">около 1 300 €</strong>.
                 <br /><br />
-                Средний бюджет (2 пересдачи теории, 40 уроков практики, 2 пересдачи вождения): <br/><strong className="text-red-400 text-xl">около 2000 - 2500 €</strong>.
+                Тот же новичок, теория в автошколе, 40 уроков, теория и вождение с 3-й попытки (3 пошлины DGT): <br/><strong className="text-red-600 text-xl">около 2 500 €</strong>.
               </p>
               <br />
-              <p className="text-emerald-400 font-bold">Именно поэтому качественная подготовка онлайн до начала практики — лучший способ сэкономить 1500€.</p>
+              <p className="text-emerald-600 font-bold">Разница — почти целиком пересдачи и лишние уроки. Поэтому хорошая подготовка к теории до начала практики — самый дешёвый способ не переплатить.</p>
             </div>
 
           </main>
@@ -330,13 +302,13 @@ export default function ArticleCosts() {
           <aside className="hidden lg:block lg:col-span-4">
             <div className="sticky top-24 space-y-5">
               
-              <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
                 <div className="flex justify-between items-center mb-3">
-                  <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Факт DGT</p>
-                  <Coins className="w-4 h-4 text-amber-400" />
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Факт DGT</p>
+                  <Coins className="w-4 h-4 text-amber-600" />
                 </div>
-                <p className="text-sm text-zinc-300 mb-0">
-                  <strong className="text-white">94.05 €</strong> — это точная сумма Tasa 2.1 (Permisos de Conducción) на текущий год, установленная Министерством Внутренних Дел Испании.
+                <p className="text-sm text-slate-700 mb-0">
+                  <strong className="text-slate-900">94,05 €</strong> — Tasa 2.1 на экзамены на права в 2026 году. Одна пошлина покрывает два проваленных экзамена; третий провал — новая пошлина.
                 </p>
               </div>
 

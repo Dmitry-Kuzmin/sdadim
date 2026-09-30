@@ -83,8 +83,8 @@ export default function ArticleFakeLicense() {
   useSEO();
 
   return (
-    <div className="min-h-screen bg-[#050B14]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
 
           {/* ── Main ─────────────────────────────────────────────────── */}
@@ -93,26 +93,26 @@ export default function ArticleFakeLicense() {
             {/* Breadcrumb */}
             <Link
               to="/blog"
-              className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-white transition-colors mb-8"
+              className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-8"
             >
               <ArrowLeft className="w-4 h-4" /> Все статьи
             </Link>
 
             {/* Header */}
             <div className="mb-8">
-              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-red-400 bg-red-500/10 px-2.5 py-1 rounded-full mb-4">
+              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-red-600 bg-red-500/10 px-2.5 py-1 rounded-full mb-4">
                 Закон и Штрафы
               </span>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-5">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
                 Поддельные права в Испании: тюрьма, штрафы и единственный легальный путь
               </h1>
-              <p className="text-lg text-zinc-400 leading-relaxed mb-5">
+              <p className="text-lg text-slate-600 leading-relaxed mb-5">
                 Сегодня в Испании всё чаще встречаются случаи использования поддельных водительских прав. Люди идут на это, чтобы избежать «сложных» экзаменов. Но стоит ли этот шаг свободы и огромных долгов? Разбираем реальные последствия.
               </p>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-600">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400">
                 <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> 2 апреля 2025</span>
                 <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> 7 мин чтения</span>
-                <span className="flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-red-400/70" /> Важная информация</span>
+                <span className="flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-red-600/70" /> Важная информация</span>
               </div>
             </div>
 
@@ -142,10 +142,10 @@ export default function ArticleFakeLicense() {
             <ArticleDivider label="Суровая реальность" />
 
             {/* ── РАЗДЕЛ 1 ── */}
-            <h2 id="pochemu-vibyrayut" className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24">
+            <h2 id="pochemu-vibyrayut" className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">
               Почему люди вообще покупают «левые» права?
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Основные причины, по которым многие (особенно приезжие) решаются на покупку, до банального просты: языковой барьер, страх не сдать теорию на испанском, нежелание тратить время на автошколу. Мошенники в Telegram обещают «завести в базу» и прислать пластик за пару дней.
             </p>
 
@@ -155,15 +155,15 @@ export default function ArticleFakeLicense() {
               role="Реальный отзыв пострадавшего"
             />
             
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mt-4 mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mt-4 mb-4">
               Запомните: DGT — одна из самых защищенных структур Испании. Сделать поддельную запись в государственном реестре Испании через «знакомого» — миф, придуманный мошенниками для выкачивания денег.
             </p>
 
             {/* ── РАЗДЕЛ 2 ── */}
-            <h2 id="nakazanie" className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24">
+            <h2 id="nakazanie" className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">
               Что грозит за поддельные права в Испании?
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               В Испании человек с поддельными правами совершает сразу два преступления. Это не просто штраф, как за превышение скорости, это Уголовный кодекс.
             </p>
 
@@ -171,8 +171,8 @@ export default function ArticleFakeLicense() {
               {
                 label: "Уголовное наказание",
                 content: (
-                  <div className="text-sm text-zinc-400 space-y-3">
-                    <p><strong className="text-red-400">Преступление: Подделка документов (Falsedad documental)</strong></p>
+                  <div className="text-sm text-slate-600 space-y-3">
+                    <p><strong className="text-red-600">Преступление: Подделка документов (Falsedad documental)</strong></p>
                     <p>Согласно статье 392 Уголовного кодекса Испании, использование поддельного официального документа (Permiso de conducir) карается:</p>
                     <ArticleList type="cross" items={[
                       "Тюремным заключением сроком от 6 месяцев до 3 лет.",
@@ -184,8 +184,8 @@ export default function ArticleFakeLicense() {
               {
                 label: "Езда без прав",
                 content: (
-                  <div className="text-sm text-zinc-400 space-y-3">
-                    <p><strong className="text-red-400">Преступление: Вождение без действующей лицензии</strong></p>
+                  <div className="text-sm text-slate-600 space-y-3">
+                    <p><strong className="text-red-600">Преступление: Вождение без действующей лицензии</strong></p>
                     <p>Так как пластик фальшивый, для закона у вас ПРАВ НЕТ. Статья 384 УК Испании:</p>
                     <ArticleList type="cross" items={[
                       "Тюремное заключение от 3 до 6 месяцев.",
@@ -198,8 +198,8 @@ export default function ArticleFakeLicense() {
               {
                 label: "Финансовая катастрофа",
                 content: (
-                  <div className="text-sm text-zinc-400 space-y-3">
-                    <p><strong className="text-red-400">Отказ страховой компании при ДТП</strong></p>
+                  <div className="text-sm text-slate-600 space-y-3">
+                    <p><strong className="text-red-600">Отказ страховой компании при ДТП</strong></p>
                     <p>Если вы попадете в аварию, страховая признает полис недействительным из-за отсутствия у вас лицензии. Все расходы (сотни тысяч евро при наличии пострадавших) лягут лично на вас.</p>
                   </div>
                 ),
@@ -208,10 +208,10 @@ export default function ArticleFakeLicense() {
 
 
             {/* ── РАЗДЕЛ 3 ── */}
-            <h2 id="kak-legalno" className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24">
+            <h2 id="kak-legalno" className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">
               Единственное решение: легальное получение
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Получить законные испанские права проще, чем разбираться с уголовными делами. Вам не нужно идеально знать испанский — готовиться можно на понятном языке с нашей платформой.
             </p>
 
@@ -252,7 +252,7 @@ export default function ArticleFakeLicense() {
             <ArticleDivider />
 
             {/* ── Итоговый чеклист ── */}
-            <h2 id="chekList" className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24">
+            <h2 id="chekList" className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">
               Короткий чек-лист здравого смысла
             </h2>
 
@@ -263,9 +263,9 @@ export default function ArticleFakeLicense() {
             ]} />
 
             {/* Share */}
-            <div className="mt-12 pt-8 border-t border-white/5">
-              <p className="text-sm font-semibold text-zinc-400 mb-2">Знаете кого-то, кто хочет рискнуть?</p>
-              <p className="text-sm text-zinc-600">Отправьте им эту статью. Возможно, это спасет их от реального срока. 🙌</p>
+            <div className="mt-12 pt-8 border-t border-slate-200">
+              <p className="text-sm font-semibold text-slate-600 mb-2">Знаете кого-то, кто хочет рискнуть?</p>
+              <p className="text-sm text-slate-400">Отправьте им эту статью. Возможно, это спасет их от реального срока. 🙌</p>
             </div>
 
           </main>
@@ -275,8 +275,8 @@ export default function ArticleFakeLicense() {
             <div className="sticky top-24 space-y-5">
 
               {/* TOC */}
-              <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4">Содержание</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Содержание</p>
                 <nav className="space-y-2 text-sm">
                   {[
                     ["#pochemu-vibyrayut",  "Почему покупают права?"],
@@ -287,7 +287,7 @@ export default function ArticleFakeLicense() {
                     <a
                       key={href}
                       href={href}
-                      className="block text-zinc-400 hover:text-white transition-colors leading-snug"
+                      className="block text-slate-600 hover:text-slate-900 transition-colors leading-snug"
                     >
                       {label}
                     </a>
@@ -298,17 +298,17 @@ export default function ArticleFakeLicense() {
               {/* Mini CTA */}
               <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  <p className="text-white font-bold text-sm">Безопасный путь</p>
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <p className="text-slate-900 font-bold text-sm">Безопасный путь</p>
                 </div>
-                <p className="text-zinc-400 text-xs leading-relaxed mb-4">
+                <p className="text-slate-600 text-xs leading-relaxed mb-4">
                   Сэкономьте свои нервы и деньги. Подготовьтесь к экзамену DGT на русском языке и сдайте его законно.
                 </p>
                 <a
                   href="https://t.me/skilyapp_bot?start=course"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
                 >
                   Начать учиться прямо сейчас →
                 </a>

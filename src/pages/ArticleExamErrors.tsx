@@ -111,36 +111,36 @@ export default function ArticleExamErrors() {
   useSEO();
 
   return (
-    <div className="min-h-screen bg-[#050B14]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
           {/* ── Main ─────────────────────────────────────────────────── */}
           <main className="lg:col-span-8">
             {/* Breadcrumb */}
             <Link
               to="/blog"
-              className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-white transition-colors mb-8"
+              className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-8"
             >
               <ArrowLeft className="w-4 h-4" /> Все статьи
             </Link>
 
             {/* Header */}
             <div className="mb-8">
-              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-red-400 bg-red-500/10 px-2.5 py-1 rounded-full mb-4">
+              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-red-600 bg-red-500/10 px-2.5 py-1 rounded-full mb-4">
                 Практика DGT
               </span>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-5">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
                 Все ошибки на экзамене по вождению DGT: полная таблица штрафных баллов
               </h1>
-              <p className="text-lg text-zinc-400 leading-relaxed mb-5">
+              <p className="text-lg text-slate-600 leading-relaxed mb-5">
                 Почему 52% кандидатов получают «NO APTO»? Потому что не знают, за что именно начисляют
                 штрафные баллы. Мы перевели на русский язык{" "}
-                <strong className="text-zinc-200">
+                <strong className="text-slate-800">
                   официальный документ DGT с критериями оценки
                 </strong>{" "}
                 и разбили его на понятные категории с практическими советами.
               </p>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-600">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400">
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" /> 1 апреля 2026
                 </span>
@@ -164,11 +164,11 @@ export default function ArticleExamErrors() {
             {/* ── Как работает система оценки ── */}
             <h2
               id="sistema-otsenki"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               Как работает система оценки DGT
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-6">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-6">
               Каждая ошибка на экзамене попадает в один из трёх уровней тяжести. Понимание этой
               системы — основа подготовки, потому что именно комбинация ошибок определяет ваш
               результат.
@@ -227,11 +227,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="comprobaciones-previas"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               1. Предварительные проверки (Comprobaciones previas)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Экзамен начинается до включения двигателя. Экзаменатор может попросить открыть капот,
               показать щуп масла, проверить свет или найти аварийный треугольник. Все проверки
               оцениваются одной лёгкой ошибкой, но незнание базовых вещей подорвёт вашу
@@ -262,11 +262,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="instalacion"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               2. Посадка и регулировка (Instalación en el vehículo)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Правильная посадка — это не формальность. Экзаменатор оценивает положение рук, ног,
               зеркал и ремня как маркер вашей подготовки.
             </p>
@@ -311,11 +311,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="incorporacion"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               3. Въезд на проезжую часть (Incorporación a la circulación)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Начало движения — один из самых «дорогих» разделов: здесь можно сразу получить
               Eliminatoria, если создать помеху другим водителям.
             </p>
@@ -350,11 +350,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="progresion"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               4. Движение по дороге (Progresión normal)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Этот раздел охватывает всё, что происходит в обычном движении: выбор полосы,
               дистанцию, скорость, наблюдение за обстановкой.
             </p>
@@ -364,9 +364,9 @@ export default function ArticleExamErrors() {
                 {
                   label: "Полоса",
                   content: (
-                    <div className="text-sm text-zinc-400 space-y-3">
+                    <div className="text-sm text-slate-600 space-y-3">
                       <p>
-                        <strong className="text-white">Carril adecuado</strong> — в Испании
+                        <strong className="text-slate-900">Carril adecuado</strong> — в Испании
                         основное правило: всегда двигайтесь по правой полосе, если нет причин
                         занять другую.
                       </p>
@@ -384,9 +384,9 @@ export default function ArticleExamErrors() {
                 {
                   label: "Дистанция",
                   content: (
-                    <div className="text-sm text-zinc-400 space-y-3">
+                    <div className="text-sm text-slate-600 space-y-3">
                       <p>
-                        <strong className="text-white">Separación</strong> — экзаменатор
+                        <strong className="text-slate-900">Separación</strong> — экзаменатор
                         постоянно следит за вашей дистанцией спереди и сбоку.
                       </p>
                       <ArticleList
@@ -403,9 +403,9 @@ export default function ArticleExamErrors() {
                 {
                   label: "Скорость",
                   content: (
-                    <div className="text-sm text-zinc-400 space-y-3">
+                    <div className="text-sm text-slate-600 space-y-3">
                       <p>
-                        <strong className="text-white">Velocidad</strong> — важна и максимальная
+                        <strong className="text-slate-900">Velocidad</strong> — важна и максимальная
                         скорость, и адаптация к условиям.
                       </p>
                       <ArticleTable
@@ -436,11 +436,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="desplazamientos"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               5. Перестроения (Desplazamientos laterales)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Экзаменатор оценивает три этапа каждого перестроения: наблюдение, сигнализацию и
               выполнение. Нарушение любого из них — отдельная ошибка.
             </p>
@@ -483,11 +483,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="adelantamiento"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               6. Обгон (Adelantamiento)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Один из самых строгих разделов. Ошибка при обгоне — почти всегда D или E.
             </p>
 
@@ -514,11 +514,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="cambios"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               7. Повороты и развороты (Cambios de sentido y dirección)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Повороты включают четыре элемента оценки: сигнализацию, наблюдение, траекторию и
               выполнение.
             </p>
@@ -546,11 +546,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="intersecciones"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               8. Перекрёстки и кольцевые (Intersecciones y rotondas)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Перекрёстки — это место, где сходятся все навыки: наблюдение, приоритет,
               позиционирование. А кольцевые (glorietas) — отдельная боль испанского экзамена.
             </p>
@@ -560,7 +560,7 @@ export default function ArticleExamErrors() {
                 {
                   label: "Перекрёстки",
                   content: (
-                    <div className="text-sm text-zinc-400 space-y-3">
+                    <div className="text-sm text-slate-600 space-y-3">
                       <ArticleList
                         type="cross"
                         items={[
@@ -578,7 +578,7 @@ export default function ArticleExamErrors() {
                 {
                   label: "Кольцевые (Rotondas)",
                   content: (
-                    <div className="text-sm text-zinc-400 space-y-3">
+                    <div className="text-sm text-slate-600 space-y-3">
                       <p>
                         На кольцевых экзаменатор смотрит на вход, выбор полосы и выход.
                       </p>
@@ -604,12 +604,12 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="senales"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               9. Дорожные знаки и светофоры (Señales y semáforos)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
-              Иерархия подчинения: <strong className="text-white">регулировщик &gt; светофор &gt; знаки &gt;
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
+              Иерархия подчинения: <strong className="text-slate-900">регулировщик &gt; светофор &gt; знаки &gt;
               разметка</strong>. Если регулировщик показывает «стоп», а светофор зелёный —
               подчиняетесь регулировщику.
             </p>
@@ -632,7 +632,7 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="peatones"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               10–11. Ж/д переезды и пешеходы
             </h2>
@@ -664,11 +664,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="autopistas"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               12. Въезд и выезд с автомагистралей (Autopistas y autovías)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               На экзамене по категории B часто включают участок автомагистрали. Ключевое — правильно
               использовать полосу разгона (carril de aceleración) и торможения (carril de deceleración).
             </p>
@@ -710,11 +710,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="estacionamiento"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               13. Остановки и парковка (Paradas y estacionamientos)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Парковка оценивается по пяти критериям: сигнал, наблюдение, выполнение, итоговая
               позиция и меры безопасности после остановки.
             </p>
@@ -744,11 +744,11 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="conduccion-eficiente"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               14. Экономичное вождение (Conducción eficiente)
             </h2>
-            <p className="text-[15px] text-zinc-300 leading-[1.85] mb-4">
+            <p className="text-[15px] text-slate-700 leading-[1.85] mb-4">
               Этот раздел не приведёт к «NO APTO» сам по себе, но добавляет лёгкие ошибки, которые
               в сумме с другими могут стать критичными.
             </p>
@@ -772,7 +772,7 @@ export default function ArticleExamErrors() {
             ══════════════════════════════════════════════════════════ */}
             <h2
               id="strategiya"
-              className="text-2xl font-black text-white mt-12 mb-4 pb-3 border-b border-white/5 scroll-mt-24"
+              className="text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24"
             >
               Стратегия: как пройти все 14 разделов без провала
             </h2>
@@ -842,11 +842,11 @@ export default function ArticleExamErrors() {
 
             {/* Финальный CTA */}
             <div className="bg-gradient-to-r from-red-900/20 to-blue-500/10 border border-blue-500/20 rounded-2xl p-6 lg:p-10 text-center">
-              <ShieldAlert className="w-10 h-10 text-red-400 mx-auto mb-4" />
-              <h3 className="text-2xl lg:text-3xl font-black text-white mb-4">
+              <ShieldAlert className="w-10 h-10 text-red-600 mx-auto mb-4" />
+              <h3 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-4">
                 Не хотите учить ошибки на собственном опыте?
               </h3>
-              <p className="text-zinc-300 mb-8 max-w-2xl mx-auto">
+              <p className="text-slate-700 mb-8 max-w-2xl mx-auto">
                 Наша платформа включает теорию DGT на русском языке, ИИ-репетитор, который
                 объясняет каждый нюанс, и 3 бесплатных урока вождения с инструктором. Сдайте с
                 первого раза.
@@ -866,8 +866,8 @@ export default function ArticleExamErrors() {
           <aside className="hidden lg:block lg:col-span-4">
             <div className="sticky top-24 space-y-5">
               {/* TOC */}
-              <div className="rounded-xl bg-[#0c1523] p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4">
+              <div className="rounded-xl bg-slate-50 p-5">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">
                   Содержание
                 </p>
                 <nav className="space-y-2 text-sm">
@@ -891,7 +891,7 @@ export default function ArticleExamErrors() {
                     <a
                       key={href}
                       href={href}
-                      className="block text-zinc-400 hover:text-white transition-colors leading-snug"
+                      className="block text-slate-600 hover:text-slate-900 transition-colors leading-snug"
                     >
                       {label}
                     </a>
@@ -901,11 +901,11 @@ export default function ArticleExamErrors() {
 
               {/* Sidebar promo */}
               <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-5">
-                <p className="text-white font-bold text-sm mb-2">
-                  <ShieldAlert className="w-4 h-4 inline -mt-0.5 mr-1 text-red-400" />
+                <p className="text-slate-900 font-bold text-sm mb-2">
+                  <ShieldAlert className="w-4 h-4 inline -mt-0.5 mr-1 text-red-600" />
                   Источник
                 </p>
-                <p className="text-zinc-400 text-xs leading-relaxed mb-3">
+                <p className="text-slate-600 text-xs leading-relaxed mb-3">
                   Данные основаны на{" "}
                   <strong>официальном документе DGT «Criterios de calificación»</strong>{" "}
                   (Subdirección Adjunta de Formación Vial, сентябрь 2019). Перевод и адаптация —
@@ -914,8 +914,8 @@ export default function ArticleExamErrors() {
               </div>
 
               <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-                <p className="text-white font-bold text-sm mb-2">🎁 Бонус от платформы</p>
-                <p className="text-zinc-400 text-xs leading-relaxed">
+                <p className="text-slate-900 font-bold text-sm mb-2">🎁 Бонус от платформы</p>
+                <p className="text-slate-600 text-xs leading-relaxed">
                   При покупке теоретического курса вы получаете{" "}
                   <strong>3 урока практики с инструктором бесплатно</strong>. Идеально, чтобы
                   отработать все 14 разделов.

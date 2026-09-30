@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #d1fae5; }
+  .dash { left: 520px; top: 150px; width: 820px; height: 620px; border-radius: 36px; padding: 50px; }
+  .gauge { position: absolute; left: 70px; top: 70px; width: 440px; height: 440px; }
+  .readout { position: absolute; right: 70px; top: 110px; width: 230px; }
+  .big { font-size: 96px; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
+  .unit { font-size: 22px; color: var(--muted); margin-top: 6px; }
+  .bar { height: 10px; border-radius: 5px; background: #f1f5f9; margin-top: 34px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 62%; border-radius: 5px; background: var(--green); }
+  .row { display: flex; justify-content: space-between; font-size: 18px; color: #475569; margin-top: 14px; }
+  .row b { color: var(--ink); }
+  .eco { position: absolute; left: 70px; bottom: 50px; display: inline-flex; align-items: center; gap: 10px; background: #ecfdf5; color: var(--green); font-weight: 700; font-size: 20px; padding: 12px 18px; border-radius: 999px; }
+  .note { position: absolute; left: 1150px; top: 800px; font-size: 34px; transform: rotate(-5deg); color: var(--green); }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="card dash">
+    <svg class="gauge" viewBox="0 0 440 440">
+      <!-- шкала оборотов 0–6 -->
+      <!-- шкала 0–6 тыс. об/мин: угол = 225° − 45°·n, R = 180 -->
+      <path d="M 92.7 347.3 A 180 180 0 1 1 347.3 347.3" fill="none" stroke="#f1f5f9" stroke-width="28" stroke-linecap="round"/>
+      <!-- эко-зона 1500–2500 -->
+      <path d="M 53.7 151.1 A 180 180 0 0 1 151.1 53.7" fill="none" stroke="#10b981" stroke-width="28" stroke-linecap="round"/>
+      <!-- красная зона 5200–6000 -->
+      <path d="M 397.8 248.2 A 180 180 0 0 1 347.3 347.3" fill="none" stroke="#fca5a5" stroke-width="28" stroke-linecap="round"/>
+      <g font-family="Inter" font-size="22" font-weight="600" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">
+        <text x="121" y="319">0</text><text x="80" y="220">1</text><text x="121" y="121">2</text>
+        <text x="220" y="80">3</text><text x="319" y="121">4</text><text x="360" y="220">5</text><text x="319" y="319">6</text>
+      </g>
+      <!-- стрелка ≈ 2000 об/мин (135°) -->
+      <line x1="220" y1="220" x2="125" y2="125" stroke="#0f172a" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="220" cy="220" r="18" fill="#0f172a"/>
+      <text x="220" y="300" font-family="Inter" font-size="20" font-weight="600" fill="#64748b" text-anchor="middle">× 1000 об/мин</text>
+    </svg>
+    <div class="readout">
+      <div class="eyebrow">Расход</div>
+      <div class="big tabular" style="margin-top:12px">4,8</div>
+      <div class="unit">л / 100 км</div>
+      <div class="bar"><i></i></div>
+      <div class="row"><span>Передача</span><b>5</b></div>
+      <div class="row"><span>Скорость</span><b class="tabular">70 км/ч</b></div>
+    </div>
+    <div class="eco">● Эко-зона 1500–2500 об/мин</div>
+  </div>
+  <div class="chip" style="left:110px; top:330px; width:300px"><div class="n">13</div><div class="t">техник экономичного вождения</div></div>
+  <div class="chip" style="left:150px; top:560px; width:300px"><div class="t" style="margin:0"><span class="dot" style="background:var(--green)"></span><b>Вопросы DGT</b><br>про расход топлива</div></div>
+  <div class="note hand">плавно = дешевле</div>
+</body></html>

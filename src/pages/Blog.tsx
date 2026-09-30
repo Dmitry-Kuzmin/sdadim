@@ -48,13 +48,13 @@ export default function Blog() {
     catId === "all" ? blogPosts.length : blogPosts.filter((p) => p.category === catId).length;
 
   return (
-    <div className="min-h-screen bg-[#050B14]">
+    <div className="min-h-screen bg-white">
       <SeoHead
         title="Блог о правах в Испании | Сдадим"
         description="Полезные статьи о получении прав в Испании для русскоязычных: гайды, советы, разбор экзамена DGT."
         canonicalUrl="https://sdadim.eu/blog"
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-10">
 
           {/* ── Left Sidebar ─────────────────────────────── */}
@@ -62,8 +62,8 @@ export default function Blog() {
             <div className="sticky top-24 space-y-8">
               {/* Title */}
               <div>
-                <h1 className="text-2xl font-black text-white mb-1.5">Блог</h1>
-                <p className="text-sm text-zinc-500 leading-relaxed">
+                <h1 className="text-2xl font-bold text-slate-900 mb-1.5">Блог</h1>
+                <p className="text-sm text-slate-500 leading-relaxed">
                   Инструкции и советы о правах в Испании
                 </p>
               </div>
@@ -81,17 +81,17 @@ export default function Blog() {
                       className={cn(
                         "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-between gap-3",
                         isActive
-                          ? "bg-blue-500/10 text-blue-300 border-l-2 border-blue-500"
-                          : "text-zinc-400 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
+                          ? "bg-blue-500/10 text-blue-700 border-l-2 border-blue-500"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-l-2 border-transparent"
                       )}
                     >
                       <div className="flex items-center gap-2.5">
-                        <Icon className={cn("w-4 h-4 flex-shrink-0", isActive ? "text-blue-400" : "text-zinc-600")} />
+                        <Icon className={cn("w-4 h-4 flex-shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
                         <span>{cat.label}</span>
                       </div>
                       <span className={cn(
                         "text-xs px-2 py-0.5 rounded-full tabular-nums",
-                        isActive ? "bg-blue-500/15 text-blue-400" : "bg-white/5 text-zinc-600"
+                        isActive ? "bg-blue-500/15 text-blue-600" : "bg-slate-100 text-slate-400"
                       )}>
                         {count}
                       </span>
@@ -102,15 +102,15 @@ export default function Blog() {
 
               {/* CTA mini */}
               <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
-                <p className="text-white font-semibold text-sm mb-1">Готовиться к DGT?</p>
-                <p className="text-zinc-400 text-xs leading-relaxed mb-3">
+                <p className="text-slate-900 font-semibold text-sm mb-1">Готовиться к DGT?</p>
+                <p className="text-slate-600 text-xs leading-relaxed mb-3">
                   Тренируйте тесты с полной базой вопросов DGT в SkilyApp.
                 </p>
                 <a
                   href="https://t.me/skilyapp_bot"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
                 >
                   Попробовать бесплатно <ArrowRight className="w-3 h-3" />
                 </a>
@@ -122,15 +122,15 @@ export default function Blog() {
           <main className="lg:col-span-3 xl:col-span-4">
             {/* Search */}
             <div className="relative mb-8">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
               <input
                 type="search"
                 placeholder="Поиск статей..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/8 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.06] transition-all"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500/50 focus:bg-slate-50 transition-all"
               />
-              <kbd className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold text-zinc-500 bg-white/5 border border-white/10 rounded">
+              <kbd className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 rounded">
                 ⌘K
               </kbd>
             </div>
@@ -138,9 +138,9 @@ export default function Blog() {
             {/* Empty state */}
             {filtered.length === 0 && (
               <div className="text-center py-16">
-                <BookOpen className="w-12 h-12 mx-auto mb-4 text-zinc-700" />
-                <p className="text-zinc-400 font-semibold mb-1">Статьи не найдены</p>
-                <p className="text-zinc-600 text-sm">Попробуйте изменить запрос или категорию</p>
+                <BookOpen className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+                <p className="text-slate-600 font-semibold mb-1">Статьи не найдены</p>
+                <p className="text-slate-400 text-sm">Попробуйте изменить запрос или категорию</p>
               </div>
             )}
 
@@ -151,7 +151,7 @@ export default function Blog() {
                   {filtered.map((post) => (
                     <article
                       key={post.slug}
-                      className="group flex flex-col cursor-pointer rounded-2xl bg-[#0c1523] hover:bg-[#0f1a2b] transition-all duration-300 overflow-hidden"
+                      className="group flex flex-col cursor-pointer rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all duration-300 overflow-hidden"
                       onClick={() => navigate(`/blog/${post.slug}`)}
                     >
                       {/* Cover */}
@@ -173,28 +173,28 @@ export default function Blog() {
                       <div className="flex flex-col flex-1 p-6">
                         {/* Meta */}
                         <div className="flex items-center gap-2.5 mb-3">
-                          <span className="text-[10px] uppercase tracking-widest font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
+                          <span className="text-[10px] uppercase tracking-widest font-bold text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded-full">
                             {post.category}
                           </span>
-                          <span className="flex items-center gap-1 text-[11px] text-zinc-600">
+                          <span className="flex items-center gap-1 text-[11px] text-slate-400">
                             <Clock className="w-3 h-3" />
                             {post.reading_time} мин
                           </span>
                         </div>
 
                         {/* Title */}
-                        <h2 className="font-bold text-white text-[17px] leading-snug mb-3 group-hover:text-blue-300 transition-colors line-clamp-2">
+                        <h2 className="font-bold text-slate-900 text-[17px] leading-snug mb-3 group-hover:text-blue-700 transition-colors line-clamp-2">
                           {post.title}
                         </h2>
 
                         {/* Excerpt */}
-                        <p className="text-zinc-500 text-[13px] leading-relaxed flex-1 line-clamp-3">
+                        <p className="text-slate-500 text-[13px] leading-relaxed flex-1 line-clamp-3">
                           {post.excerpt}
                         </p>
 
                         {/* Footer */}
-                        <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/5">
-                          <div className="flex items-center gap-1.5 text-[11px] text-zinc-600">
+                        <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-200">
+                          <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
                             <Calendar className="w-3 h-3" />
                             {new Date(post.published_at).toLocaleDateString("ru-RU", {
                               year: "numeric",
@@ -202,7 +202,7 @@ export default function Blog() {
                               day: "numeric",
                             })}
                           </div>
-                          <span className="flex items-center gap-1 text-[12px] text-zinc-500 group-hover:text-blue-400 transition-colors font-medium">
+                          <span className="flex items-center gap-1 text-[12px] text-slate-500 group-hover:text-blue-600 transition-colors font-medium">
                             Читать <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                           </span>
                         </div>
@@ -213,8 +213,8 @@ export default function Blog() {
 
                 {/* Bottom CTA */}
                 <div className="mt-12 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-600/10 to-cyan-600/5 p-8 text-center">
-                  <p className="text-white font-black text-xl mb-2">Готовы сдать теорию DGT?</p>
-                  <p className="text-zinc-400 text-sm mb-6 max-w-md mx-auto">
+                  <p className="text-slate-900 font-bold text-xl mb-2">Готовы сдать теорию DGT?</p>
+                  <p className="text-slate-600 text-sm mb-6 max-w-md mx-auto">
                     Присоединяйтесь к курсу с живыми уроками или тренируйтесь самостоятельно в SkilyApp.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -230,7 +230,7 @@ export default function Blog() {
                       href="https://t.me/skilyapp_bot"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-colors"
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-900 font-semibold text-sm transition-colors"
                     >
                       Тренировать тесты бесплатно
                     </a>

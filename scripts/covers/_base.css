@@ -1,0 +1,62 @@
+/* Общий стиль обложек блога: 1600×1000, светлая «бумажная» сцена */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap");
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ink: #0f172a;
+  --muted: #64748b;
+  --soft: #94a3b8;
+  --line: #e2e8f0;
+  --blue: #2563eb;
+  --blue-soft: #e0ecff;
+  --green: #059669;
+  --red: #dc2626;
+  --amber: #d97706;
+  --shadow: 0 1px 2px rgba(15, 23, 42, .06), 0 30px 80px -24px rgba(15, 23, 42, .28);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06), 0 20px 44px -18px rgba(15, 23, 42, .25);
+}
+
+body {
+  width: 1600px;
+  height: 1000px;
+  overflow: hidden;
+  position: relative;
+  font-family: Inter, system-ui, sans-serif;
+  color: var(--ink);
+  background: radial-gradient(900px 620px at 68% 42%, var(--glow, var(--blue-soft)) 0%, rgba(255, 255, 255, 0) 70%), #f8fafc;
+  -webkit-font-smoothing: antialiased;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, .05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, .05) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse at 60% 45%, #000 30%, transparent 75%);
+}
+
+.card {
+  position: absolute;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+}
+
+.chip {
+  position: absolute;
+  background: #fff;
+  border-radius: 18px;
+  padding: 22px 26px;
+  box-shadow: var(--shadow-sm);
+}
+.chip .n { font-size: 56px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.chip .t { font-size: 18px; color: #475569; margin-top: 8px; line-height: 1.4; }
+.chip b { color: var(--ink); }
+
+.eyebrow { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.hand { font-family: Caveat, cursive; font-weight: 700; color: #1d4ed8; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; vertical-align: 1px; }
+.tabular { font-variant-numeric: tabular-nums; }

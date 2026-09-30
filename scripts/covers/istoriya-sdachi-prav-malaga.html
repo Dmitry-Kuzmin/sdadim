@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #fef3c7; }
+  .result { left: 560px; top: 150px; width: 600px; padding: 44px 48px; transform: rotate(-3deg); }
+  .result .top { display: flex; justify-content: space-between; align-items: center; }
+  .apto { display: inline-flex; align-items: center; gap: 14px; margin-top: 30px; font-size: 88px; font-weight: 800; letter-spacing: -.03em; color: var(--green); }
+  .apto i { width: 76px; height: 76px; border-radius: 50%; background: #d1fae5; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 44px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 34px; }
+  .stat { background: #f8fafc; border-radius: 16px; padding: 18px; }
+  .stat b { display: block; font-size: 36px; font-weight: 800; letter-spacing: -.02em; }
+  .stat span { font-size: 16px; color: var(--muted); }
+  .chat { position: absolute; left: 1060px; top: 600px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
+  .bubble { background: #fff; border-radius: 22px 22px 6px 22px; padding: 18px 22px; box-shadow: var(--shadow-sm); font-size: 21px; max-width: 420px; }
+  .bubble.me { background: var(--blue); color: #fff; border-radius: 22px 22px 22px 6px; align-self: flex-start; }
+  .loc { position: absolute; left: 600px; top: 80px; display: inline-flex; align-items: center; gap: 10px; background: #fff; border-radius: 999px; padding: 12px 20px; box-shadow: var(--shadow-sm); font-weight: 600; font-size: 19px; }
+  .loc i { width: 14px; height: 14px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 5px #fee2e2; }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="loc"><i></i>Málaga, Andalucía</div>
+  <div class="card result">
+    <div class="top"><div class="eyebrow">Examen práctico · resultado</div><div class="hand" style="font-size:30px">28.04</div></div>
+    <div class="apto"><i>✓</i>APTO</div>
+    <div class="stats">
+      <div class="stat"><b class="tabular">0</b><span>ошибок</span></div>
+      <div class="stat"><b class="tabular">10</b><span>уроков за 5 дней</span></div>
+      <div class="stat"><b class="tabular">739 €</b><span>всего</span></div>
+    </div>
+  </div>
+  <div class="chat">
+    <div class="bubble me">Сдала!!! С первого раза 🙌</div>
+    <div class="bubble">Поздравляем! Теперь — за рулём 🚗</div>
+  </div>
+  <div class="chip" style="left:110px; top:330px; width:320px"><div class="n">6 мес</div><div class="t">от первого урока теории до прав</div></div>
+  <div class="chip" style="left:150px; top:570px; width:300px"><div class="t" style="margin:0"><span class="dot" style="background:var(--amber)"></span><b>Честная история</b><br>всё как есть</div></div>
+</body></html>

@@ -19,18 +19,31 @@ const ArticleStoryMalaga = lazy(() => import("@/pages/ArticleStoryMalaga"));
 
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050B14]">
-      <div className="w-8 h-8 border-2 border-white/10 border-t-blue-500 rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="w-6 h-6 border-2 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
     </div>
   );
 }
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    if (!hash) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    // Якорь (/#pricing): ждём, пока lazy-страница отрисуется
+    let tries = 0;
+    const timer = setInterval(() => {
+      const el = document.getElementById(hash.slice(1));
+      if (el || ++tries > 20) {
+        clearInterval(timer);
+        el?.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 50);
+    return () => clearInterval(timer);
+  }, [pathname, hash]);
 
   return null;
 }
@@ -57,12 +70,9 @@ function YandexMetrikaTracker() {
 }
 
 function LayoutContent() {
-  const location = useLocation();
-  const isHome = location.pathname === "/";
-
   return (
     <>
-      {!isHome && <Header />}
+      <Header />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Home />} />

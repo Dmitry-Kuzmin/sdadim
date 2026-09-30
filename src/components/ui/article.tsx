@@ -46,19 +46,19 @@ export function ArticleAccordion({ items, title }: ArticleAccordionProps) {
   return (
     <div className="my-8 not-prose">
       {title && (
-        <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4">{title}</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">{title}</p>
       )}
-      <div className="divide-y divide-white/5 rounded-2xl border border-white/5 overflow-hidden">
+      <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 overflow-hidden">
         {items.map((item, i) => (
           <div key={i}>
             <button
               onClick={() => setOpen(open === i ? null : i)}
-              className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-white/[0.03] transition-colors"
+              className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-slate-50 transition-colors"
             >
-              <span className="text-sm font-semibold text-white leading-snug">{item.question}</span>
+              <span className="text-sm font-semibold text-slate-900 leading-snug">{item.question}</span>
               <ChevronDown
                 className={cn(
-                  "w-4 h-4 text-zinc-500 shrink-0 transition-transform duration-300",
+                  "w-4 h-4 text-slate-500 shrink-0 transition-transform duration-300",
                   open === i && "rotate-180"
                 )}
               />
@@ -69,7 +69,7 @@ export function ArticleAccordion({ items, title }: ArticleAccordionProps) {
                 open === i ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
               )}
             >
-              <p className="px-5 pb-5 text-sm text-zinc-400 leading-relaxed">{item.answer}</p>
+              <p className="px-5 pb-5 text-sm text-slate-600 leading-relaxed">{item.answer}</p>
             </div>
           </div>
         ))}
@@ -83,11 +83,11 @@ export function ArticleAccordion({ items, title }: ArticleAccordionProps) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const calloutConfig = {
-  info:    { icon: Info,         bg: "bg-blue-500/8",   border: "border-blue-500/20",   text: "text-blue-300",   label: "Примечание" },
-  tip:     { icon: Lightbulb,    bg: "bg-emerald-500/8",border: "border-emerald-500/20",text: "text-emerald-300",label: "Совет" },
-  warning: { icon: AlertCircle,  bg: "bg-amber-500/8",  border: "border-amber-500/20",  text: "text-amber-300",  label: "Важно" },
-  danger:  { icon: XCircle,      bg: "bg-red-500/8",    border: "border-red-500/20",    text: "text-red-300",    label: "Внимание" },
-  success: { icon: CheckCircle2, bg: "bg-emerald-500/8",border: "border-emerald-500/20",text: "text-emerald-300",label: "Хорошо знать" },
+  info:    { icon: Info,         bg: "bg-blue-500/8",   border: "border-blue-500/20",   text: "text-blue-700",   label: "Примечание" },
+  tip:     { icon: Lightbulb,    bg: "bg-emerald-500/8",border: "border-emerald-500/20",text: "text-emerald-700",label: "Совет" },
+  warning: { icon: AlertCircle,  bg: "bg-amber-500/8",  border: "border-amber-500/20",  text: "text-amber-700",  label: "Важно" },
+  danger:  { icon: XCircle,      bg: "bg-red-500/8",    border: "border-red-500/20",    text: "text-red-700",    label: "Внимание" },
+  success: { icon: CheckCircle2, bg: "bg-emerald-500/8",border: "border-emerald-500/20",text: "text-emerald-700",label: "Хорошо знать" },
 };
 
 interface ArticleCalloutProps {
@@ -104,7 +104,7 @@ export function ArticleCallout({ type = "info", title, children }: ArticleCallou
         <Icon className="w-3.5 h-3.5" />
         {title ?? label}
       </div>
-      <div className="text-[15px] text-zinc-300 leading-relaxed">{children}</div>
+      <div className="text-[15px] text-slate-700 leading-relaxed">{children}</div>
     </div>
   );
 }
@@ -123,14 +123,14 @@ export function ArticleQuote({ text, author, role }: ArticleQuoteProps) {
   return (
     <blockquote className="my-8 not-prose relative">
       <div className="pl-5 border-l-2 border-blue-500">
-        <Quote className="w-6 h-6 text-blue-500/30 absolute right-0 top-0" />
-        <p className="text-lg md:text-xl font-medium text-white leading-relaxed italic">{text}</p>
+        <Quote className="w-5 h-5 text-blue-500/40 mb-2" />
+        <p className="text-lg md:text-xl font-medium text-slate-900 leading-relaxed">{text}</p>
         {author && (
           <footer className="mt-3 flex items-center gap-2">
-            <div className="w-5 h-[1px] bg-zinc-600" />
-            <span className="text-sm text-zinc-500">
+            <div className="w-5 h-[1px] bg-slate-300" />
+            <span className="text-sm text-slate-500">
               {author}
-              {role && <span className="text-zinc-600"> · {role}</span>}
+              {role && <span className="text-slate-400"> · {role}</span>}
             </span>
           </footer>
         )}
@@ -151,29 +151,29 @@ interface ArticleTableProps {
 
 export function ArticleTable({ headers, rows, caption }: ArticleTableProps) {
   return (
-    <div className="my-8 not-prose overflow-x-auto rounded-2xl border border-white/5">
+    <div className="my-8 not-prose overflow-x-auto rounded-2xl border border-slate-200">
       <table className="w-full min-w-[480px] text-sm">
         <thead>
-          <tr className="border-b border-white/5 bg-white/[0.03]">
+          <tr className="border-b border-slate-200 bg-slate-50">
             {headers.map((h, i) => (
               <th
                 key={i}
-                className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-zinc-500"
+                className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-slate-500"
               >
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5">
+        <tbody className="divide-y divide-slate-200">
           {rows.map((row, ri) => (
-            <tr key={ri} className="hover:bg-white/[0.02] transition-colors">
+            <tr key={ri} className="hover:bg-slate-50 transition-colors">
               {row.map((cell, ci) => (
                 <td
                   key={ci}
                   className={cn(
-                    "px-5 py-3.5 text-zinc-300 leading-snug",
-                    ci === 0 && "font-medium text-white"
+                    "px-5 py-3.5 text-slate-700 leading-snug",
+                    ci === 0 && "font-medium text-slate-900"
                   )}
                 >
                   {cell}
@@ -184,7 +184,7 @@ export function ArticleTable({ headers, rows, caption }: ArticleTableProps) {
         </tbody>
       </table>
       {caption && (
-        <p className="text-center text-xs text-zinc-600 py-3 border-t border-white/5">{caption}</p>
+        <p className="text-center text-xs text-slate-400 py-3 border-t border-slate-200">{caption}</p>
       )}
     </div>
   );
@@ -206,8 +206,8 @@ interface ArticleTabsProps {
 export function ArticleTabs({ tabs }: ArticleTabsProps) {
   const [active, setActive] = useState(0);
   return (
-    <div className="my-8 not-prose rounded-2xl border border-white/5 overflow-hidden">
-      <div className="flex border-b border-white/5 bg-white/[0.02] overflow-x-auto">
+    <div className="my-8 not-prose rounded-2xl border border-slate-200 overflow-hidden">
+      <div className="flex border-b border-slate-200 bg-slate-50 overflow-x-auto">
         {tabs.map((tab, i) => (
           <button
             key={i}
@@ -215,8 +215,8 @@ export function ArticleTabs({ tabs }: ArticleTabsProps) {
             className={cn(
               "px-5 py-3 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 -mb-[1px]",
               active === i
-                ? "text-white border-blue-500"
-                : "text-zinc-500 border-transparent hover:text-zinc-300"
+                ? "text-slate-900 border-blue-500"
+                : "text-slate-500 border-transparent hover:text-slate-700"
             )}
           >
             {tab.label}
@@ -242,18 +242,18 @@ interface ArticleSpoilerProps {
 export function ArticleSpoiler({ label, children }: ArticleSpoilerProps) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="my-6 not-prose rounded-xl border border-white/5 overflow-hidden">
+    <div className="my-6 not-prose rounded-xl border border-slate-200 overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 px-5 py-3.5 text-sm font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.03] transition-colors text-left"
+        className="w-full flex items-center gap-3 px-5 py-3.5 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors text-left"
       >
         <ChevronRight
-          className={cn("w-4 h-4 text-zinc-500 shrink-0 transition-transform duration-200", open && "rotate-90")}
+          className={cn("w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200", open && "rotate-90")}
         />
         {label}
       </button>
       {open && (
-        <div className="px-5 pb-5 border-t border-white/5 pt-4 text-sm text-zinc-400 leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="px-5 pb-5 border-t border-slate-200 pt-4 text-sm text-slate-600 leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
           {children}
         </div>
       )}
@@ -272,20 +272,20 @@ interface ArticleListProps {
 }
 
 const listIcons = {
-  check: <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />,
-  cross: <XCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />,
-  arrow: <ArrowRight className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />,
+  check: <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />,
+  cross: <XCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />,
+  arrow: <ArrowRight className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />,
 };
 
 export function ArticleList({ items, type = "check", title }: ArticleListProps) {
   return (
     <div className="my-6 not-prose">
-      {title && <p className="text-sm font-bold text-zinc-400 mb-3">{title}</p>}
+      {title && <p className="text-sm font-bold text-slate-600 mb-3">{title}</p>}
       <ul className="space-y-2.5">
         {items.map((item, i) => (
-          <li key={i} className="flex items-start gap-3 text-[15px] text-zinc-300 leading-snug">
+          <li key={i} className="flex items-start gap-3 text-[15px] text-slate-700 leading-snug">
             {type === "number" ? (
-              <span className="w-5 h-5 rounded-full bg-blue-500/15 text-blue-400 text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-5 h-5 rounded-full bg-blue-500/15 text-blue-600 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
                 {i + 1}
               </span>
             ) : (
@@ -326,18 +326,18 @@ export function ArticleCardGrid({ cards, cols = 2 }: ArticleCardGridProps) {
       {cards.map((card, i) => (
         <div
           key={i}
-          className="rounded-2xl bg-[#0c1523] p-5 hover:bg-[#0f1a2b] transition-all"
+          className="rounded-2xl bg-slate-50 p-5 hover:bg-slate-100 transition-all"
         >
           {card.icon && <div className="text-2xl mb-3">{card.icon}</div>}
           <div className="flex items-start justify-between gap-2 mb-2">
-            <p className="font-bold text-white text-sm leading-snug">{card.title}</p>
+            <p className="font-bold text-slate-900 text-sm leading-snug">{card.title}</p>
             {card.badge && (
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full shrink-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded-full shrink-0">
                 {card.badge}
               </span>
             )}
           </div>
-          <p className="text-sm text-zinc-400 leading-relaxed">{card.description}</p>
+          <p className="text-sm text-slate-600 leading-relaxed">{card.description}</p>
         </div>
       ))}
     </div>
@@ -354,13 +354,13 @@ interface ArticleDividerProps {
 
 export function ArticleDivider({ label }: ArticleDividerProps) {
   if (!label) {
-    return <div className="my-10 not-prose border-t border-white/8" />;
+    return <div className="my-10 not-prose border-t border-slate-200" />;
   }
   return (
     <div className="my-10 not-prose flex items-center gap-4">
-      <div className="flex-1 border-t border-white/8" />
-      <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-600">{label}</span>
-      <div className="flex-1 border-t border-white/8" />
+      <div className="flex-1 border-t border-slate-200" />
+      <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{label}</span>
+      <div className="flex-1 border-t border-slate-200" />
     </div>
   );
 }
@@ -379,11 +379,11 @@ interface ArticleImageProps {
 export function ArticleImage({ src, alt, caption, fullWidth = false }: ArticleImageProps) {
   return (
     <figure className={cn("my-8 not-prose", !fullWidth && "max-w-2xl mx-auto")}>
-      <div className="rounded-2xl overflow-hidden border border-white/8">
+      <div className="rounded-2xl overflow-hidden border border-slate-200">
         <img src={src} alt={alt} className="w-full object-cover" loading="lazy" />
       </div>
       {caption && (
-        <figcaption className="text-center text-xs text-zinc-600 mt-3 leading-relaxed">{caption}</figcaption>
+        <figcaption className="text-center text-xs text-slate-400 mt-3 leading-relaxed">{caption}</figcaption>
       )}
     </figure>
   );
@@ -409,7 +409,7 @@ export function ArticleVideo({ youtubeId, src, caption }: ArticleVideoProps) {
 
   return (
     <figure className="my-8 not-prose">
-      <div className="relative w-full rounded-2xl overflow-hidden border border-white/8 bg-zinc-900" style={{ paddingBottom: "56.25%" }}>
+      <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100" style={{ paddingBottom: "56.25%" }}>
         {youtubeId && !playing ? (
           <div className="absolute inset-0">
             <img
@@ -438,7 +438,7 @@ export function ArticleVideo({ youtubeId, src, caption }: ArticleVideoProps) {
         )}
       </div>
       {caption && (
-        <figcaption className="text-center text-xs text-zinc-600 mt-3">{caption}</figcaption>
+        <figcaption className="text-center text-xs text-slate-400 mt-3">{caption}</figcaption>
       )}
     </figure>
   );
@@ -462,10 +462,10 @@ export function ArticleStats({ stats }: ArticleStatsProps) {
   return (
     <div className="my-8 not-prose grid grid-cols-2 sm:grid-cols-4 gap-4">
       {stats.map((stat, i) => (
-        <div key={i} className="rounded-2xl bg-[#0c1523] p-5 text-center">
-          <div className="text-3xl md:text-4xl font-black text-white tracking-tight mb-1">{stat.value}</div>
-          <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">{stat.label}</div>
-          {stat.note && <div className="text-[11px] text-zinc-600 mt-1">{stat.note}</div>}
+        <div key={i} className="rounded-2xl bg-slate-50 p-5 text-center">
+          <div className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-1">{stat.value}</div>
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{stat.label}</div>
+          {stat.note && <div className="text-[11px] text-slate-400 mt-1">{stat.note}</div>}
         </div>
       ))}
     </div>
@@ -490,16 +490,16 @@ export function ArticleLinkCard({ href, title, description, external }: ArticleL
       href={href}
       target={isExternal ? "_blank" : undefined}
       rel={isExternal ? "noopener noreferrer" : undefined}
-      className="my-6 not-prose flex items-center gap-4 p-4 rounded-2xl bg-[#0c1523] hover:bg-[#0f1a2b] transition-all group no-underline block"
+      className="my-6 not-prose flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all group no-underline block"
     >
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors truncate">{title}</p>
-        {description && <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{description}</p>}
+        <p className="text-sm font-bold text-slate-900 group-hover:text-blue-700 transition-colors truncate">{title}</p>
+        {description && <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{description}</p>}
       </div>
       {isExternal ? (
-        <ExternalLink className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 shrink-0 transition-colors" />
+        <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-700 shrink-0 transition-colors" />
       ) : (
-        <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 shrink-0 transition-colors" />
+        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 shrink-0 transition-colors" />
       )}
     </a>
   );
@@ -547,15 +547,15 @@ export function ArticleBanner({ basePrice = 199, variant = "default" }: ArticleB
     return (
       <div className="my-6 not-prose rounded-2xl border border-blue-500/20 bg-gradient-to-r from-blue-600/10 to-cyan-600/5 p-4 flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex-1">
-          <p className="font-bold text-white text-sm">Записаться на курс теории DGT</p>
+          <p className="font-bold text-slate-900 text-sm">Записаться на курс теории DGT</p>
           <div className="flex items-center gap-3 mt-1.5 flex-wrap">
             {startDate && (
-              <span className="text-[11px] text-zinc-400 flex items-center gap-1">
+              <span className="text-[11px] text-slate-600 flex items-center gap-1">
                 <Calendar className="w-3 h-3" /> Старт {startDate}
               </span>
             )}
             {seatsLeft !== null && seatsLeft <= 5 && (
-              <span className="text-[11px] text-amber-400 flex items-center gap-1">
+              <span className="text-[11px] text-amber-600 flex items-center gap-1">
                 <Users className="w-3 h-3" /> Осталось {seatsLeft} мест
               </span>
             )}
@@ -576,19 +576,19 @@ export function ArticleBanner({ basePrice = 199, variant = "default" }: ArticleB
   if (variant === "inline") {
     return (
       <div className="my-4 not-prose inline-flex items-center gap-3 px-4 py-2.5 rounded-xl border border-blue-500/20 bg-blue-500/8 text-sm">
-        <Zap className="w-4 h-4 text-blue-400 shrink-0" />
-        <span className="text-zinc-300">
+        <Zap className="w-4 h-4 text-blue-600 shrink-0" />
+        <span className="text-slate-700">
           Курс теории DGT
-          {startDate && <> · Старт <strong className="text-white">{startDate}</strong></>}
+          {startDate && <> · Старт <strong className="text-slate-900">{startDate}</strong></>}
           {seatsLeft !== null && seatsLeft <= 8 && (
-            <span className="text-amber-400"> · осталось {seatsLeft} мест</span>
+            <span className="text-amber-600"> · осталось {seatsLeft} мест</span>
           )}
         </span>
         <a
           href="https://t.me/skilyapp_bot?start=course"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300 font-semibold no-underline whitespace-nowrap"
+          className="text-blue-600 hover:text-blue-700 font-semibold no-underline whitespace-nowrap"
         >
           Записаться →
         </a>
@@ -598,22 +598,22 @@ export function ArticleBanner({ basePrice = 199, variant = "default" }: ArticleB
 
   // default — большой баннер
   return (
-    <div className="my-10 not-prose relative rounded-3xl border border-blue-500/20 bg-gradient-to-br from-[#0c1a35] to-[#050b1a] overflow-hidden shadow-[0_0_60px_-15px_rgba(59,130,246,0.3)]">
+    <div className="my-10 not-prose relative rounded-3xl border border-blue-500/20 bg-gradient-to-br from-slate-50 to-white overflow-hidden shadow-[0_0_60px_-15px_rgba(59,130,246,0.3)]">
       {/* Glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 p-7 md:p-10">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/25 text-blue-300 text-xs font-bold mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/25 text-blue-700 text-xs font-bold mb-5">
           🎓 Онлайн-курс теории DGT
         </div>
 
         <div className="flex flex-col md:flex-row md:items-end gap-6 md:gap-10">
           <div className="flex-1">
-            <h3 className="text-2xl md:text-3xl font-black text-white leading-tight mb-2">
+            <h3 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-2">
               Сдайте теорию с первого раза
             </h3>
-            <p className="text-zinc-400 text-sm leading-relaxed mb-5 max-w-md">
+            <p className="text-slate-600 text-sm leading-relaxed mb-5 max-w-md">
               Живые уроки с куратором, разбор всех вопросов DGT, документы под ключ и поддержка в чате 24/7.
             </p>
 
@@ -623,10 +623,10 @@ export function ArticleBanner({ basePrice = 199, variant = "default" }: ArticleB
                 <div className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border",
                   seatsLeft <= 3
-                    ? "text-red-300 bg-red-500/10 border-red-500/20"
+                    ? "text-red-700 bg-red-500/10 border-red-500/20"
                     : seatsLeft <= 6
-                    ? "text-amber-300 bg-amber-500/10 border-amber-500/20"
-                    : "text-emerald-300 bg-emerald-500/10 border-emerald-500/20"
+                    ? "text-amber-700 bg-amber-500/10 border-amber-500/20"
+                    : "text-emerald-700 bg-emerald-500/10 border-emerald-500/20"
                 )}>
                   <Users className="w-3.5 h-3.5" />
                   {seatsLeft <= 3
@@ -634,22 +634,22 @@ export function ArticleBanner({ basePrice = 199, variant = "default" }: ArticleB
                     : `Свободно ${seatsLeft} мест`}
                 </div>
               ) : (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border text-zinc-400 border-white/10">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border text-slate-600 border-slate-200">
                   <Users className="w-3.5 h-3.5" />
                   Узнать о местах
                 </div>
               )}
 
               {startDate && (
-                <div className="flex items-center gap-2 text-xs text-zinc-400">
-                  <Calendar className="w-3.5 h-3.5 text-zinc-600" />
-                  Старт <strong className="text-white ml-0.5">{startDate}</strong>
+                <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  Старт <strong className="text-slate-900 ml-0.5">{startDate}</strong>
                 </div>
               )}
 
-              <div className="flex items-center gap-2 text-xs text-zinc-400">
-                <Clock className="w-3.5 h-3.5 text-zinc-600" />
-                от <strong className="text-white ml-0.5">€{basePrice}</strong>
+              <div className="flex items-center gap-2 text-xs text-slate-600">
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                от <strong className="text-slate-900 ml-0.5">€{basePrice}</strong>
               </div>
             </div>
           </div>
@@ -667,7 +667,7 @@ export function ArticleBanner({ basePrice = 199, variant = "default" }: ArticleB
               href="https://t.me/skilyapp_bot"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl border border-white/10 hover:bg-white/5 text-zinc-400 hover:text-white font-semibold text-sm transition-colors no-underline"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900 font-semibold text-sm transition-colors no-underline"
             >
               Бесплатная практика
             </a>
@@ -675,9 +675,9 @@ export function ArticleBanner({ basePrice = 199, variant = "default" }: ArticleB
         </div>
 
         {/* 9/10 trust line */}
-        <div className="mt-6 pt-5 border-t border-white/6 flex items-center gap-2">
-          <Zap className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="text-xs text-zinc-500">
+        <div className="mt-6 pt-5 border-t border-slate-200 flex items-center gap-2">
+          <Zap className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="text-xs text-slate-500">
             9 из 10 наших студентов сдают теорию DGT с первого раза
           </span>
         </div>
@@ -705,35 +705,35 @@ interface ArticleComparisonProps {
 function ComparisonCell({ value }: { value: boolean | string }) {
   if (typeof value === "boolean") {
     return value ? (
-      <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto" />
+      <CheckCircle2 className="w-5 h-5 text-emerald-600 mx-auto" />
     ) : (
-      <XCircle className="w-5 h-5 text-red-400/50 mx-auto" />
+      <XCircle className="w-5 h-5 text-red-600/50 mx-auto" />
     );
   }
-  return <span className="text-zinc-300 text-sm">{value}</span>;
+  return <span className="text-slate-700 text-sm">{value}</span>;
 }
 
 export function ArticleComparison({ headerA, headerB, rows }: ArticleComparisonProps) {
   return (
-    <div className="my-8 not-prose overflow-x-auto rounded-2xl border border-white/5">
+    <div className="my-8 not-prose overflow-x-auto rounded-2xl border border-slate-200">
       <table className="w-full min-w-[400px] text-sm">
         <thead>
-          <tr className="border-b border-white/5">
-            <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-widest text-zinc-600 w-1/2">
+          <tr className="border-b border-slate-200">
+            <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-widest text-slate-400 w-1/2">
               Параметр
             </th>
-            <th className="px-5 py-4 text-center text-xs font-bold uppercase tracking-widest text-zinc-500">
+            <th className="px-5 py-4 text-center text-xs font-bold uppercase tracking-widest text-slate-500">
               {headerA}
             </th>
-            <th className="px-5 py-4 text-center text-xs font-bold uppercase tracking-widest text-blue-400 bg-blue-500/5">
+            <th className="px-5 py-4 text-center text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-500/5">
               {headerB}
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5">
+        <tbody className="divide-y divide-slate-200">
           {rows.map((row, i) => (
-            <tr key={i} className="hover:bg-white/[0.015] transition-colors">
-              <td className="px-5 py-3.5 text-zinc-400 font-medium">{row.feature}</td>
+            <tr key={i} className="hover:bg-slate-50 transition-colors">
+              <td className="px-5 py-3.5 text-slate-600 font-medium">{row.feature}</td>
               <td className="px-5 py-3.5 text-center">
                 <ComparisonCell value={row.a} />
               </td>

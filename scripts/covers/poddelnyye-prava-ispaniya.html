@@ -1,0 +1,43 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #fee2e2; }
+  /* Условная карточка — намеренно НЕ копирует дизайн настоящего удостоверения */
+  .id { left: 560px; top: 230px; width: 700px; height: 440px; border-radius: 28px; padding: 40px 44px; transform: rotate(-5deg); overflow: hidden;
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); }
+  .id .stripe { position: absolute; left: 0; right: 0; top: 0; height: 12px; background: repeating-linear-gradient(90deg, #cbd5e1 0 14px, #e2e8f0 14px 28px); }
+  .id .title { font-size: 16px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-top: 10px; }
+  .id .body { display: flex; gap: 36px; margin-top: 30px; }
+  .photo { width: 170px; height: 210px; border-radius: 16px; background: #e2e8f0; position: relative; overflow: hidden; }
+  .photo:before { content: ""; position: absolute; left: 50%; top: 42px; width: 74px; height: 74px; margin-left: -37px; border-radius: 50%; background: #cbd5e1; }
+  .photo:after { content: ""; position: absolute; left: 50%; bottom: -40px; width: 150px; height: 110px; margin-left: -75px; border-radius: 50%; background: #cbd5e1; }
+  .lines { flex: 1; padding-top: 6px; }
+  .ln { height: 16px; border-radius: 8px; background: #e2e8f0; margin-bottom: 20px; }
+  .lbl { font-size: 14px; color: var(--soft); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
+  .stamp { position: absolute; right: 60px; bottom: 70px; transform: rotate(-14deg); border: 6px solid var(--red); color: var(--red); border-radius: 16px; padding: 8px 30px; font-weight: 800; font-size: 72px; letter-spacing: .08em; opacity: .9; background: rgba(255,255,255,.6); }
+  .warn { left: 1150px; top: 120px; width: 330px; padding: 26px; transform: rotate(4deg); }
+  .warn .h { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; color: var(--red); }
+  .warn .h i { width: 34px; height: 34px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; font-style: normal; font-weight: 800; }
+  .warn p { font-size: 18px; color: #475569; margin-top: 12px; line-height: 1.45; }
+  .note { position: absolute; left: 700px; top: 800px; font-size: 36px; transform: rotate(-4deg); color: var(--green); }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="card id">
+    <div class="stripe"></div>
+    <div class="title">Permiso de conducción · B</div>
+    <div class="body">
+      <div class="photo"></div>
+      <div class="lines">
+        <div class="lbl">Apellidos</div><div class="ln" style="width:80%"></div>
+        <div class="lbl">Nombre</div><div class="ln" style="width:55%"></div>
+        <div class="lbl">Fecha de expedición</div><div class="ln" style="width:40%"></div>
+      </div>
+    </div>
+    <div class="stamp">NULO</div>
+  </div>
+  <div class="card warn"><div class="h"><i>!</i>Código Penal</div><p>Езда с поддельными правами — уголовное дело, а не штраф.</p></div>
+  <div class="chip" style="left:110px; top:330px; width:320px"><div class="n">до 3 лет</div><div class="t">лишения свободы за подделку</div></div>
+  <div class="chip" style="left:150px; top:570px; width:300px"><div class="t" style="margin:0"><span class="dot" style="background:var(--red)"></span><b>Штраф</b><br>до 24 месяцев</div></div>
+  <div class="note hand">легально — дешевле ✓</div>
+</body></html>

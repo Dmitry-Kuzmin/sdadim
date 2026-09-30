@@ -155,7 +155,7 @@ export default function Legal() {
   };
 
   return (
-    <main className="pt-24 pb-20 px-4">
+    <main className="pt-10 md:pt-14 pb-20 px-4">
       <SeoHead
         title={`${content.title} | Сдадим`}
         description={seoDescriptions[activeTab]}
@@ -166,14 +166,14 @@ export default function Legal() {
         {/* Back */}
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-zinc-500 hover:text-white text-sm mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 text-sm mb-8 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           Назад
         </button>
 
-        <h1 className="text-2xl font-black text-white mb-2">Правовые документы</h1>
-        <p className="text-zinc-500 text-sm mb-8">Sdadim.eu · Испания, Таррагона</p>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Правовые документы</h1>
+        <p className="text-slate-500 text-sm mb-8">Sdadim.eu · Испания, Таррагона</p>
 
         {/* Tabs */}
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-10 -mx-4 px-4">
@@ -185,7 +185,7 @@ export default function Legal() {
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all",
                 activeTab === id
                   ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-                  : "bg-white/5 text-zinc-400 hover:bg-white/8 hover:text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               )}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -195,22 +195,22 @@ export default function Legal() {
         </div>
 
         {/* Content */}
-        <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
-          <div className="px-6 py-5 border-b border-white/5">
-            <h2 className="text-lg font-black text-white">{content.title}</h2>
-            <p className="text-xs text-zinc-600 mt-1">{content.updated}</p>
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden">
+          <div className="px-6 py-5 border-b border-slate-200">
+            <h2 className="text-lg font-bold text-slate-900">{content.title}</h2>
+            <p className="text-xs text-slate-400 mt-1">{content.updated}</p>
           </div>
           <div className="px-6 py-6 space-y-8">
             {content.sections.map((section) => (
               <div key={section.title}>
-                <h3 className="font-bold text-white mb-2">{section.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">{section.body}</p>
+                <h3 className="font-bold text-slate-900 mb-2">{section.title}</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">{section.body}</p>
               </div>
             ))}
           </div>
-          <div className="px-6 py-4 border-t border-white/5 bg-white/[0.01]">
-            <p className="text-xs text-zinc-600">
-              Вопросы: <a href="mailto:support@skilyapp.com" className="text-blue-400 hover:underline">support@skilyapp.com</a>
+          <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+            <p className="text-xs text-slate-400">
+              Вопросы: <a href="mailto:support@skilyapp.com" className="text-blue-600 hover:underline">support@skilyapp.com</a>
             </p>
           </div>
         </div>

@@ -108,21 +108,21 @@ function extractHeadings(html: string): Heading[] {
 
 function Skeleton() {
   return (
-    <div className="animate-pulse max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
+    <div className="animate-pulse max-w-6xl mx-auto px-4 sm:px-6 py-28">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
         <div className="lg:col-span-8 space-y-4">
-          <div className="h-5 bg-white/5 rounded w-24" />
-          <div className="h-11 bg-white/5 rounded w-3/4" />
-          <div className="h-11 bg-white/5 rounded w-1/2" />
-          <div className="h-5 bg-white/5 rounded w-40" />
+          <div className="h-5 bg-slate-100 rounded w-24" />
+          <div className="h-11 bg-slate-100 rounded w-3/4" />
+          <div className="h-11 bg-slate-100 rounded w-1/2" />
+          <div className="h-5 bg-slate-100 rounded w-40" />
           <div className="space-y-3 pt-6">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className={`h-4 bg-white/5 rounded ${i % 4 === 3 ? "w-2/3" : "w-full"}`} />
+              <div key={i} className={`h-4 bg-slate-100 rounded ${i % 4 === 3 ? "w-2/3" : "w-full"}`} />
             ))}
           </div>
         </div>
         <div className="hidden lg:block lg:col-span-4">
-          <div className="rounded-xl bg-white/[0.03] border border-white/5 h-48" />
+          <div className="rounded-xl bg-slate-50 border border-slate-200 h-48" />
         </div>
       </div>
     </div>
@@ -176,9 +176,9 @@ export default function Article() {
 
   if (!post) {
     return (
-      <main className="pt-32 pb-20 px-4 text-center">
-        <p className="text-zinc-500 mb-6">Статья не найдена.</p>
-        <Link to="/blog" className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+      <main className="pt-16 pb-20 px-4 text-center">
+        <p className="text-slate-500 mb-6">Статья не найдена.</p>
+        <Link to="/blog" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
           ← Вернуться в блог
         </Link>
       </main>
@@ -194,8 +194,8 @@ export default function Article() {
   const headings = extractHeadings(post.content);
 
   return (
-    <div className="min-h-screen bg-[#050B14]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
 
           {/* ── Main Article ────────────────────────────────────── */}
@@ -204,7 +204,7 @@ export default function Article() {
             {/* Back nav */}
             <Link
               to="/blog"
-              className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-white transition-colors mb-8"
+              className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-8"
             >
               <ArrowLeft className="w-4 h-4" />
               Все статьи
@@ -212,16 +212,16 @@ export default function Article() {
 
             {/* Article header */}
             <div className="mb-8">
-              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full mb-4">
+              <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-blue-600 bg-blue-500/10 px-2.5 py-1 rounded-full mb-4">
                 {post.category}
               </span>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-5">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
                 {post.title}
               </h1>
-              <p className="text-lg text-zinc-400 leading-relaxed mb-5">
+              <p className="text-lg text-slate-600 leading-relaxed mb-5">
                 {post.excerpt}
               </p>
-              <div className="flex items-center gap-4 text-sm text-zinc-600">
+              <div className="flex items-center gap-4 text-sm text-slate-400">
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
                   {publishedDate}
@@ -236,23 +236,23 @@ export default function Article() {
             {/* Mobile: TOC + Share */}
             <div className="lg:hidden space-y-3 mb-8">
               {/* Share row */}
-              <div className="flex items-center justify-between p-4 rounded-xl bg-[#0c1523]">
-                <div className="flex items-center gap-1.5 text-sm text-zinc-500">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
+                <div className="flex items-center gap-1.5 text-sm text-slate-500">
                   <Clock className="w-4 h-4" />
                   {post.reading_time} мин чтения
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-zinc-500 font-medium">Поделиться</span>
+                  <span className="text-xs text-slate-500 font-medium">Поделиться</span>
                   <button
                     onClick={handleTwitter}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors"
                     title="Twitter"
                   >
                     <Twitter className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={handleNativeShare}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors"
                     title="Поделиться"
                   >
                     <Share2 className="w-3.5 h-3.5" />
@@ -262,26 +262,26 @@ export default function Article() {
 
               {/* Mobile TOC */}
               {headings.length > 0 && (
-                <div className="rounded-xl bg-[#0c1523] overflow-hidden">
+                <div className="rounded-xl bg-slate-50 overflow-hidden">
                   <button
                     onClick={() => setTocOpen(!tocOpen)}
-                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
                   >
                     <span>Содержание</span>
                     {tocOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
                   {tocOpen && (
-                    <nav className="px-4 pb-4 space-y-2 max-h-56 overflow-y-auto border-t border-white/5 pt-3">
+                    <nav className="px-4 pb-4 space-y-2 max-h-56 overflow-y-auto border-t border-slate-200 pt-3">
                       {headings.map((h, i) => (
                         <a
                           key={i}
                           href={`#${h.id}`}
                           onClick={() => setTocOpen(false)}
                           className={cn(
-                            "block text-sm transition-colors hover:text-white",
+                            "block text-sm transition-colors hover:text-slate-900",
                             h.level === 3
-                              ? "ml-4 text-zinc-500 hover:text-zinc-300"
-                              : "text-zinc-400 font-medium"
+                              ? "ml-4 text-slate-500 hover:text-slate-700"
+                              : "text-slate-600 font-medium"
                           )}
                         >
                           {h.text}
@@ -306,31 +306,31 @@ export default function Article() {
 
             {/* Article content */}
             <div
-              className="prose prose-invert max-w-none
-                prose-headings:font-black prose-headings:text-white prose-headings:scroll-mt-24
+              className="prose prose-slate max-w-none
+                prose-headings:font-bold prose-headings:text-slate-900 prose-headings:scroll-mt-24
                 prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h2:pb-3
-                prose-h2:border-b prose-h2:border-white/5
+                prose-h2:border-b prose-h2:border-slate-200
                 prose-h3:text-lg prose-h3:mt-8 prose-h3:mb-3
-                prose-p:text-zinc-300 prose-p:leading-[1.85] prose-p:text-[15px]
-                prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-                prose-strong:text-white prose-strong:font-semibold
-                prose-ul:text-zinc-300 prose-ol:text-zinc-300
-                prose-li:marker:text-blue-400 prose-li:leading-relaxed prose-li:text-[15px]
+                prose-p:text-slate-700 prose-p:leading-[1.85] prose-p:text-[15px]
+                prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-slate-900 prose-strong:font-semibold
+                prose-ul:text-slate-700 prose-ol:text-slate-700
+                prose-li:marker:text-blue-600 prose-li:leading-relaxed prose-li:text-[15px]
                 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-500/5
-                prose-blockquote:rounded-r-xl prose-blockquote:text-zinc-300 prose-blockquote:py-1
-                prose-table:text-zinc-300 prose-thead:border-white/10 prose-tr:border-white/5
-                prose-th:text-white prose-th:font-semibold
-                prose-code:text-blue-300 prose-code:bg-blue-500/10 prose-code:rounded prose-code:px-1"
+                prose-blockquote:rounded-r-xl prose-blockquote:text-slate-700 prose-blockquote:py-1
+                prose-table:text-slate-700 prose-thead:border-slate-200 prose-tr:border-slate-200
+                prose-th:text-slate-900 prose-th:font-semibold
+                prose-code:text-blue-700 prose-code:bg-blue-500/10 prose-code:rounded prose-code:px-1"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 
             {/* Share section */}
-            <div className="mt-12 pt-8 border-t border-white/5">
-              <p className="text-sm font-semibold text-zinc-400 mb-4">Поделиться статьёй</p>
+            <div className="mt-12 pt-8 border-t border-slate-200">
+              <p className="text-sm font-semibold text-slate-600 mb-4">Поделиться статьёй</p>
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   onClick={handleTwitter}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-sm font-medium transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-100 text-slate-700 hover:text-slate-900 text-sm font-medium transition-colors"
                 >
                   <Twitter className="w-4 h-4" />
                   Twitter
@@ -340,8 +340,8 @@ export default function Article() {
                   className={cn(
                     "inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-colors",
                     copied
-                      ? "border-green-500/40 bg-green-500/10 text-green-400"
-                      : "border-white/10 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white"
+                      ? "border-green-500/40 bg-green-500/10 text-green-600"
+                      : "border-slate-200 bg-slate-100 hover:bg-slate-100 text-slate-700 hover:text-slate-900"
                   )}
                 >
                   <Link2 className="w-4 h-4" />
@@ -352,23 +352,23 @@ export default function Article() {
 
             {/* Related articles */}
             {related.length > 0 && (
-              <div className="mt-14 pt-12 border-t border-white/5">
-                <h2 className="text-xl font-black text-white mb-6">Читайте также</h2>
+              <div className="mt-14 pt-12 border-t border-slate-200">
+                <h2 className="text-xl font-bold text-slate-900 mb-6">Читайте также</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {related.map((r) => (
                     <article
                       key={r.id}
-                      className="group cursor-pointer rounded-2xl bg-[#0c1523] hover:bg-[#0f1a2b] transition-all p-5"
+                      className="group cursor-pointer rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all p-5"
                       onClick={() => navigate(`/blog/${r.slug}`)}
                     >
-                      <span className="text-[10px] uppercase tracking-widest font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full mb-3 inline-block">
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded-full mb-3 inline-block">
                         {r.category}
                       </span>
-                      <h3 className="font-bold text-white text-base leading-snug mb-2 group-hover:text-blue-300 transition-colors line-clamp-2">
+                      <h3 className="font-bold text-slate-900 text-base leading-snug mb-2 group-hover:text-blue-700 transition-colors line-clamp-2">
                         {r.title}
                       </h3>
-                      <p className="text-zinc-500 text-sm line-clamp-2 mb-3">{r.excerpt}</p>
-                      <div className="flex items-center gap-1 text-xs text-zinc-600">
+                      <p className="text-slate-500 text-sm line-clamp-2 mb-3">{r.excerpt}</p>
+                      <div className="flex items-center gap-1 text-xs text-slate-400">
                         <Clock className="w-3 h-3" />
                         {r.reading_time} мин
                       </div>
@@ -381,11 +381,11 @@ export default function Article() {
             {/* CTA */}
             <div className="mt-14 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-600/10 to-cyan-600/5 overflow-hidden">
               <div className="p-8 text-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-300 text-xs font-semibold mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-700 text-xs font-semibold mb-4">
                   🎓 Онлайн-курс теории DGT
                 </div>
-                <p className="text-white font-black text-xl mb-2">Сдайте теорию с первого раза</p>
-                <p className="text-zinc-400 text-sm mb-6 max-w-md mx-auto">
+                <p className="text-slate-900 font-bold text-xl mb-2">Сдайте теорию с первого раза</p>
+                <p className="text-slate-600 text-sm mb-6 max-w-md mx-auto">
                   Живые уроки с куратором, разбор всех вопросов DGT, чат поддержки и практика через SkilyApp.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -401,7 +401,7 @@ export default function Article() {
                     href="https://t.me/skilyapp_bot"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-900 font-semibold text-sm transition-colors"
                   >
                     Практиковать тесты бесплатно
                   </a>
@@ -414,22 +414,22 @@ export default function Article() {
           <aside className="hidden lg:block lg:col-span-4">
             <div className="sticky top-24 space-y-5">
               {/* Meta card */}
-              <div className="rounded-xl bg-[#0c1523] p-5">
+              <div className="rounded-xl bg-slate-50 p-5">
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm text-zinc-400">
-                    <Clock className="w-4 h-4 text-zinc-600" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Clock className="w-4 h-4 text-slate-400" />
                     <span>{post.reading_time} мин чтения</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-zinc-400">
-                    <Calendar className="w-4 h-4 text-zinc-600" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Calendar className="w-4 h-4 text-slate-400" />
                     <span>{publishedDate}</span>
                   </div>
-                  <div className="pt-4 border-t border-white/5">
-                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Поделиться</p>
+                  <div className="pt-4 border-t border-slate-200">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Поделиться</p>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handleTwitter}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors"
                         title="Twitter"
                       >
                         <Twitter className="w-3.5 h-3.5" />
@@ -439,8 +439,8 @@ export default function Article() {
                         className={cn(
                           "w-8 h-8 flex items-center justify-center rounded-lg border transition-colors",
                           copied
-                            ? "border-green-500/40 bg-green-500/10 text-green-400"
-                            : "border-white/5 bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white"
+                            ? "border-green-500/40 bg-green-500/10 text-green-600"
+                            : "border-slate-200 bg-slate-100 hover:bg-slate-100 text-slate-600 hover:text-slate-900"
                         )}
                         title={copied ? "Скопировано!" : "Копировать ссылку"}
                       >
@@ -448,7 +448,7 @@ export default function Article() {
                       </button>
                       <button
                         onClick={handleNativeShare}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors"
                         title="Поделиться"
                       >
                         <Share2 className="w-3.5 h-3.5" />
@@ -460,18 +460,18 @@ export default function Article() {
 
               {/* TOC */}
               {headings.length > 0 && (
-                <div className="rounded-xl bg-[#0c1523] p-5">
-                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Содержание</p>
+                <div className="rounded-xl bg-slate-50 p-5">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">Содержание</p>
                   <nav className="space-y-2">
                     {headings.map((h, i) => (
                       <a
                         key={i}
                         href={`#${h.id}`}
                         className={cn(
-                          "block text-sm transition-colors hover:text-white leading-snug",
+                          "block text-sm transition-colors hover:text-slate-900 leading-snug",
                           h.level === 3
-                            ? "ml-3.5 text-zinc-600 hover:text-zinc-300"
-                            : "text-zinc-400 font-medium"
+                            ? "ml-3.5 text-slate-400 hover:text-slate-700"
+                            : "text-slate-600 font-medium"
                         )}
                       >
                         {h.text}
@@ -483,15 +483,15 @@ export default function Article() {
 
               {/* Mini CTA */}
               <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5">
-                <p className="text-white font-bold text-sm mb-1.5">Готовьтесь к DGT</p>
-                <p className="text-zinc-400 text-xs leading-relaxed mb-4">
+                <p className="text-slate-900 font-bold text-sm mb-1.5">Готовьтесь к DGT</p>
+                <p className="text-slate-600 text-xs leading-relaxed mb-4">
                   Полная база вопросов DGT, объяснения на русском, тренировки и дуэли в SkilyApp.
                 </p>
                 <a
                   href="https://t.me/skilyapp_bot?start=course"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
                 >
                   Начать подготовку <ArrowRight className="w-3 h-3" />
                 </a>

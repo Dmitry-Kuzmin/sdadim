@@ -1,11 +1,12 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 export interface Testimonial {
   text: string;
-  image: string;
   name: string;
   role: string;
+  /** Фото — только реальное, с согласия студента. Без него показываем инициал. */
+  image?: string;
 }
 
 /**
@@ -25,10 +26,11 @@ export const TestimonialsColumn = ({
   testimonials: Testimonial[];
   duration?: number;
 }) => {
+  const reduce = useReducedMotion();
   return (
     <div className={`overflow-hidden ${className ?? ""}`}>
       <motion.div
-        animate={{ translateY: "-50%" }}
+        animate={reduce ? undefined : { translateY: "-50%" }}
         transition={{
           duration,
           repeat: Infinity,
@@ -36,30 +38,31 @@ export const TestimonialsColumn = ({
           repeatType: "loop",
         }}
         // gap and pb MUST match for seamless loop
-        className="flex flex-col gap-6 pb-6"
+        className="flex flex-col gap-4 pb-4"
       >
         {[0, 1].map((copyIdx) => (
           <React.Fragment key={copyIdx}>
             {testimonials.map(({ text, image, name, role }, i) => (
-              <div
+              <figure
                 key={`${copyIdx}-${i}`}
-                className="p-8 rounded-3xl border border-white/[0.08] bg-white/[0.03] shadow-lg shadow-black/20 backdrop-blur-sm max-w-xs w-full"
+                aria-hidden={copyIdx === 1}
+                className="w-full rounded-3xl border border-slate-200 bg-white p-6 sm:p-7"
               >
-                <p className="text-sm text-zinc-300 leading-relaxed">{text}</p>
-                <div className="flex items-center gap-3 mt-5">
-                  <img
-                    width={40}
-                    height={40}
-                    src={image}
-                    alt={name}
-                    className="h-10 w-10 rounded-full object-cover border border-white/10 flex-shrink-0"
-                  />
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-semibold text-white leading-5 truncate">{name}</span>
-                    <span className="text-xs text-zinc-500 leading-5 truncate">{role}</span>
-                  </div>
-                </div>
-              </div>
+                <blockquote className="text-[15px] leading-relaxed text-slate-700">{text}</blockquote>
+                <figcaption className="mt-5 flex items-center gap-3">
+                  {image ? (
+                    <img src={image} alt="" width={36} height={36} className="h-9 w-9 shrink-0 rounded-full object-cover" />
+                  ) : (
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600">
+                      {name[0]}
+                    </span>
+                  )}
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-slate-900">{name}</span>
+                    <span className="block truncate text-xs text-slate-500">{role}</span>
+                  </span>
+                </figcaption>
+              </figure>
             ))}
           </React.Fragment>
         ))}
