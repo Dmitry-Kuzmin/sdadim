@@ -15,7 +15,7 @@
   }
 
   body {
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: "Inter Variable", "Inter", system-ui, sans-serif;
     /* Inter: прямой «1», однокомнатная «a» нет — оставляем классику, но с альтернативными цифрами */
     font-feature-settings: "cv11", "ss01";
     background-color: rgb(var(--surface));
@@ -50,12 +50,26 @@ html.dark img[src^="/assets/blog/"] {
   filter: brightness(0.86) contrast(1.04);
 }
 
+@keyframes marquee-up {
+  to { transform: translateY(-50%); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-marquee-up { animation: marquee-up var(--marquee-duration, 30s) linear infinite; }
+}
+
 @keyframes heroFloat {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(14px); }
 }
 
 @layer utilities {
+  /* Секции ниже первого экрана: раскладка и отрисовка — только когда до них доскроллят */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;

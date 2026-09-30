@@ -3,7 +3,7 @@
  * Даты, обложки и категории статей берутся из blog-posts.json, здесь — только тексты.
  */
 import { blogPosts, type BlogPost } from "@/lib/blog-posts";
-import { getPlans } from "@/components/ui/pricing-cards";
+import { getPlans } from "@/lib/plans";
 import { FAQ_DATA } from "@/lib/home-faq";
 
 export const SITE_URL = "https://sdadim.eu";

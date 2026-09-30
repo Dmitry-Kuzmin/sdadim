@@ -6,7 +6,8 @@ export default defineConfig({
   site: "https://sdadim.eu",
   // /blog/slug → dist/blog/slug.html; на Vercel cleanUrls отдаёт без .html и без слэша
   trailingSlash: "never",
-  build: { format: "file" },
+  // CSS встраивается в HTML: минус блокирующий запрос перед первой отрисовкой
+  build: { format: "file", inlineStylesheets: "always" },
   integrations: [react()],
   vite: {
     // Переменные окружения исторически с префиксом VITE_

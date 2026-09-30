@@ -1,0 +1,54 @@
+---
+/** Мобильная CTA-панель: видна после hero и прячется, пока на экране тарифы. Без React. */
+import { getPlans } from "@/lib/plans";
+
+const minPrice = Math.min(...getPlans().map((p) => p.price));
+---
+
+<div
+  data-sticky-bar
+  class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-slate-200 bg-white/90 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl transition-transform duration-300 md:hidden"
+>
+  <div class="flex items-center justify-between gap-4">
+    <div class="min-w-0">
+      <p class="text-sm font-semibold text-slate-900">от €<span data-min-price>{minPrice}</span></p>
+      <p data-next-start hidden class="truncate text-xs text-slate-500"></p>
+    </div>
+    <a href="#pricing" class="shrink-0 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white">Выбрать тариф</a>
+  </div>
+</div>
+
+<script>
+  import { loadPlanPrices, loadStreams } from "@/lib/course-data";
+  import { getPlans } from "@/lib/plans";
+  import { formatDate, openStreams } from "./streams";
+
+  const bar = document.querySelector<HTMLElement>("[data-sticky-bar]")!;
+
+  const vis = { hero: true, pricing: false };
+  const hero = document.getElementById("hero");
+  const pricing = document.getElementById("pricing");
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.target === hero) vis.hero = e.isIntersecting;
+      if (e.target === pricing) vis.pricing = e.isIntersecting;
+    });
+    const show = !vis.hero && !vis.pricing;
+    bar.classList.toggle("translate-y-0", show);
+    bar.classList.toggle("translate-y-full", !show);
+  });
+  if (hero) io.observe(hero);
+  if (pricing) io.observe(pricing);
+
+  // Актуальная цена и дата старта — из той же БД, что у бота
+  loadPlanPrices().then((prices) => {
+    if (prices) bar.querySelector("[data-min-price]")!.textContent = String(Math.min(...getPlans(prices).map((p) => p.price)));
+  });
+  loadStreams().then((streams) => {
+    const next = openStreams(streams)[0];
+    const el = bar.querySelector<HTMLElement>("[data-next-start]")!;
+    if (!next) return;
+    el.textContent = `старт ${formatDate(next.start_date)}`;
+    el.hidden = false;
+  });
+</script>

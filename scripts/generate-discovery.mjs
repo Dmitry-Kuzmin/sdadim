@@ -110,13 +110,13 @@ function buildLlmsTxt(posts) {
 Sdadim helps Russian-speaking immigrants prepare for the Spanish DGT theory exam and understand the process of getting a driving license in Spain.
 
 ## Core pages
-- Home: ${SITE_URL}/
-- Blog: ${SITE_URL}/blog
+- [Главная](${SITE_URL}/): онлайн-курс подготовки к теории DGT на русском, тарифы и калькулятор стоимости прав
+- [Блог](${SITE_URL}/blog): статьи о получении водительских прав в Испании
 
 ## Latest articles
 ${posts
   .slice(0, 20)
-  .map((post) => `- ${post.title}: ${SITE_URL}/blog/${post.slug} (${post.excerpt || ""})`)
+  .map((post) => `- [${post.title}](${SITE_URL}/blog/${post.slug}): ${post.excerpt || ""}`)
   .join("\n")}
 
 ## Canonical rules

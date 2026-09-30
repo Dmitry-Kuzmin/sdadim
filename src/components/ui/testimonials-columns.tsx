@@ -1,5 +1,4 @@
-import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import React, { type CSSProperties } from "react";
 
 export interface Testimonial {
   text: string;
@@ -10,7 +9,7 @@ export interface Testimonial {
 }
 
 /**
- * Infinite auto-scrolling testimonials column.
+ * Infinite auto-scrolling testimonials column. Чистый CSS (animate-marquee-up) — рендерится статично, без JS.
  *
  * Critical for smooth looping:
  *  - Content is duplicated exactly once (2 copies).
@@ -26,20 +25,10 @@ export const TestimonialsColumn = ({
   testimonials: Testimonial[];
   duration?: number;
 }) => {
-  const reduce = useReducedMotion();
   return (
     <div className={`overflow-hidden ${className ?? ""}`}>
-      <motion.div
-        animate={reduce ? undefined : { translateY: "-50%" }}
-        transition={{
-          duration,
-          repeat: Infinity,
-          ease: "linear",
-          repeatType: "loop",
-        }}
-        // gap and pb MUST match for seamless loop
-        className="flex flex-col gap-4 pb-4"
-      >
+      {/* gap and pb MUST match for seamless loop */}
+      <div className="flex animate-marquee-up flex-col gap-4 pb-4" style={{ "--marquee-duration": `${duration}s` } as CSSProperties}>
         {[0, 1].map((copyIdx) => (
           <React.Fragment key={copyIdx}>
             {testimonials.map(({ text, image, name, role }, i) => (
@@ -66,7 +55,7 @@ export const TestimonialsColumn = ({
             ))}
           </React.Fragment>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };

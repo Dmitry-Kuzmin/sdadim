@@ -24,8 +24,8 @@ const SLATE_DARK: Record<(typeof SHADES)[number], string> = {
   "100": "#151d2c",
   "200": "#222c3d",
   "300": "#334155",
-  "400": "#64748b",
-  "500": "#8391a7",
+  "400": "#8b98ad",
+  "500": "#9aa6b9",
   "600": "#a8b3c4",
   "700": "#cbd3de",
   "800": "#e2e8f0",
@@ -49,7 +49,8 @@ const varPalette = (name: string) =>
 const themeVars = plugin(({ addBase }) => {
   const light: Record<string, string> = {};
   const dark: Record<string, string> = {};
-  const slate = (defaultColors as any).slate as Record<string, string>;
+  // Приглушённый текст (400/500) темнее стандартного: контраст ≥ 4.5:1 (WCAG AA) даже на slate-100
+  const slate = { ...((defaultColors as any).slate as Record<string, string>), "400": "#5f6c80", "500": "#556275" };
   for (const s of SHADES) {
     light[`--c-slate-${s}`] = rgb(slate[s]);
     dark[`--c-slate-${s}`] = rgb(SLATE_DARK[s]);
@@ -95,11 +96,11 @@ const themeVars = plugin(({ addBase }) => {
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: "class",
-  content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{astro,ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Inter Variable", "Inter", "system-ui", "sans-serif"],
       },
       colors: {
         slate: varPalette("slate"),

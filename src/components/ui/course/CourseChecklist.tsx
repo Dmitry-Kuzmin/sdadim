@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Info, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Plan } from "@/components/ui/pricing-cards";
+import type { Plan } from "@/lib/plans";
 import { MARKET, TASA_DGT, tasasNeeded } from "@/lib/license-costs";
 
 /* ─────────────────────────────────────────────

@@ -1,9 +1,65 @@
 ---
+/**
+ * Главная: статичный HTML + маленькие острова. JS грузится только для интерактива:
+ * плашка потока и мобильная панель — обычные скрипты; вопрос DGT, калькулятор/тарифы и FAQ — React при прокрутке к ним.
+ */
 import Base from "@/layouts/Base.astro";
-import Home from "@/views/Home";
 import { HOME_SEO } from "@/lib/seo";
+import { Hero, HowItWorks, Included, Testimonials, Blog, FinalCta } from "@/views/home/Sections";
+import HeroBadge from "@/views/home/HeroBadge.astro";
+import { ExamQuestionCard } from "@/views/home/ExamQuestionCard";
+import { CalcAndPricing } from "@/views/home/CalcAndPricing";
+import { Faq } from "@/views/home/Faq";
+import StickyBar from "@/views/home/StickyBar.astro";
 ---
 
 <Base seo={HOME_SEO}>
-  <Home client:load />
+  <div class="bg-white text-slate-900">
+    <main>
+      <Hero>
+        <HeroBadge slot="badge" />
+        <ExamQuestionCard slot="card" client:visible />
+      </Hero>
+      <HowItWorks />
+      <Included />
+      <CalcAndPricing client:visible={{ rootMargin: "400px" }} />
+      <Testimonials />
+      <Faq client:visible={{ rootMargin: "400px" }} />
+      <Blog />
+      <FinalCta />
+    </main>
+    <StickyBar />
+  </div>
 </Base>
+
+<script>
+  import { loadStreams } from "@/lib/course-data";
+  import { botLink, QUIZ_EVENT } from "@/views/home/links";
+  import { openStreams, startLine } from "@/views/home/streams";
+
+  // Финальный блок: дата ближайшего старта
+  loadStreams().then((streams) => {
+    const next = openStreams(streams)[0];
+    const el = document.querySelector("[data-next-start]");
+    if (next && el) el.textContent = `${startLine(next)}.`;
+  });
+
+  // Калькулятор пройден — код ответов во все ссылки в бот вне острова тарифов
+  addEventListener(QUIZ_EVENT, (e) => {
+    const code = (e as CustomEvent<string>).detail;
+    document.querySelectorAll<HTMLAnchorElement>("a[data-bot-param]").forEach((a) => (a.href = botLink(a.dataset.botParam!, code)));
+  });
+
+  // Чат Crisp — только на главной и только после первого действия посетителя (см. Base.astro)
+  const loadCrisp = () => {
+    if (document.getElementById("crisp-chat-script")) return;
+    Object.assign(window, { $crisp: [], CRISP_WEBSITE_ID: "f75e4c12-7db0-4f2f-90fb-711aacc45df3" });
+    const s = document.createElement("script");
+    s.id = "crisp-chat-script";
+    s.src = "https://client.crisp.chat/l.js";
+    s.async = true;
+    document.head.appendChild(s);
+  };
+  const w = window as Window & { onFirstInteraction?: (fn: () => void) => void };
+  (w.onFirstInteraction ?? ((fn: () => void) => fn()))(loadCrisp);
+</script>

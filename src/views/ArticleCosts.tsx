@@ -15,7 +15,7 @@ import {
   ArticleBanner,
 } from "@/components/ui/article";
 import { cn } from "@/lib/utils";
-import { getPlans } from "@/components/ui/pricing-cards";
+import { getPlans } from "@/lib/plans";
 import { budget, eur, MARKET, round, TASA_DGT } from "@/lib/license-costs";
 
 

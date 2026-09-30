@@ -1,6 +1,9 @@
 ---
+import "@fontsource-variable/inter";
+import interCyrillic from "@fontsource-variable/inter/files/inter-cyrillic-wght-normal.woff2?url";
+import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import "@/index.css";
-import Header from "@/components/layout/Header";
+import Header from "@/components/layout/Header.astro";
 import Footer from "@/components/layout/Footer";
 import { DEFAULT_OG_IMAGE, SITE_NAME, type PageSeo } from "@/lib/seo";
 
@@ -12,7 +15,6 @@ const { seo } = Astro.props;
 const ogImage = seo.ogImage ?? DEFAULT_OG_IMAGE;
 const ogTitle = seo.ogTitle ?? seo.title;
 const ogDescription = seo.ogDescription ?? seo.description;
-const FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap";
 ---
 
 <!doctype html>
@@ -61,20 +63,37 @@ const FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;7
     <link rel="alternate" type="application/rss+xml" title="Блог Сдадим" href="/rss.xml" />
     <meta name="google-site-verification" content="y3ZuWwlxngRU8JRF2t3nNsQTVMN0Aioto91zqB9UZO0" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href={FONTS} media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href={FONTS} /></noscript>
+    <!-- Inter со своего домена: без запросов к Google Fonts, текст первого экрана сразу в нужном шрифте -->
+    <link rel="preload" href={interCyrillic} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
 
     {(seo.jsonLd ?? []).map((ld) => <script type="application/ld+json" set:html={JSON.stringify(ld)} />)}
 
-    <!-- Yandex.Metrika counter -->
+    <script is:inline>
+      // Сторонние скрипты (Метрика, чат) — по первому действию посетителя, а не при загрузке:
+      // первый экран рисуется без чужого JS. window.onFirstInteraction(fn) доступен островам.
+      (function () {
+        var queue = [], fired = false, events = ["scroll", "pointerdown", "keydown", "touchstart", "mousemove"];
+        function fire() {
+          if (fired) return;
+          fired = true;
+          events.forEach(function (e) { removeEventListener(e, fire, true); });
+          queue.forEach(function (fn) { fn(); });
+        }
+        events.forEach(function (e) { addEventListener(e, fire, { capture: true, passive: true }); });
+        window.onFirstInteraction = function (fn) { fired ? fn() : queue.push(fn); };
+      })();
+    </script>
+
+    <!-- Yandex.Metrika counter: вызовы ym() копятся в очереди до загрузки tag.js -->
     <script is:inline>
       (function (m, e, t, r, i, k, a) {
         m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments); };
         m[i].l = 1 * new Date();
-        for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
-        (k = e.createElement(t)), (a = e.getElementsByTagName(t)[0]), (k.async = 1), (k.src = r), a.parentNode.insertBefore(k, a);
+        window.onFirstInteraction(function () {
+          for (var j = 0; j < e.scripts.length; j++) { if (e.scripts[j].src === r) { return; } }
+          (k = e.createElement(t)), (a = e.getElementsByTagName(t)[0]), (k.async = 1), (k.src = r), a.parentNode.insertBefore(k, a);
+        });
       })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js?id=108379913", "ym");
       ym(108379913, "init", { ssr: true, webvisor: true, trackHash: true, clickmap: true, ecommerce: "dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce: true, trackLinks: true });
     </script>
@@ -82,7 +101,7 @@ const FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;7
   </head>
   <body>
     <noscript><div><img src="https://mc.yandex.ru/watch/108379913" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <Header client:load currentPath={Astro.url.pathname} />
+    <Header currentPath={Astro.url.pathname} />
     <slot />
     <Footer />
   </body>

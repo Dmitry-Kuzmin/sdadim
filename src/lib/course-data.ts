@@ -2,7 +2,7 @@
  * Данные курса (цены, потоки) из Supabase — единый источник правды с ботом.
  * Без supabase-js: два простых SELECT через REST (PostgREST), −50 КБ JS на главной.
  */
-import type { DbPlanPrices } from "@/components/ui/pricing-cards";
+import type { DbPlanPrices } from "@/lib/plans";
 
 const URL = import.meta.env.VITE_SUPABASE_URL as string;
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
@@ -49,3 +49,9 @@ export const spotsLeft = (s: StreamInfo) =>
 
 /** Первый поток со свободными местами */
 export const nextOpenStream = (streams: StreamInfo[]) => streams.find((s) => spotsLeft(s) > 0) ?? null;
+
+/* На главной данные нужны нескольким островам — запрос на страницу один, результат общий */
+let streamsReq: Promise<StreamInfo[]> | null = null;
+let pricesReq: Promise<DbPlanPrices | null> | null = null;
+export const loadStreams = () => (streamsReq ??= fetchStreams(3));
+export const loadPlanPrices = () => (pricesReq ??= fetchPlanPrices());
