@@ -7,7 +7,7 @@ import { MANIFEST_FILE } from "./content-platform.mjs";
 const distDir = resolve(process.cwd(), "dist");
 
 function fail(message) {
-  console.error(`❌ [sdadim-eu SEO Assert] ${message}`);
+  console.error(`❌ [sdadim SEO Assert] ${message}`);
   process.exit(1);
 }
 
@@ -109,4 +109,4 @@ for (const page of requiredPages) {
   seen.set(normalized, relPath);
 }
 
-console.log(`✅ [sdadim-eu SEO Assert] dist passed (${requiredPages.length} pages checked).`);
+console.log(`✅ [sdadim SEO Assert] dist passed (${requiredPages.length} pages checked).`);

@@ -113,7 +113,7 @@ export async function buildContentPlatformManifest() {
   const pages = [...CORE_PAGES, ...posts.map(buildArticlePage)];
 
   return {
-    siteName: "sdadim-eu",
+    siteName: "sdadim",
     siteUrl: SITE_URL,
     generatedAt: new Date().toISOString(),
     discoveryFiles: DISCOVERY_FILES,
