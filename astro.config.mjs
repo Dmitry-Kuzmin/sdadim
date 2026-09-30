@@ -1,6 +1,5 @@
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
-import tailwind from "@astrojs/tailwind";
 import { fileURLToPath } from "node:url";
 
 export default defineConfig({
@@ -8,7 +7,7 @@ export default defineConfig({
   // /blog/slug → dist/blog/slug.html; на Vercel cleanUrls отдаёт без .html и без слэша
   trailingSlash: "never",
   build: { format: "file" },
-  integrations: [react(), tailwind({ applyBaseStyles: false })],
+  integrations: [react()],
   vite: {
     // Переменные окружения исторически с префиксом VITE_
     envPrefix: ["VITE_", "PUBLIC_"],
