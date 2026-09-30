@@ -4,7 +4,7 @@
  * Маршрут: /blog/slovar-dgt
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { Link } from "react-router-dom";
 import { 
   ArrowLeft, Calendar, Clock, BookOpen, Fingerprint, MapPin, BadgeEuro,
