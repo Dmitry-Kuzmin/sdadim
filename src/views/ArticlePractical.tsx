@@ -67,10 +67,6 @@ export default function ArticlePractical() {
               fullWidth
             />
 
-            <ArticleCallout type="info" title="Стартовый бонус: 3 урока бесплатно">
-              Мы понимаем важность практики. При записи на наш полный курс теоретической подготовки на русском языке вы получаете <strong>три бесплатных практических урока</strong>, что даст вам абсолютную уверенность перед выходом на экзамен DGT.
-            </ArticleCallout>
-
             {/* Intro stats */}
             <ArticleStats stats={[
               { value: "30-45", label: "Минут экзамена", note: "стандартная длительность" },
@@ -219,14 +215,14 @@ export default function ArticlePractical() {
             ]} />
             
             <p className="text-[15px] text-slate-700 leading-[1.85] mt-4 mb-4">
-              <strong>Совет Sdadim:</strong> Лучший способ подготовиться — изучить маршруты, где будет проходить экзамен именно в вашем городе (Zona de examen). Мы предоставляем эти данные нашим студентам!
+              <strong>Совет Sdadim:</strong> Лучший способ подготовиться — изучить маршруты, где будет проходить экзамен именно в вашем городе (Zona de examen). Спросите о них инструктора автошколы — он знает типовые маршруты.
             </p>
 
             <ArticleDivider />
 
             {/* Финальный CTA */}
             <div className="bg-gradient-to-r from-blue-900/30 to-blue-500/10 border border-blue-500/20 rounded-2xl p-6 lg:p-10 text-center">
-              <h3 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-4">Забирайте свои 3 бесплатных урока вождения!</h3>
+              <h3 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-4">Сначала — теория с первого раза</h3>
               <p className="text-slate-700 mb-8 max-w-2xl mx-auto">
                 Систематическая подготовка — залог успеха. Мы понимаем, насколько важно сдать с первого раза. Получите теорию на понятном русском языке, интерактивного ИИ-репетитора и поддержку от начала и до самого получения прав.
               </p>
@@ -269,12 +265,6 @@ export default function ArticlePractical() {
                 </nav>
               </div>
               
-              <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-                <p className="text-slate-900 font-bold text-sm mb-2">🎁 Бонус от платформы</p>
-                <p className="text-slate-600 text-xs leading-relaxed mb-4">
-                  При приобретении теоретического курса на нашей платформе, <strong>вы получаете 3 урока практики с инструктором абсолютно бесплатно!</strong>
-                </p>
-              </div>
 
             </div>
           </aside>

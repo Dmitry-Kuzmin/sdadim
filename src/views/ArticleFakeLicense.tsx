@@ -168,10 +168,10 @@ export default function ArticleFakeLicense() {
                 badge: "Легко понять",
               },
               {
-                icon: "🚗",
-                title: "3 бесплатных урока",
-                description: "При записи на полный курс вы получаете стартовую практику для преодоления страха перед авто.",
-                badge: "Бонус",
+                icon: "📄",
+                title: "Документы по шагам",
+                description: "Cita Previa, Tasa DGT, Psicotécnico — куратор подскажет порядок и сроки.",
+                badge: "Без бюрократии",
               },
               {
                 icon: "📱",

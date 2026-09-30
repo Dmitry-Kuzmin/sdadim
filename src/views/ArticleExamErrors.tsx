@@ -765,7 +765,7 @@ export default function ArticleExamErrors() {
               </h3>
               <p className="text-slate-700 mb-8 max-w-2xl mx-auto">
                 Наша платформа включает теорию DGT на русском языке, ИИ-репетитор, который
-                объясняет каждый нюанс, и 3 бесплатных урока вождения с инструктором. Сдайте с
+                объясняет каждый нюанс, и куратора, который проведёт через документы. Сдайте с
                 первого раза.
               </p>
               <a
@@ -830,14 +830,6 @@ export default function ArticleExamErrors() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-                <p className="text-slate-900 font-bold text-sm mb-2">🎁 Бонус от платформы</p>
-                <p className="text-slate-600 text-xs leading-relaxed">
-                  При покупке теоретического курса вы получаете{" "}
-                  <strong>3 урока практики с инструктором бесплатно</strong>. Идеально, чтобы
-                  отработать все 14 разделов.
-                </p>
-              </div>
             </div>
           </aside>
         </div>

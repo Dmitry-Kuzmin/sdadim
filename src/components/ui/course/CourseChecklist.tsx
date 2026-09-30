@@ -338,7 +338,7 @@ export function CourseChecklist({ plans, onRecommend, botUrl }: Props) {
 
           <div className="mt-6 grid grid-cols-[1fr_auto_auto] gap-x-5 text-sm">
             <span />
-            <span className="pb-3 text-right text-xs font-medium text-slate-400">Сами</span>
+            <span className="pb-3 text-right text-xs font-medium text-slate-400">Автошкола</span>
             <span className="pb-3 text-right text-xs font-medium text-slate-900">С нами</span>
             {cost.rows.map((r) => (
               <Row key={r.label} label={r.label} note={r.note} alone={r.alone} us={r.us} />
@@ -349,18 +349,35 @@ export function CourseChecklist({ plans, onRecommend, botUrl }: Props) {
             ))}
             <div className="col-span-3 mt-3 border-t border-slate-200" />
             <span className="pt-4 font-semibold text-slate-900">Итого</span>
-            <span className="pt-4 text-right text-slate-400 line-through decoration-slate-300"><AnimatedNumber value={cost.alone} /></span>
+            <span className={cn("pt-4 text-right text-slate-400", cost.alone > cost.us && "line-through decoration-slate-300")}>
+              <AnimatedNumber value={cost.alone} />
+            </span>
             <span className="pt-4 text-right font-semibold text-slate-900"><AnimatedNumber value={cost.us} /></span>
           </div>
 
-          {cost.alone > cost.us && (
+          {/* Честное сравнение: если с нами дороже — так и говорим, и за что разница */}
+          {cost.alone > cost.us ? (
             <div className="mt-6 flex items-baseline justify-between rounded-2xl bg-white p-5 ring-1 ring-slate-200">
               <span className="text-sm text-slate-600">Экономия</span>
               <span className="text-3xl font-semibold tracking-tight text-emerald-600"><AnimatedNumber value={cost.alone - cost.us} /></span>
             </div>
+          ) : (
+            <div className="mt-6 rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+              <div className="flex items-baseline justify-between">
+                <span className="text-sm text-slate-600">{cost.us > cost.alone ? "Дороже автошколы на" : "Столько же, сколько автошкола"}</span>
+                {cost.us > cost.alone && (
+                  <span className="text-2xl font-semibold tracking-tight text-slate-900"><AnimatedNumber value={cost.us - cost.alone} /></span>
+                )}
+              </div>
+              <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                Зато на русском, с куратором и помощью с документами — в автошколе теория только на испанском.
+              </p>
+            </div>
           )}
           <p className="mt-4 text-xs leading-relaxed text-slate-400">
-            {started ? "Средние цены по Испании. Расчёт уточняется с каждым ответом." : "Ответьте на вопросы — расчёт подстроится под вас."}
+            {started
+              ? "Средние цены по Испании, у каждой автошколы свои. Меняются от уровня испанского, знания ПДД и нужной практики."
+              : "Ответьте на вопросы — расчёт подстроится под вас."}
           </p>
         </div>
       </div>
