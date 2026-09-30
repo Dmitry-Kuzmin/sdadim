@@ -67,6 +67,7 @@ export default function ArticleEkoDrive() {
 
             {/* Cover */}
             <ArticleImage
+              priority
               src="/assets/blog/ekonomichnoe-vozhdenie.jpg"
               alt="Экономичное вождение на испанской трассе при закате"
               caption="Техника eco-driving особенно важна на шоссе, где аэродинамическое сопротивление съедает до 40% топлива"

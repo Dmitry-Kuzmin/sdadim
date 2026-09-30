@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --port 4321",
-    "prebuild": "npm run generate:discovery",
+    "prebuild": "npm run generate:discovery && node scripts/cover-variants.mjs",
     "build": "astro build && npm run seo:assert:dist",
     "generate:discovery": "node scripts/generate-discovery.mjs",
     "seo:assert:dist": "node scripts/seo-assert-dist.mjs",
@@ -33,6 +33,7 @@
     "autoprefixer": "^10.6.1",
     "postcss": "^8.4.47",
     "puppeteer": "^25.12.0",
+    "sharp": "^0.35.5",
     "tailwindcss": "^3.4.14",
     "typescript": "^5.5.3"
   }

@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { coverSrcSet } from "@/lib/covers";
 import {
   ChevronDown,
   ChevronRight,
@@ -374,13 +375,26 @@ interface ArticleImageProps {
   alt: string;
   caption?: string;
   fullWidth?: boolean;
+  /** Обложка статьи (первый экран, LCP): грузится сразу и с высоким приоритетом */
+  priority?: boolean;
 }
 
-export function ArticleImage({ src, alt, caption, fullWidth = false }: ArticleImageProps) {
+export function ArticleImage({ src, alt, caption, fullWidth = false, priority = false }: ArticleImageProps) {
   return (
     <figure className={cn("my-8 not-prose", !fullWidth && "max-w-2xl mx-auto")}>
       <div className="rounded-2xl overflow-hidden border border-slate-200">
-        <img src={src} alt={alt} className="w-full object-cover" loading="lazy" />
+        <img
+          src={src}
+          srcSet={coverSrcSet(src)}
+          sizes="(min-width: 768px) 720px, 100vw"
+          alt={alt}
+          width={1600}
+          height={1000}
+          className="h-auto w-full object-cover"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          decoding={priority ? "sync" : "async"}
+        />
       </div>
       {caption && (
         <figcaption className="text-center text-xs text-slate-400 mt-3 leading-relaxed">{caption}</figcaption>

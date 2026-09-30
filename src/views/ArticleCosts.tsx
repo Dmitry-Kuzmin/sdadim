@@ -176,6 +176,7 @@ export default function ArticleCosts() {
             </div>
 
             <ArticleImage
+              priority
               src="/assets/blog/tseny-na-prava.jpg"
               alt="Стоимость получения прав в Испании, калькулятор и деньги"
               caption="Официальная пошлина DGT на 2026 год составляет 94.05€. Всё остальное — ценообразование автошкол."

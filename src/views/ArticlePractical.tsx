@@ -61,6 +61,7 @@ export default function ArticlePractical() {
 
             {/* Cover */}
             <ArticleImage
+              priority
               src="/assets/blog/prakticheskiy-ekzamen.jpg"
               alt="Вид из салона машины во время экзамена по вождению в Испании"
               caption="Инспектор с планшетом всегда оценивает не только технику, но и уверенность ваших действий."

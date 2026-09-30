@@ -63,6 +63,7 @@ export default function ArticleFakeLicense() {
 
             {/* Cover */}
             <ArticleImage
+              priority
               src="/assets/blog/poddelnyye-prava-ispaniya.jpg"
               alt="Поддельные права и наручники на мокром асфальте Испании"
               caption="Вождение с поддельными правами — это не административное, а уголовное преступление по законам Испании."

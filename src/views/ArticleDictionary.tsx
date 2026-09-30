@@ -60,9 +60,9 @@ function TermFront({ data }: { data: TermData }) {
       <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-6 shadow-xl">
         {data.icon}
       </div>
-      <h3 className="text-xl font-bold tracking-tight mb-2 text-slate-900">
+      <p className="text-xl font-bold tracking-tight mb-2 text-slate-900">
         {data.es}
-      </h3>
+      </p>
       <p className="text-sm font-medium text-blue-600">Нажми, чтобы перевести</p>
     </div>
   );
@@ -71,9 +71,9 @@ function TermFront({ data }: { data: TermData }) {
 function TermBack({ data }: { data: TermData }) {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full p-6 text-center">
-      <h3 className="text-lg font-bold text-slate-900 mb-3">
+      <p className="text-lg font-bold text-slate-900 mb-3">
         {data.ru}
-      </h3>
+      </p>
       <p className="text-sm text-blue-900/70 leading-relaxed mb-6">
         {data.desc}
       </p>
@@ -115,6 +115,7 @@ export default function ArticleDictionary() {
             </div>
 
             <ArticleImage
+              priority
               src="/assets/blog/slovar-dgt.jpg"
               alt="Словарь испанского водителя, DGT термины"
               caption="Интерактивный глоссарий: нажимайте на карточки, чтобы учить перевод!"
@@ -160,7 +161,7 @@ export default function ArticleDictionary() {
             </div>
 
             <div className="mt-16 bg-gradient-to-r from-blue-900/30 to-blue-500/10 border border-blue-500/20 rounded-2xl p-6 lg:p-10 text-center">
-              <h3 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-4">Учите термины прямо во время тестов</h3>
+              <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-4">Учите термины прямо во время тестов</h2>
               <p className="text-slate-700 mb-8 max-w-2xl mx-auto">
                 Теория DGT сложна из-за специфического испанского языка. На нашей платформе вы решаете оригинальные испанские тесты с моментальным профессиональным переводом и разбором от AI.
               </p>

@@ -95,3 +95,40 @@ html.dark img[src^="/assets/blog/"] {
     background-size: 44px 44px;
   }
 }
+
+/* Контраст акцентного текста в светлой теме (WCAG AA ≥ 4.5:1, в т.ч. на светлых подложках -50/-100):
+   оттенки 400–600 как текст заменяются на 700. :where() держит специфичность как у утилиты —
+   hover:/focus: варианты по-прежнему перекрывают. В тёмной теме палитра своя (tailwind.config.ts). */
+:where(html:not(.dark)) .text-blue-400 { color: rgb(var(--c-blue-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-blue-500 { color: rgb(var(--c-blue-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-blue-600 { color: rgb(var(--c-blue-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-emerald-400 { color: rgb(var(--c-emerald-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-emerald-500 { color: rgb(var(--c-emerald-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-emerald-600 { color: rgb(var(--c-emerald-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-green-400 { color: rgb(var(--c-green-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-green-500 { color: rgb(var(--c-green-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-green-600 { color: rgb(var(--c-green-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-teal-400 { color: rgb(var(--c-teal-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-teal-500 { color: rgb(var(--c-teal-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-teal-600 { color: rgb(var(--c-teal-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-cyan-400 { color: rgb(var(--c-cyan-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-cyan-500 { color: rgb(var(--c-cyan-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-cyan-600 { color: rgb(var(--c-cyan-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-sky-400 { color: rgb(var(--c-sky-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-sky-500 { color: rgb(var(--c-sky-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-sky-600 { color: rgb(var(--c-sky-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-amber-400 { color: rgb(var(--c-amber-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-amber-500 { color: rgb(var(--c-amber-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-amber-600 { color: rgb(var(--c-amber-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-orange-400 { color: rgb(var(--c-orange-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-orange-500 { color: rgb(var(--c-orange-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-orange-600 { color: rgb(var(--c-orange-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-yellow-400 { color: rgb(var(--c-yellow-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-yellow-500 { color: rgb(var(--c-yellow-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-yellow-600 { color: rgb(var(--c-yellow-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-red-400 { color: rgb(var(--c-red-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-red-500 { color: rgb(var(--c-red-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-red-600 { color: rgb(var(--c-red-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-rose-400 { color: rgb(var(--c-rose-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-rose-500 { color: rgb(var(--c-rose-700) / var(--tw-text-opacity, 1)); }
+:where(html:not(.dark)) .text-rose-600 { color: rgb(var(--c-rose-700) / var(--tw-text-opacity, 1)); }

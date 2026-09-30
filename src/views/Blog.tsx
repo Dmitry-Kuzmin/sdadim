@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { coverSrcSet } from "@/lib/covers";
 import { blogPosts, type BlogPost } from "@/lib/blog-posts";
 import {
   BookOpen,
@@ -136,7 +137,7 @@ export default function Blog() {
             {filtered.length > 0 && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {filtered.map((post) => (
+                  {filtered.map((post, i) => (
                     <a
                       key={post.slug}
                       href={`/blog/${post.slug}`}
@@ -147,9 +148,15 @@ export default function Blog() {
                         <div className="h-44 overflow-hidden">
                           <img
                             src={post.cover_image}
+                            srcSet={coverSrcSet(post.cover_image)}
+                            sizes="(min-width: 768px) 440px, 100vw"
                             alt={post.title}
+                            width={1600}
+                            height={1000}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy"
+                            // Первые две обложки — на первом экране (LCP), остальные лениво
+                            loading={i < 2 ? "eager" : "lazy"}
+                            fetchPriority={i === 0 ? "high" : "auto"}
                           />
                         </div>
                       ) : (

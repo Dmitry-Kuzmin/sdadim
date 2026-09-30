@@ -3,6 +3,7 @@
  * Интерактив — в Islands.tsx; острова вставляются через слоты (badge, card, nextStart, actions).
  */
 import type { ReactNode } from "react";
+import { coverSrcSet } from "@/lib/covers";
 import { ArrowRight } from "lucide-react";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns";
 import { blogPosts } from "@/lib/blog-posts";
@@ -153,6 +154,8 @@ export function Blog() {
                 <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-slate-100 ring-1 ring-slate-200/60">
                   <img
                     src={post.cover_image}
+                    srcSet={coverSrcSet(post.cover_image)}
+                    sizes="(min-width: 768px) 360px, 100vw"
                     alt=""
                     width={1600}
                     height={1000}

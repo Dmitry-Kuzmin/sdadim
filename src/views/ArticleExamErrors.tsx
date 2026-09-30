@@ -72,6 +72,7 @@ export default function ArticleExamErrors() {
 
             {/* Cover */}
             <ArticleImage
+              priority
               src="/assets/blog/oshibki-ekzamen-vozhdeniya.jpg"
               alt="Оценочный лист экзаменатора DGT во время практического экзамена на вождение в Испании"
               caption="Экзаменатор отмечает ошибки в реальном времени: каждая галочка приближает к результату «NO APTO»."

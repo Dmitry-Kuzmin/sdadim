@@ -252,7 +252,7 @@ export default function ArticleStoryMalaga() {
                 href="https://t.me/skilyapp_bot?start=course"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 py-3.5 rounded-xl transition-all hover:shadow-[0_0_20px_rgba(52,211,153,0.3)] w-full sm:w-auto text-lg"
+                className="inline-flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-8 py-3.5 rounded-xl transition-all hover:shadow-[0_0_20px_rgba(52,211,153,0.3)] w-full sm:w-auto text-lg"
               >
                 Начать подготовку бесплатно
               </a>

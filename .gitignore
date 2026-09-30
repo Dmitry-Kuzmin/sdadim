@@ -12,3 +12,6 @@ Icon?
 .astro/
 
 *.tsbuildinfo
+
+# Адаптивные обложки — генерируются при сборке (scripts/cover-variants.mjs)
+public/assets/blog/w/
