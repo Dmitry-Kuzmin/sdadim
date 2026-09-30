@@ -1,0 +1,9 @@
+---
+import Base from "@/layouts/Base.astro";
+import Home from "@/views/Home";
+import { HOME_SEO } from "@/lib/seo";
+---
+
+<Base seo={HOME_SEO}>
+  <Home client:load />
+</Base>

@@ -24,7 +24,7 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
+import { fetchStreams, nextOpenStream, spotsLeft, type StreamInfo } from "@/lib/course-data";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. ACCORDION (аккордеон / спойлер)
@@ -509,13 +509,6 @@ export function ArticleLinkCard({ href, title, description, external }: ArticleL
 // 14. BANNER — Умный рекламный баннер с датами и местами
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface StreamData {
-  starts_at: string;
-  seats_total: number;
-  seats_taken: number;
-  is_open: boolean;
-}
-
 interface ArticleBannerProps {
   /** Минимальная цена (fallback, если не удалось загрузить из Supabase) */
   basePrice?: number;
@@ -523,24 +516,15 @@ interface ArticleBannerProps {
 }
 
 export function ArticleBanner({ basePrice = 199, variant = "default" }: ArticleBannerProps) {
-  const [stream, setStream] = useState<StreamData | null>(null);
+  const [stream, setStream] = useState<StreamInfo | null>(null);
 
   useEffect(() => {
-    supabase
-      .from("course_streams")
-      .select("starts_at, seats_total, seats_taken, is_open")
-      .eq("is_open", true)
-      .order("starts_at", { ascending: true })
-      .limit(1)
-      .single()
-      .then(({ data }) => {
-        if (data) setStream(data);
-      });
+    fetchStreams(3).then((list) => setStream(nextOpenStream(list)));
   }, []);
 
-  const seatsLeft = stream ? Math.max(0, stream.seats_total - stream.seats_taken) : null;
+  const seatsLeft = stream ? spotsLeft(stream) : null;
   const startDate = stream
-    ? new Date(stream.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })
+    ? new Date(stream.start_date + "T00:00:00").toLocaleDateString("ru-RU", { day: "numeric", month: "long" })
     : null;
 
   if (variant === "compact") {

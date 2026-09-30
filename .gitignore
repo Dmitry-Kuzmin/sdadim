@@ -7,3 +7,6 @@ dist
 
 # macOS custom folder icon
 Icon?
+
+# Astro
+.astro/

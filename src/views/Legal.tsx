@@ -1,12 +1,9 @@
-import { useState } from "react";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { FileText, Shield, Cookie, CreditCard, RefreshCw, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SeoHead } from "@/components/seo/SeoHead";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Tab = "terms" | "privacy" | "cookies" | "subscription" | "refund";
+export type Tab = "terms" | "privacy" | "cookies" | "subscription" | "refund";
 
 const TABS: { id: Tab; icon: typeof FileText; label: string }[] = [
   { id: "terms", icon: FileText, label: "Оферта" },
@@ -18,7 +15,7 @@ const TABS: { id: Tab; icon: typeof FileText; label: string }[] = [
 
 // ─── Legal Content ────────────────────────────────────────────────────────────
 
-const CONTENT: Record<Tab, { title: string; updated: string; sections: { title: string; body: string }[] }> = {
+export const CONTENT: Record<Tab, { title: string; updated: string; sections: { title: string; body: string }[] }> = {
   terms: {
     title: "Публичная оферта",
     updated: "Последнее обновление: 1 апреля 2025",
@@ -137,40 +134,23 @@ const CONTENT: Record<Tab, { title: string; updated: string; sections: { title: 
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function Legal() {
-  const { tab } = useParams<{ tab: string }>();
-  const navigate = useNavigate();
-
-  const validTab = TABS.some((t) => t.id === tab);
-  if (!validTab) return <Navigate to="/legal/terms" replace />;
-
-  const activeTab = tab as Tab;
+/** Статичная страница (без JS): вкладки — обычные ссылки на /legal/<tab> */
+export default function Legal({ tab }: { tab: Tab }) {
+  const activeTab = tab;
   const content = CONTENT[activeTab];
-  const seoDescriptions: Record<Tab, string> = {
-    terms: "Публичная оферта и условия оказания образовательных услуг Sdadim.eu.",
-    privacy: "Политика конфиденциальности Sdadim.eu и правила обработки персональных данных.",
-    cookies: "Политика cookies Sdadim.eu и информация об аналитических технологиях сайта.",
-    subscription: "Условия доступа к материалам, платформе и сопровождению курса Sdadim.eu.",
-    refund: "Правила возврата средств и порядок подачи запроса на возврат в Sdadim.eu.",
-  };
 
   return (
     <main className="pt-10 md:pt-14 pb-20 px-4">
-      <SeoHead
-        title={`${content.title} | Сдадим`}
-        description={seoDescriptions[activeTab]}
-        canonicalUrl={`https://sdadim.eu/legal/${activeTab}`}
-      />
       <div className="max-w-3xl mx-auto">
 
         {/* Back */}
-        <button
-          onClick={() => navigate(-1)}
+        <a
+          href="/"
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 text-sm mb-8 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           Назад
-        </button>
+        </a>
 
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Правовые документы</h1>
         <p className="text-slate-500 text-sm mb-8">Sdadim.eu · Испания, Таррагона</p>
@@ -178,9 +158,10 @@ export default function Legal() {
         {/* Tabs */}
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-10 -mx-4 px-4">
           {TABS.map(({ id, icon: Icon, label }) => (
-            <button
+            <a
               key={id}
-              onClick={() => navigate(`/legal/${id}`)}
+              href={`/legal/${id}`}
+              aria-current={activeTab === id ? "page" : undefined}
               className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all",
                 activeTab === id
@@ -190,7 +171,7 @@ export default function Legal() {
             >
               <Icon className="w-3.5 h-3.5" />
               {label}
-            </button>
+            </a>
           ))}
         </div>
 

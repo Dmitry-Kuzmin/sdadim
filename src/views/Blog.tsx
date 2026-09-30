@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { blogPosts, type BlogPost } from "@/lib/blog-posts";
 import {
   BookOpen,
@@ -14,7 +13,6 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SeoHead } from "@/components/seo/SeoHead";
 
 const CATEGORIES = [
   { id: "all",              label: "Все статьи",     icon: Newspaper    },
@@ -27,13 +25,8 @@ const CATEGORIES = [
 ];
 
 export default function Blog() {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }, []);
 
   const filtered = blogPosts.filter((p) => {
     const matchSearch =
@@ -49,11 +42,6 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen bg-white">
-      <SeoHead
-        title="Блог о правах в Испании | Сдадим"
-        description="Полезные статьи о получении прав в Испании для русскоязычных: гайды, советы, разбор экзамена DGT."
-        canonicalUrl="https://sdadim.eu/blog"
-      />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-10">
 
@@ -149,10 +137,10 @@ export default function Blog() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {filtered.map((post) => (
-                    <article
+                    <a
                       key={post.slug}
-                      className="group flex flex-col cursor-pointer rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all duration-300 overflow-hidden"
-                      onClick={() => navigate(`/blog/${post.slug}`)}
+                      href={`/blog/${post.slug}`}
+                      className="group flex flex-col rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all duration-300 overflow-hidden"
                     >
                       {/* Cover */}
                       {post.cover_image ? (
@@ -207,7 +195,7 @@ export default function Blog() {
                           </span>
                         </div>
                       </div>
-                    </article>
+                    </a>
                   ))}
                 </div>
 

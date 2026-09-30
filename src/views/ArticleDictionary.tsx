@@ -20,42 +20,6 @@ import {
 } from "@/components/ui/article";
 import { FlippingCard } from "@/components/ui/flipping-card";
 
-// ─── SEO ──────────────────────────────────────────────────────────────────────
-
-function useSEO() {
-  useEffect(() => {
-    const prev = document.title;
-    document.title = "Словарик будущего водителя в Испании: термины DGT на русском | Sdadim";
-
-    const setMeta = (sel: string, attr: string, val: string) => {
-      let el = document.querySelector(sel) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, sel.match(/\[(?:name|property)="(.+?)"\]/)?.[1] ?? "");
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", val);
-    };
-
-    setMeta('meta[name="description"]', "name",
-      "Полный словарь автомобильных терминов Испании. Учим лексику DGT: документы (NIE, Tasa), команды экзаменатора (Glorieta, Paso de peatones) с русским переводом."
-    );
-    setMeta('meta[property="og:title"]', "property", "Испанский словарь водителя (Гайд от Sdadim)");
-    setMeta('meta[property="og:image"]', "property", "https://sdadim.eu/assets/blog/slovar-dgt.jpg");
-    setMeta('meta[property="og:url"]', "property", "https://sdadim.eu/blog/slovar-dgt");
-    setMeta('meta[property="og:type"]', "property", "article");
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.rel = "canonical";
-      document.head.appendChild(canonical);
-    }
-    canonical.href = "https://sdadim.eu/blog/slovar-dgt";
-
-    return () => { document.title = prev; };
-  }, []);
-}
 
 // ─── Данные словаря ────────────────────────────────────────────────────────
 
@@ -123,7 +87,6 @@ function TermBack({ data }: { data: TermData }) {
 // ─── Главный Экран ────────────────────────────────────────────────────────────
 
 export default function ArticleDictionary() {
-  useSEO();
 
   return (
     <div className="min-h-screen bg-white">

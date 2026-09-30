@@ -22,65 +22,10 @@ import {
   ArticleSpoiler,
 } from "@/components/ui/article";
 
-// ─── SEO ──────────────────────────────────────────────────────────────────────
-
-function useSEO() {
-  useEffect(() => {
-    const prev = document.title;
-    document.title = "Поддельные права в Испании: тюрьма, штрафы и легальный путь (2026) | Sdadim";
-
-    const setMeta = (sel: string, attr: string, val: string) => {
-      let el = document.querySelector(sel) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, sel.match(/\[(?:name|property)="(.+?)"\]/)?.[1] ?? "");
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", val);
-    };
-
-    setMeta('meta[name="description"]', "name",
-      "Почему покупка поддельных водительских прав в Испании ведет к тюремному сроку? Разбираем реальные последствия (штрафы от 12 до 24 месяцев, срок до 3 лет) и рассказываем, как получить права легально с первого раза."
-    );
-    setMeta('meta[property="og:title"]', "property", "Поддельные права в Испании: цена обмана и легальный путь");
-    setMeta('meta[property="og:description"]', "property", "Что грозит за покупку фейковых прав в Испании? Огромные штрафы до 24 месяцев, срок до 3 лет и отказ страховой. Как сдать легально.");
-    setMeta('meta[property="og:image"]', "property", "https://sdadim.eu/assets/blog/poddelnyye-prava-ispaniya.jpg");
-    setMeta('meta[property="og:url"]', "property", "https://sdadim.eu/blog/poddelnyye-prava-ispaniya");
-    setMeta('meta[property="og:type"]', "property", "article");
-    setMeta('meta[name="keywords"]', "name", "поддельные права испания, купить права испания, штраф езда без прав испания, документы DGT, экзамен по вождению испания");
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    canonical.href = "https://sdadim.eu/blog/poddelnyye-prava-ispaniya";
-
-    const ldId = "ld-fake-licenses";
-    document.getElementById(ldId)?.remove();
-    const ld = document.createElement("script");
-    ld.id = ldId;
-    ld.type = "application/ld+json";
-    ld.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: "Поддельные права в Испании: тюрьма, штрафы и легальный путь (Гайд 2026)",
-      description: "Все о последствиях езды с поддельными правами в Испании: уголовная ответственность, финансовые потери и безопасная легальная альтернатива.",
-      image: "https://sdadim.eu/assets/blog/poddelnyye-prava-ispaniya.jpg",
-      datePublished: "2025-04-02",
-      publisher: { "@type": "Organization", name: "Sdadim", url: "https://sdadim.eu" },
-    });
-    document.head.appendChild(ld);
-
-    return () => {
-      document.title = prev;
-      document.querySelector('link[rel="canonical"]')?.remove();
-      document.getElementById(ldId)?.remove();
-    };
-  }, []);
-}
 
 // ─── Компонент ────────────────────────────────────────────────────────────────
 
 export default function ArticleFakeLicense() {
-  useSEO();
 
   return (
     <div className="min-h-screen bg-white">

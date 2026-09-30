@@ -1,0 +1,9 @@
+---
+import Base from "@/layouts/Base.astro";
+import Blog from "@/views/Blog";
+import { BLOG_SEO } from "@/lib/seo";
+---
+
+<Base seo={BLOG_SEO}>
+  <Blog client:idle />
+</Base>

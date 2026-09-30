@@ -18,42 +18,6 @@ import { cn } from "@/lib/utils";
 import { getPlans } from "@/components/ui/pricing-cards";
 import { budget, eur, MARKET, round, TASA_DGT } from "@/lib/license-costs";
 
-// ─── SEO ──────────────────────────────────────────────────────────────────────
-
-function useSEO() {
-  useEffect(() => {
-    const prev = document.title;
-    document.title = "Сколько стоит получить права в Испании? (Калькулятор 2026) | Sdadim";
-
-    const setMeta = (sel: string, attr: string, val: string) => {
-      let el = document.querySelector(sel) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, sel.match(/\[(?:name|property)="(.+?)"\]/)?.[1] ?? "");
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", val);
-    };
-
-    setMeta('meta[name="description"]', "name",
-      "Полный разбор цен на водительские права в Испании в 2026 году: пошлина DGT 94,05€ и когда её платят повторно, автошкола, медкомиссия, пересдачи. Калькулятор бюджета."
-    );
-    setMeta('meta[property="og:title"]', "property", "Цены на водительские права в Испании 2026 + Калькулятор");
-    setMeta('meta[property="og:image"]', "property", "https://sdadim.eu/assets/blog/tseny-na-prava.jpg");
-    setMeta('meta[property="og:url"]', "property", "https://sdadim.eu/blog/tseny-na-prava");
-    setMeta('meta[property="og:type"]', "property", "article");
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.rel = "canonical";
-      document.head.appendChild(canonical);
-    }
-    canonical.href = "https://sdadim.eu/blog/tseny-na-prava";
-
-    return () => { document.title = prev; };
-  }, []);
-}
 
 // ─── Calculator Component ──────────────────────────────────────────────────
 // Вся математика — в @/lib/license-costs (общая с квизом на главной и migran.es)
@@ -184,7 +148,6 @@ function CostsCalculator() {
 // ─── MAIN ────────────────────────────────────────────────────────────
 
 export default function ArticleCosts() {
-  useSEO();
 
   return (
     <div className="min-h-screen bg-white">

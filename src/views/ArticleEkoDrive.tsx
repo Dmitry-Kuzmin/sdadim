@@ -24,65 +24,10 @@ import {
 } from "@/components/ui/article";
 import { ArticleQuizBlock, ECO_DRIVING_QUESTIONS } from "@/components/ui/article-quiz";
 
-// ─── SEO ──────────────────────────────────────────────────────────────────────
-
-function useSEO() {
-  useEffect(() => {
-    const prev = document.title;
-    document.title = "Экономичное вождение: 13 техник для снижения расхода топлива | Sdadim";
-
-    const setMeta = (sel: string, attr: string, val: string) => {
-      let el = document.querySelector(sel) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, sel.match(/\[(?:name|property)="(.+?)"\]/)?.[1] ?? "");
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", val);
-    };
-
-    setMeta('meta[name="description"]', "name",
-      "Как сократить расход топлива до 30%? Объясняем 13 научно обоснованных техник экономичного вождения — педаль газа, инерция, скорость на трассе и мифы бывалых. Важно для экзамена DGT."
-    );
-    setMeta('meta[property="og:title"]', "property", "Экономичное вождение: 13 техник для снижения расхода топлива");
-    setMeta('meta[property="og:description"]', "property", "Как снизить расход на 20–30%: плавный разгон, чтение дороги, инерция, давление в шинах и разбор мифов про нейтралку. Включает вопросы темы DGT.");
-    setMeta('meta[property="og:image"]', "property", "https://sdadim.eu/assets/blog/ekonomichnoe-vozhdenie.jpg");
-    setMeta('meta[property="og:url"]', "property", "https://sdadim.eu/blog/ekonomichnoe-vozhdenie");
-    setMeta('meta[property="og:type"]', "property", "article");
-    setMeta('meta[name="keywords"]', "name", "экономичное вождение, расход топлива, DGT вождение, eficiencia combustible, вопросы DGT");
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    canonical.href = "https://sdadim.eu/blog/ekonomichnoe-vozhdenie";
-
-    const ldId = "ld-eco-driving";
-    document.getElementById(ldId)?.remove();
-    const ld = document.createElement("script");
-    ld.id = ldId;
-    ld.type = "application/ld+json";
-    ld.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: "Экономичное вождение: 13 техник для снижения расхода топлива на 20–30%",
-      description: "Как снизить расход топлива с помощью правильной техники вождения — плавный разгон, чтение дороги, инерция и разбор мифов.",
-      image: "https://sdadim.eu/assets/blog/ekonomichnoe-vozhdenie.jpg",
-      datePublished: "2025-04-01",
-      publisher: { "@type": "Organization", name: "Sdadim", url: "https://sdadim.eu" },
-    });
-    document.head.appendChild(ld);
-
-    return () => {
-      document.title = prev;
-      document.querySelector('link[rel="canonical"]')?.remove();
-      document.getElementById(ldId)?.remove();
-    };
-  }, []);
-}
 
 // ─── Компонент ────────────────────────────────────────────────────────────────
 
 export default function ArticleEkoDrive() {
-  useSEO();
 
   return (
     <div className="min-h-screen bg-white">

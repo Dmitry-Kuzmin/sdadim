@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { getPlans, type DbPlanPrices } from "@/components/ui/pricing-cards";
 import { CourseChecklist } from "@/components/ui/course/CourseChecklist";
 import { TestimonialsColumn, type Testimonial } from "@/components/ui/testimonials-columns";
 import { useCrispChat } from "@/hooks/useCrispChat";
-import { getSupabaseClient } from "@/lib/supabase";
+import { fetchPlanPrices, fetchStreams, spotsLeft, type StreamInfo } from "@/lib/course-data";
 import { blogPosts } from "@/lib/blog-posts";
 import { FAQ_CATEGORIES, FAQ_DATA } from "@/lib/home-faq";
 import {
@@ -91,13 +90,8 @@ const TESTIMONIALS: Testimonial[] = [
   { text: "Мне 22, сдала с первого раза. Главное — не пришлось платить автошколе за теорию. Всё ясно, быстро, без воды.", name: "Катя", role: "Барселона" },
 ];
 
-type StreamInfo = { id?: string; number: number; start_date: string; spots_total: number; spots_enrolled: number; status?: string };
-
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" }).format(new Date(iso + "T00:00:00"));
-
-const spotsLeft = (s: StreamInfo) =>
-  s.status === "finished" || s.status === "closed" ? 0 : Math.max(0, s.spots_total - s.spots_enrolled);
 
 const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
@@ -241,47 +235,14 @@ const CourseLanding = () => {
 
   // Цены и потоки из БД — единый источник правды с ботом
   useEffect(() => {
-    getSupabaseClient().then(async (sb) => {
-      const [plansRes, streamsRes] = await Promise.all([
-        sb.from("course_plans" as never).select("id, price_eur, original_price_eur, payment_link").eq("active", true),
-        sb.from("course_streams" as never).select("id, status, number, start_date, spots_total, spots_enrolled").gte("start_date", new Date().toISOString().split("T")[0]).order("start_date", { ascending: true }).limit(3),
-      ]);
-
-      if (plansRes.data && Array.isArray(plansRes.data)) {
-        const map: DbPlanPrices = {};
-        (plansRes.data as { id: string; price_eur: number; original_price_eur: number | null; payment_link: string | null }[])
-          .forEach((p) => { map[p.id] = p; });
-        setDbPrices(map);
-      }
-      if (streamsRes.data && Array.isArray(streamsRes.data)) {
-        setStreams(streamsRes.data as StreamInfo[]);
-      }
-    }).catch(() => { /* fallback to hardcoded */ });
+    fetchPlanPrices().then((p) => p && setDbPrices(p));
+    fetchStreams(3).then(setStreams);
   }, []);
 
   useCrispChat();
 
   useEffect(() => {
     Analytics.landingViewed();
-  }, []);
-
-  useEffect(() => {
-    const allFaqs = Object.values(FAQ_DATA).flat();
-    const s = document.createElement("script");
-    s.id = "ld-faq";
-    s.type = "application/ld+json";
-    s.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: allFaqs.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: { "@type": "Answer", text: item.answer },
-      })),
-    });
-    document.getElementById("ld-faq")?.remove();
-    document.head.appendChild(s);
-    return () => { document.getElementById("ld-faq")?.remove(); };
   }, []);
 
   // Мобильная CTA-панель: видна после hero и прячется, пока на экране тарифы
@@ -319,12 +280,6 @@ const CourseLanding = () => {
 
   return (
     <div className="bg-white text-slate-900">
-      <SeoHead
-        title="Водительские права в Испании — теория DGT с первого раза | Сдадим"
-        description="Онлайн-курс подготовки к теоретическому экзамену DGT на русском языке. 9 из 10 студентов сдают с первой попытки. Куратор, документы, разбор вопросов DGT."
-        canonicalUrl="https://sdadim.eu/"
-      />
-
       <main>
         {/* ─── Hero ─── */}
         <section ref={heroRef} className="relative overflow-hidden">

@@ -1,0 +1,16 @@
+---
+import Base from "@/layouts/Base.astro";
+import Legal from "@/views/Legal";
+import { LEGAL_TABS, legalSeo, type LegalTab } from "@/lib/seo";
+
+export function getStaticPaths() {
+  return LEGAL_TABS.map((tab) => ({ params: { tab } }));
+}
+
+const tab = Astro.params.tab as LegalTab;
+---
+
+<!-- Без client:* — чистый HTML, ноль JS -->
+<Base seo={legalSeo(tab)}>
+  <Legal tab={tab} />
+</Base>

@@ -1,24 +1,11 @@
 {
-  "rewrites": [
-    {
-      "source": "/blog",
-      "destination": "/blog.html"
-    },
-    {
-      "source": "/blog/:slug",
-      "destination": "/blog/:slug.html"
-    },
-    {
-      "source": "/legal",
-      "destination": "/legal/terms.html"
-    },
-    {
-      "source": "/legal/:tab",
-      "destination": "/legal/:tab.html"
-    },
-    {
-      "source": "/404",
-      "destination": "/404.html"
-    }
+  "framework": "astro",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/legal", "destination": "/legal/terms", "permanent": true },
+    { "source": "/index", "destination": "/", "permanent": true }
   ]
 }

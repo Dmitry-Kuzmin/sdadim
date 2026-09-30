@@ -1,0 +1,47 @@
+---
+/**
+ * Все статьи блога. Список — из blog-posts.json (единый источник), у каждой статьи свой
+ * React-компонент: HTML рендерится на сервере целиком, JS догружается в простое браузера
+ * (client:idle) — только для интерактива (калькуляторы, квизы, вкладки).
+ */
+import Base from "@/layouts/Base.astro";
+import { blogPosts } from "@/lib/blog-posts";
+import { articleSeo } from "@/lib/seo";
+import ArticleExamErrors from "@/views/ArticleExamErrors";
+import ArticleStoryMalaga from "@/views/ArticleStoryMalaga";
+import ArticleCosts from "@/views/ArticleCosts";
+import ArticleDictionary from "@/views/ArticleDictionary";
+import ArticlePractical from "@/views/ArticlePractical";
+import ArticleFakeLicense from "@/views/ArticleFakeLicense";
+import ArticleEkoDrive from "@/views/ArticleEkoDrive";
+
+const ARTICLES = new Set([
+  "oshibki-ekzamen-vozhdeniya",
+  "istoriya-sdachi-prav-malaga",
+  "tseny-na-prava",
+  "slovar-dgt",
+  "prakticheskiy-ekzamen",
+  "poddelnyye-prava-ispaniya",
+  "ekonomichnoe-vozhdenie",
+]);
+
+export function getStaticPaths() {
+  return blogPosts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+const { post } = Astro.props;
+if (!ARTICLES.has(post.slug)) {
+  throw new Error(`Нет компонента для статьи «${post.slug}» — добавьте его в src/pages/blog/[slug].astro`);
+}
+const slug = post.slug;
+---
+
+<Base seo={articleSeo(post)}>
+  {slug === "oshibki-ekzamen-vozhdeniya" && <ArticleExamErrors client:idle />}
+  {slug === "istoriya-sdachi-prav-malaga" && <ArticleStoryMalaga client:idle />}
+  {slug === "tseny-na-prava" && <ArticleCosts client:idle />}
+  {slug === "slovar-dgt" && <ArticleDictionary client:idle />}
+  {slug === "prakticheskiy-ekzamen" && <ArticlePractical client:idle />}
+  {slug === "poddelnyye-prava-ispaniya" && <ArticleFakeLicense client:idle />}
+  {slug === "ekonomichnoe-vozhdenie" && <ArticleEkoDrive client:idle />}
+</Base>

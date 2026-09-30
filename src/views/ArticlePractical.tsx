@@ -20,48 +20,10 @@ import {
   ArticleBanner,
 } from "@/components/ui/article";
 
-// ─── SEO ──────────────────────────────────────────────────────────────────────
-
-function useSEO() {
-  useEffect(() => {
-    const prev = document.title;
-    document.title = "Как сдать практический экзамен по вождению в Испании с первого раза | Sdadim";
-
-    const setMeta = (sel: string, attr: string, val: string) => {
-      let el = document.querySelector(sel) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, sel.match(/\[(?:name|property)="(.+?)"\]/)?.[1] ?? "");
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", val);
-    };
-
-    setMeta('meta[name="description"]', "name",
-      "Сдаем практический экзамен DGT с первого раза: подготовка к каверзным вопросам экзаменатора, ловушки на маршруте и психология успешной сдачи (2026)."
-    );
-    setMeta('meta[property="og:title"]', "property", "Как сдать практический экзамен по вождению в Испании с первого раза");
-    setMeta('meta[property="og:description"]', "property", "Полное руководство: от проверки масла до хитрых ловушек экзаменатора. Подготовьтесь на 100% и получите права с Sdadim.");
-    setMeta('meta[property="og:image"]', "property", "https://sdadim.eu/assets/blog/prakticheskiy-ekzamen.jpg");
-    setMeta('meta[property="og:url"]', "property", "https://sdadim.eu/blog/prakticheskiy-ekzamen");
-    setMeta('meta[property="og:type"]', "property", "article");
-    setMeta('meta[name="keywords"]', "name", "сдать практику DGT, практический экзамен вождение испания, вопросы экзаменатора испания, ловушки DGT, ruta de examen DGT");
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    canonical.href = "https://sdadim.eu/blog/prakticheskiy-ekzamen";
-
-    return () => {
-      document.title = prev;
-      document.querySelector('link[rel="canonical"]')?.remove();
-    };
-  }, []);
-}
 
 // ─── Компонент ────────────────────────────────────────────────────────────────
 
 export default function ArticlePractical() {
-  useSEO();
 
   return (
     <div className="min-h-screen bg-white">

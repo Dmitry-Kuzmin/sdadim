@@ -18,49 +18,10 @@ import {
   ArticleBanner,
 } from "@/components/ui/article";
 
-// ─── SEO ──────────────────────────────────────────────────────────────────────
-
-function useSEO() {
-  useEffect(() => {
-    const prev = document.title;
-    document.title = "Как я сдавала практику по вождению в Испании: честная история из Малаги | Sdadim";
-
-    const setMeta = (sel: string, attr: string, val: string) => {
-      let el = document.querySelector(sel) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, sel.match(/\[(?:name|property)="(.+?)"\]/)?.[1] ?? "");
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", val);
-    };
-
-    setMeta('meta[name="description"]', "name",
-      "Реальная история сдачи практики DGT в Малаге: подготовка теории онлайн, 10 уроков за 5 дней, ноль ошибок на экзамене. Что отличает вождение в Испании и сколько всё стоит."
-    );
-    setMeta('meta[property="og:title"]', "property", "Как я сдавала практику по вождению в Испании: честная история из Малаги");
-    setMeta('meta[property="og:description"]', "property", "739 евро, полгода и ноль ошибок. Теория онлайн с ИИ, практика в малажской автошколе — рассказываю всё как есть.");
-    setMeta('meta[property="og:url"]', "property", "https://sdadim.eu/blog/istoriya-sdachi-prav-malaga");
-    setMeta('meta[property="og:type"]', "property", "article");
-    setMeta('meta[name="keywords"]', "name",
-      "сдать практику DGT Малага, экзамен вождение Испания опыт, права Испания история, подготовка теория DGT онлайн, вождение Испания отличия от России"
-    );
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    canonical.href = "https://sdadim.eu/blog/istoriya-sdachi-prav-malaga";
-
-    return () => {
-      document.title = prev;
-      document.querySelector('link[rel="canonical"]')?.remove();
-    };
-  }, []);
-}
 
 // ─── Компонент ────────────────────────────────────────────────────────────────
 
 export default function ArticleStoryMalaga() {
-  useSEO();
 
   return (
     <div className="min-h-screen bg-white">

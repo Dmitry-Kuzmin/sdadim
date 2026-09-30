@@ -22,93 +22,10 @@ import {
   ArticleTabs,
 } from "@/components/ui/article";
 
-// ─── SEO ──────────────────────────────────────────────────────────────────────
-
-function useSEO() {
-  useEffect(() => {
-    const prev = document.title;
-    document.title =
-      "Все ошибки на экзамене по вождению DGT 2026 — полная таблица штрафных баллов | Sdadim";
-
-    const setMeta = (sel: string, attr: string, val: string) => {
-      let el = document.querySelector(sel) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, sel.match(/\[(?:name|property)="(.+?)"\]/)?.[1] ?? "");
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", val);
-    };
-
-    setMeta(
-      'meta[name="description"]',
-      "name",
-      "Полная таблица ошибок на практическом экзамене DGT в Испании: leves, deficientes, eliminatorias. Как их избежать и сдать с первого раза (2026)."
-    );
-    setMeta(
-      'meta[property="og:title"]',
-      "property",
-      "Все ошибки на экзамене по вождению DGT 2026 — полная таблица штрафных баллов"
-    );
-    setMeta(
-      'meta[property="og:description"]',
-      "property",
-      "Официальный перечень ошибок DGT на русском: 14 разделов, 3 уровня тяжести, советы по каждой ситуации."
-    );
-    setMeta(
-      'meta[property="og:image"]',
-      "property",
-      "https://sdadim.eu/assets/blog/oshibki-ekzamen-vozhdeniya.jpg"
-    );
-    setMeta(
-      'meta[property="og:url"]',
-      "property",
-      "https://sdadim.eu/blog/oshibki-ekzamen-vozhdeniya"
-    );
-    setMeta('meta[property="og:type"]', "property", "article");
-    setMeta(
-      'meta[name="keywords"]',
-      "name",
-      "ошибки экзамен вождение DGT, faltas eliminatorias DGT, faltas deficientes leves, критерии оценки вождения испания, NO APTO DGT, как не провалить практику, экзамен на права испания 2026"
-    );
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.rel = "canonical";
-      document.head.appendChild(canonical);
-    }
-    canonical.href = "https://sdadim.eu/blog/oshibki-ekzamen-vozhdeniya";
-
-    const ld = document.createElement("script");
-    ld.type = "application/ld+json";
-    ld.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: "Все ошибки на экзамене по вождению DGT 2026 — полная таблица штрафных баллов",
-      image: "https://sdadim.eu/assets/blog/oshibki-ekzamen-vozhdeniya.jpg",
-      datePublished: "2026-04-01",
-      dateModified: "2026-04-01",
-      author: { "@type": "Organization", name: "Sdadim", url: "https://sdadim.eu" },
-      publisher: { "@type": "Organization", name: "Sdadim", url: "https://sdadim.eu" },
-      description:
-        "Полная таблица ошибок на практическом экзамене DGT: leves, deficientes, eliminatorias. Как их избежать.",
-      mainEntityOfPage: "https://sdadim.eu/blog/oshibki-ekzamen-vozhdeniya",
-    });
-    document.head.appendChild(ld);
-
-    return () => {
-      document.title = prev;
-      document.querySelector('link[rel="canonical"]')?.remove();
-      ld.remove();
-    };
-  }, []);
-}
 
 // ─── Компонент ────────────────────────────────────────────────────────────────
 
 export default function ArticleExamErrors() {
-  useSEO();
 
   return (
     <div className="min-h-screen bg-white">

@@ -4,19 +4,20 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "astro dev --port 4321",
     "prebuild": "npm run generate:discovery",
-    "build:app": "vite build",
-    "build": "npm run build:app && npm run prerender && npm run seo:assert:dist",
+    "build": "astro build && npm run seo:assert:dist",
     "generate:discovery": "node scripts/generate-discovery.mjs",
-    "prerender": "node scripts/prerender.mjs",
     "seo:assert:dist": "node scripts/seo-assert-dist.mjs",
-    "preview": "vite preview",
+    "preview": "astro preview",
     "covers": "node scripts/render-covers.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "astro check"
   },
   "dependencies": {
+    "@astrojs/react": "^4.4.2",
+    "@astrojs/tailwind": "^6.0.2",
     "@supabase/supabase-js": "^2.49.1",
+    "astro": "^5.18.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.18.2",
@@ -24,23 +25,17 @@
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.0",
     "tailwind-merge": "^2.6.1"
   },
   "devDependencies": {
-    "@sparticuz/chromium": "^143.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react-swc": "^3.7.0",
     "autoprefixer": "^10.4.20",
-    "express": "^5.1.0",
     "postcss": "^8.4.47",
     "puppeteer": "^24.32.0",
-    "puppeteer-core": "^24.32.0",
     "tailwindcss": "^3.4.14",
-    "typescript": "^5.5.3",
-    "vite": "^5.4.10"
+    "typescript": "^5.5.3"
   },
   "overrides": {
     "@types/react": "^18.3.5",

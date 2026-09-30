@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/useTheme";
@@ -12,28 +12,28 @@ const NAV_LINKS = [
 ];
 
 function ThemeToggle({ className }: { className?: string }) {
-  const { theme, toggle } = useTheme();
-  const dark = theme === "dark";
+  const { toggle } = useTheme();
+  // Иконки переключаются CSS-классом .dark на <html> — HTML сервера и клиента совпадает
   return (
     <button
       onClick={toggle}
-      aria-label={dark ? "Светлая тема" : "Тёмная тема"}
-      title={dark ? "Светлая тема" : "Тёмная тема"}
+      aria-label="Переключить тему"
+      title="Переключить тему"
       className={cn(
         "relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900",
         className
       )}
     >
-      <Sun className={cn("absolute h-[18px] w-[18px] transition-all duration-300", dark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-50 opacity-0")} />
-      <Moon className={cn("absolute h-[18px] w-[18px] transition-all duration-300", dark ? "rotate-90 scale-50 opacity-0" : "rotate-0 scale-100 opacity-100")} />
+      <Sun className="absolute h-[18px] w-[18px] -rotate-90 scale-50 opacity-0 transition-all duration-300 dark:rotate-0 dark:scale-100 dark:opacity-100" />
+      <Moon className="absolute h-[18px] w-[18px] rotate-0 scale-100 opacity-100 transition-all duration-300 dark:rotate-90 dark:scale-50 dark:opacity-0" />
     </button>
   );
 }
 
-export default function Header() {
+export default function Header({ currentPath = "/" }: { currentPath?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { pathname } = useLocation();
+  const pathname = currentPath;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
