@@ -1,0 +1,31 @@
+---
+/** Список с иконками. Пункты — строки, допускается inline-HTML */
+import { ArrowRight, CheckCircle2, XCircle } from "@lucide/astro";
+
+interface Props {
+  items: string[];
+  type?: "check" | "cross" | "arrow" | "number";
+  title?: string;
+}
+
+const { items, type = "check", title } = Astro.props;
+---
+
+<div class="my-6 not-prose">
+  {title && <p class="text-sm font-bold text-slate-600 mb-3">{title}</p>}
+  <ul class="space-y-2.5">
+    {
+      items.map((item, i) => (
+        <li class="flex items-start gap-3 text-[15px] text-slate-700 leading-snug">
+          {type === "number" && (
+            <span class="w-5 h-5 rounded-full bg-blue-500/15 text-blue-600 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+          )}
+          {type === "check" && <CheckCircle2 class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />}
+          {type === "cross" && <XCircle class="w-4 h-4 text-red-600 shrink-0 mt-0.5" />}
+          {type === "arrow" && <ArrowRight class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />}
+          <span set:html={item} />
+        </li>
+      ))
+    }
+  </ul>
+</div>

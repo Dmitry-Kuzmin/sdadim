@@ -1,0 +1,29 @@
+---
+import { Quote as QuoteIcon } from "@lucide/astro";
+
+interface Props {
+  text: string;
+  author?: string;
+  role?: string;
+}
+
+const { text, author, role } = Astro.props;
+---
+
+<blockquote class="my-8 not-prose relative">
+  <div class="pl-5 border-l-2 border-blue-500">
+    <QuoteIcon class="w-5 h-5 text-blue-500/40 mb-2" />
+    <p class="text-lg md:text-xl font-medium text-slate-900 leading-relaxed">{text}</p>
+    {
+      author && (
+        <footer class="mt-3 flex items-center gap-2">
+          <div class="w-5 h-[1px] bg-slate-300" />
+          <span class="text-sm text-slate-500">
+            {author}
+            {role && <span class="text-slate-400"> · {role}</span>}
+          </span>
+        </footer>
+      )
+    }
+  </div>
+</blockquote>

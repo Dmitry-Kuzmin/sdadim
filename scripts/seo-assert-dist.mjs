@@ -2,7 +2,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { MANIFEST_FILE } from "./content-platform.mjs";
+const MANIFEST_FILE = "content-platform-manifest.json";
 
 const distDir = resolve(process.cwd(), "dist");
 

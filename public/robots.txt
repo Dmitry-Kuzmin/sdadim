@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://sdadim.eu/sitemap.xml
-Sitemap: https://sdadim.eu/news-sitemap.xml

@@ -1,0 +1,258 @@
+---
+/**
+ * Мини-тест DGT в статье. Все вопросы, варианты и разборы — в HTML (их индексируют поисковики),
+ * скрипт только показывает по одному вопросу и считает результат.
+ *   <Quiz questions={ECO_DRIVING_QUESTIONS} title="Проверь себя" />
+ */
+import { ArrowRight, BrainCircuit, CheckCircle2, ChevronRight, RotateCcw, XCircle, Zap } from "@lucide/astro";
+import type { QuizQuestion } from "@/data/quizzes";
+
+interface Props {
+  questions: QuizQuestion[];
+  title?: string;
+  subtitle?: string;
+}
+
+const { questions, title = "Проверь себя — мини-тест DGT", subtitle } = Astro.props;
+const total = questions.length;
+const C = 2 * Math.PI * 42;
+---
+
+<div data-quiz data-total={total} class="my-10 not-prose rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white overflow-hidden shadow-[0_0_40px_-10px_rgba(59,130,246,0.2)]">
+  <div class="px-6 pt-6 pb-4 border-b border-slate-200">
+    <div class="flex items-center gap-2 mb-3">
+      <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+        <img src="/favicon-s.svg" alt="" class="w-4 h-4 rounded-sm" />
+      </div>
+      <span class="text-[10px] font-bold uppercase tracking-widest text-blue-600">Вопросы DGT · Sdadim</span>
+    </div>
+    <h3 class="text-lg font-bold text-slate-900 mb-1">{title}</h3>
+    {subtitle && <p class="text-sm text-slate-500">{subtitle}</p>}
+    <div data-progress class="mt-3 flex items-center gap-3">
+      <span class="text-xs font-bold text-slate-600 tabular-nums shrink-0"><span data-progress-n>1</span>/{total}</span>
+      <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+        <div data-progress-bar class="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-500" style={`width: ${100 / total}%`} />
+      </div>
+    </div>
+  </div>
+
+  <div class="px-6 py-6">
+    {
+      questions.map((q, qi) => (
+        <div data-q={qi} data-correct={q.correct} hidden={qi > 0} class="quiz-step">
+          {q.image && (
+            <div class="rounded-2xl overflow-hidden mb-5 border border-slate-200 max-h-52">
+              <img src={q.image} alt="Иллюстрация к вопросу" class="w-full h-52 object-cover" loading="lazy" />
+            </div>
+          )}
+          <div class="mb-1">
+            <p class="text-slate-900 font-semibold text-base leading-snug">{q.question_es}</p>
+            <details class="group/ru">
+              <summary class="mt-1.5 text-[11px] text-slate-400 hover:text-slate-700 transition-colors flex items-center gap-1 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                <ChevronRight class="w-3 h-3 transition-transform group-open/ru:rotate-90" />
+                <span class="group-open/ru:hidden">Перевод на русский</span>
+                <span class="hidden group-open/ru:inline">Скрыть</span>
+              </summary>
+              <p class="mt-2 text-sm text-slate-600 leading-relaxed bg-slate-50 rounded-xl px-3 py-2 border border-slate-200">{q.question_ru}</p>
+            </details>
+          </div>
+
+          <div class="space-y-2.5 mt-5" role="radiogroup">
+            {q.options.map((opt, i) => (
+              <button
+                type="button"
+                data-opt={i}
+                data-state="default"
+                class="quiz-opt w-full flex items-start gap-3 px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all duration-200"
+              >
+                <span class="quiz-badge w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0">
+                  <span class="quiz-num">{i + 1}</span>
+                  <CheckCircle2 class="quiz-ok w-3.5 h-3.5" />
+                  <XCircle class="quiz-bad w-3.5 h-3.5" />
+                </span>
+                <span class="leading-snug">{opt}</span>
+              </button>
+            ))}
+          </div>
+
+          <div data-feedback hidden class="quiz-feedback mt-5 rounded-2xl border p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <CheckCircle2 class="quiz-fb-ok w-4 h-4 text-emerald-600 shrink-0" />
+              <XCircle class="quiz-fb-bad w-4 h-4 text-red-600 shrink-0" />
+              <span data-verdict class="text-sm font-bold" />
+            </div>
+            <details class="group/ex">
+              <summary class="flex items-center gap-2 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors mt-1 cursor-pointer list-none [&::-webkit-details-marker]:hidden group-open/ex:hidden">
+                <BrainCircuit class="w-3.5 h-3.5" />
+                AI-разбор — почему именно так
+              </summary>
+              <div class="mt-2">
+                <div class="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                  <BrainCircuit class="w-3 h-3" /> Разбор
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">{q.explanation}</p>
+                {q.principle && (
+                  <div class="mt-3 flex items-start gap-2 text-[11px] text-slate-500">
+                    <Zap class="w-3 h-3 text-amber-600 shrink-0 mt-0.5" />
+                    <span>
+                      <strong class="text-amber-600">Принцип DGT:</strong> {q.principle}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </details>
+          </div>
+
+          <div class="mt-5 flex gap-3">
+            <button type="button" data-confirm disabled class="flex-1 py-3 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-400 cursor-not-allowed enabled:bg-blue-600 enabled:hover:bg-blue-500 enabled:text-white enabled:cursor-pointer enabled:hover:shadow-[0_0_20px_rgba(59,130,246,0.35)]">
+              Ответить
+            </button>
+            <button type="button" data-next hidden class="flex-1 py-3 rounded-xl bg-slate-100 text-slate-900 font-bold text-sm transition-all flex items-center justify-center gap-2">
+              {qi + 1 < total ? "Следующий вопрос" : "Посмотреть результат"}
+              <ArrowRight class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      ))
+    }
+
+    <div data-score hidden class="text-center py-8 px-4">
+      <div class="relative w-28 h-28 mx-auto mb-6">
+        <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="8" />
+          <circle data-ring cx="50" cy="50" r="42" fill="none" stroke-width="8" stroke-linecap="round" stroke-dasharray={C} stroke-dashoffset={C} style="transition: stroke-dashoffset 1s ease-out" />
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span data-pct class="text-2xl font-bold" />
+          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">результат</span>
+        </div>
+      </div>
+      <p class="text-xl font-bold text-slate-900 mb-1"><span data-score-n /> из {total} правильно</p>
+      <p data-score-text class="text-sm mb-6" />
+      <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+        <button type="button" data-reset class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-sm font-semibold transition-colors">
+          <RotateCcw class="w-3.5 h-3.5" /> Пройти снова
+        </button>
+        <a href="https://t.me/skilyapp_bot?start=course" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-all hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+          <Zap class="w-3.5 h-3.5" /> 3000+ вопросов на курсе
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
+    <span class="text-[10px] text-slate-400">Официальные вопросы DGT · База 2025</span>
+    <a href="https://t.me/skilyapp_bot?start=course" target="_blank" rel="noopener noreferrer" class="text-[10px] text-slate-400 hover:text-slate-700 transition-colors font-medium">Sdadim.eu →</a>
+  </div>
+</div>
+
+<style>
+  /* Состояния вариантов ответа — через data-state, без пересборки DOM */
+  .quiz-opt[data-state="default"] { @apply border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300; }
+  .quiz-opt[data-state="selected"] { @apply border-blue-500/60 bg-blue-500/10 text-slate-900; }
+  .quiz-opt[data-state="correct"] { @apply border-emerald-500/50 bg-emerald-500/10 text-emerald-700; }
+  .quiz-opt[data-state="wrong"] { @apply border-red-500/50 bg-red-500/10 text-red-700; }
+  .quiz-opt[data-state="default"] .quiz-badge { @apply bg-slate-100 text-slate-500; }
+  .quiz-opt[data-state="selected"] .quiz-badge { @apply bg-blue-500 text-white; }
+  .quiz-opt[data-state="correct"] .quiz-badge { @apply bg-emerald-500 text-white; }
+  .quiz-opt[data-state="wrong"] .quiz-badge { @apply bg-red-500 text-white; }
+  .quiz-ok, .quiz-bad { display: none; }
+  .quiz-opt[data-state="correct"] .quiz-num, .quiz-opt[data-state="wrong"] .quiz-num { display: none; }
+  .quiz-opt[data-state="correct"] .quiz-ok, .quiz-opt[data-state="wrong"] .quiz-bad { display: block; }
+  .quiz-feedback[data-ok="true"] { @apply border-emerald-500/20; }
+  .quiz-feedback[data-ok="false"] { @apply border-red-500/20; }
+  .quiz-feedback[data-ok="true"] .quiz-fb-bad, .quiz-feedback[data-ok="false"] .quiz-fb-ok { display: none; }
+  .quiz-feedback[data-ok="true"] [data-verdict] { @apply text-emerald-700; }
+  .quiz-feedback[data-ok="false"] [data-verdict] { @apply text-red-700; }
+  .quiz-step:not([hidden]), [data-score]:not([hidden]) { animation: quiz-in 0.3s ease-out; }
+  @keyframes quiz-in { from { opacity: 0; transform: translateX(16px); } }
+  @media (prefers-reduced-motion: reduce) { .quiz-step, [data-score] { animation: none !important; } }
+</style>
+
+<script>
+  const C = 2 * Math.PI * 42;
+  const SCORE_TEXT = (pct: number) =>
+    pct === 100 ? "Идеально! Ты готов к экзамену DGT 🎉" : pct >= 80 ? "Отличный результат! Ещё чуть-чуть 💪" : pct >= 60 ? "Хорошо, но есть над чем работать 📚" : "Рекомендуем повторить эту тему 🔄";
+
+  document.querySelectorAll<HTMLElement>("[data-quiz]").forEach((root) => {
+    const total = Number(root.dataset.total);
+    const steps = [...root.querySelectorAll<HTMLElement>("[data-q]")];
+    const score = root.querySelector<HTMLElement>("[data-score]")!;
+    const progress = root.querySelector<HTMLElement>("[data-progress]")!;
+    let results: boolean[] = [];
+
+    const go = (n: number) => {
+      steps.forEach((s, i) => (s.hidden = i !== n));
+      score.hidden = n < total;
+      progress.hidden = n >= total;
+      if (n < total) {
+        root.querySelector("[data-progress-n]")!.textContent = String(n + 1);
+        root.querySelector<HTMLElement>("[data-progress-bar]")!.style.width = `${((n + 1) / total) * 100}%`;
+        return;
+      }
+      const ok = results.filter(Boolean).length;
+      const pct = Math.round((ok / total) * 100);
+      const passed = pct >= 70;
+      const ring = root.querySelector<SVGCircleElement>("[data-ring]")!;
+      ring.setAttribute("stroke", passed ? "#10b981" : "#ef4444");
+      ring.style.strokeDashoffset = String(C);
+      requestAnimationFrame(() => requestAnimationFrame(() => (ring.style.strokeDashoffset = String(C * (1 - pct / 100)))));
+      const pctEl = root.querySelector<HTMLElement>("[data-pct]")!;
+      pctEl.textContent = `${pct}%`;
+      pctEl.className = `text-2xl font-bold ${passed ? "text-emerald-600" : "text-red-600"}`;
+      root.querySelector("[data-score-n]")!.textContent = String(ok);
+      const t = root.querySelector<HTMLElement>("[data-score-text]")!;
+      t.textContent = SCORE_TEXT(pct);
+      t.className = `text-sm mb-6 ${passed ? "text-emerald-600" : "text-slate-600"}`;
+    };
+
+    const resetStep = (s: HTMLElement) => {
+      s.querySelectorAll<HTMLElement>("[data-opt]").forEach((o) => {
+        o.dataset.state = "default";
+        (o as HTMLButtonElement).disabled = false;
+      });
+      s.querySelector<HTMLElement>("[data-feedback]")!.hidden = true;
+      s.querySelectorAll("details").forEach((d) => (d.open = false));
+      const confirm = s.querySelector<HTMLButtonElement>("[data-confirm]")!;
+      confirm.hidden = false;
+      confirm.disabled = true;
+      s.querySelector<HTMLElement>("[data-next]")!.hidden = true;
+    };
+
+    steps.forEach((s, qi) => {
+      const correct = Number(s.dataset.correct);
+      const opts = [...s.querySelectorAll<HTMLButtonElement>("[data-opt]")];
+      const confirm = s.querySelector<HTMLButtonElement>("[data-confirm]")!;
+      let picked = -1;
+      opts.forEach((o, i) =>
+        o.addEventListener("click", () => {
+          picked = i;
+          opts.forEach((x, j) => (x.dataset.state = j === i ? "selected" : "default"));
+          confirm.disabled = false;
+        })
+      );
+      confirm.addEventListener("click", () => {
+        if (picked < 0) return;
+        const ok = picked === correct;
+        results[qi] = ok;
+        opts.forEach((x, j) => {
+          x.disabled = true;
+          x.dataset.state = j === correct ? "correct" : j === picked ? "wrong" : "default";
+        });
+        const fb = s.querySelector<HTMLElement>("[data-feedback]")!;
+        fb.dataset.ok = String(ok);
+        fb.querySelector("[data-verdict]")!.textContent = ok ? "Правильно!" : `Неверно. Правильный ответ: ${correct + 1}`;
+        fb.hidden = false;
+        confirm.hidden = true;
+        s.querySelector<HTMLElement>("[data-next]")!.hidden = false;
+      });
+      s.querySelector("[data-next]")!.addEventListener("click", () => go(qi + 1));
+    });
+
+    root.querySelector("[data-reset]")!.addEventListener("click", () => {
+      results = [];
+      steps.forEach(resetStep);
+      go(0);
+    });
+  });
+</script>

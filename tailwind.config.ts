@@ -96,7 +96,7 @@ const themeVars = plugin(({ addBase }) => {
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: "class",
-  content: ["./src/**/*.{astro,ts,tsx}"],
+  content: ["./src/**/*.{astro,ts,tsx,mdx}"],
   theme: {
     extend: {
       fontFamily: {

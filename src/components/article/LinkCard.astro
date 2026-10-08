@@ -1,0 +1,32 @@
+---
+import { ChevronRight, ExternalLink } from "@lucide/astro";
+
+interface Props {
+  href: string;
+  title: string;
+  description?: string;
+  external?: boolean;
+}
+
+const { href, title, description, external } = Astro.props;
+const isExternal = external ?? href.startsWith("http");
+---
+
+<a
+  href={href}
+  target={isExternal ? "_blank" : undefined}
+  rel={isExternal ? "noopener noreferrer" : undefined}
+  class="my-6 not-prose flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all group no-underline"
+>
+  <div class="flex-1 min-w-0">
+    <p class="text-sm font-bold text-slate-900 group-hover:text-blue-700 transition-colors truncate">{title}</p>
+    {description && <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">{description}</p>}
+  </div>
+  {
+    isExternal ? (
+      <ExternalLink class="w-4 h-4 text-slate-400 group-hover:text-slate-700 shrink-0 transition-colors" />
+    ) : (
+      <ChevronRight class="w-4 h-4 text-slate-400 group-hover:text-slate-700 shrink-0 transition-colors" />
+    )
+  }
+</a>

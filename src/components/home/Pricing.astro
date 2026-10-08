@@ -1,0 +1,151 @@
+---
+/**
+ * Калькулятор (#calc) и тарифы (#pricing). Карточки — в HTML с ценами по умолчанию;
+ * скрипт подмешивает цены и потоки из Supabase и подсвечивает тариф, который выбрал квиз.
+ */
+import { ArrowRight, Check } from "@lucide/astro";
+import { getPlans } from "@/lib/plans";
+import { botLink } from "@/lib/home-links";
+import { cn } from "@/lib/utils";
+import SectionHead from "./SectionHead.astro";
+import CourseChecklist from "./CourseChecklist.astro";
+
+const plans = getPlans();
+---
+
+<section id="calc" class="scroll-mt-16 border-t border-slate-100 bg-slate-50/60 py-20 md:py-28">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <SectionHead index="03" eyebrow="Подбор тарифа" title="Сколько будут стоить права именно вам" desc="Пять вопросов — и вы увидите полный бюджет: курс, пошлины, медкомиссию и практику." />
+    <CourseChecklist />
+  </div>
+</section>
+
+<section id="pricing" class="cv-auto scroll-mt-16 py-20 md:py-28">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <SectionHead index="04" eyebrow="Цены" title="Один курс — три уровня поддержки" desc="Во всех тарифах одинаковые 16 живых уроков. Разница — в том, сколько мы делаем за вас." />
+
+    <div class="grid gap-4 lg:grid-cols-3">
+      {
+        plans.map((plan) => {
+          const dark = plan.highlight;
+          return (
+            <div
+              id={`plan-${plan.id}`}
+              data-plan={plan.id}
+              data-rec="false"
+              class={cn(
+                "group/plan relative flex scroll-mt-24 flex-col rounded-3xl p-7 transition-shadow sm:p-8 data-[rec=true]:ring-2 data-[rec=true]:ring-blue-600 data-[rec=true]:ring-offset-4",
+                dark ? "bg-night text-white ring-1 ring-white/5 shadow-[0_32px_64px_-32px_rgba(15,23,42,0.6)]" : "border border-slate-200 bg-white"
+              )}
+            >
+              <div class={cn("mb-4 h-6 items-center group-data-[rec=true]/plan:flex", dark ? "flex" : "hidden lg:flex")}>
+                <span class="hidden rounded-full bg-blue-600 px-2.5 py-0.5 text-xs font-semibold text-white group-data-[rec=true]/plan:inline">Подходит вам</span>
+                {dark && <span class="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-white group-data-[rec=true]/plan:hidden">Чаще выбирают</span>}
+              </div>
+              <h3 class={cn("text-xl font-semibold tracking-tight", dark ? "text-white" : "text-slate-900")}>{plan.name}</h3>
+              <p class={cn("mt-1 text-sm", dark ? "text-white/60" : "text-slate-500")}>{plan.subtitle}</p>
+              <div class="mt-7 flex items-baseline gap-2">
+                <span data-price class="text-5xl font-semibold tracking-tight tabular-nums">€{plan.price}</span>
+                <span data-old-price hidden={!(plan.oldPrice > plan.price)} class={cn("tabular-nums line-through", dark ? "text-white/60" : "text-slate-400")}>
+                  €{plan.oldPrice}
+                </span>
+              </div>
+              <p class={cn("mt-1 text-sm", dark ? "text-white/60" : "text-slate-500")}>разовый платёж</p>
+
+              <ul class={cn("mt-7 flex-1 space-y-3 border-t pt-7", dark ? "border-white/10" : "border-slate-100")}>
+                {plan.features
+                  .filter((f) => f.included)
+                  .map((f) => (
+                    <li class={cn("flex gap-3 text-[15px] leading-snug", dark ? "text-white/85" : "text-slate-700")}>
+                      <Check class={cn("mt-0.5 h-4 w-4 shrink-0", dark ? "text-[#60a5fa]" : "text-blue-600")} stroke-width={2.5} />
+                      {f.text}
+                    </li>
+                  ))}
+              </ul>
+
+              <a
+                href={botLink(plan.botParam!, null)}
+                data-bot-param={plan.botParam}
+                data-conversion
+                target="_blank"
+                rel="noreferrer"
+                class={cn(
+                  "mt-8 flex items-center justify-center gap-2 rounded-xl py-3.5 text-[15px] font-semibold transition-colors",
+                  dark
+                    ? "bg-blue-600 text-white hover:bg-blue-500"
+                    : "bg-slate-100 text-slate-900 hover:bg-slate-200 group-data-[rec=true]/plan:bg-blue-600 group-data-[rec=true]/plan:text-white group-data-[rec=true]/plan:hover:bg-blue-500"
+                )}
+              >
+                {plan.cta} <ArrowRight class="h-4 w-4" />
+              </a>
+            </div>
+          );
+        })
+      }
+    </div>
+
+    <!-- Ближайшие старты: информативно, дата выбирается при оформлении в боте -->
+    <div data-streams hidden class="mt-6 rounded-3xl border border-slate-200 p-6 sm:p-8">
+      <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="font-semibold text-slate-900">Ближайшие старты</p>
+          <p class="mt-1 text-sm text-slate-500">Дату выберете при оформлении. Цена фиксируется в момент записи.</p>
+        </div>
+        <ul data-streams-list class="grid gap-2 sm:grid-cols-3 md:flex md:gap-3"></ul>
+      </div>
+    </div>
+
+    <div class="mt-6 flex flex-col gap-3 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+      <p>Оплата и запись — через Telegram-бот. Без скрытых платежей.</p>
+      <a
+        href={botLink("course_qualify", null)}
+        data-bot-param="course_qualify"
+        data-conversion
+        target="_blank"
+        rel="noreferrer"
+        class="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-700"
+      >
+        Нужны индивидуальные занятия? <ArrowRight class="h-4 w-4" />
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { loadPlanPrices, loadStreams, spotsLeft } from "@/lib/course-data";
+  import { getPlans } from "@/lib/plans";
+  import { formatDate, openStreams } from "@/lib/streams";
+  import { trackConversion } from "@/lib/home-links";
+
+  document.querySelectorAll("[data-conversion]").forEach((a) => a.addEventListener("click", trackConversion));
+
+  // Квиз выбрал тариф — подсветка карточки
+  addEventListener("sdadim:recommend", (e) => {
+    const id = (e as CustomEvent<string>).detail;
+    document.querySelectorAll<HTMLElement>("[data-plan]").forEach((c) => (c.dataset.rec = String(c.dataset.plan === id)));
+  });
+
+  loadPlanPrices().then((prices) => {
+    if (!prices) return;
+    getPlans(prices).forEach((p) => {
+      const card = document.querySelector<HTMLElement>(`[data-plan="${p.id}"]`);
+      if (!card) return;
+      card.querySelector("[data-price]")!.textContent = `€${p.price}`;
+      const old = card.querySelector<HTMLElement>("[data-old-price]")!;
+      old.textContent = `€${p.oldPrice}`;
+      old.hidden = !(p.oldPrice > p.price);
+    });
+  });
+
+  loadStreams().then((all) => {
+    const streams = openStreams(all);
+    if (!streams.length) return;
+    document.querySelector<HTMLElement>("[data-streams-list]")!.innerHTML = streams
+      .map((s, i) => {
+        const left = spotsLeft(s);
+        return `<li class="flex items-center justify-between gap-5 rounded-2xl px-4 py-3 md:min-w-[170px] md:flex-col md:items-start md:gap-1 ${i === 0 ? "bg-blue-50 ring-1 ring-blue-200" : "bg-slate-50"}"><span class="font-semibold text-slate-900">${formatDate(s.start_date)}</span><span class="text-sm ${left <= 3 ? "font-medium text-amber-700" : "text-slate-500"}">${left} из ${s.spots_total} мест</span></li>`;
+      })
+      .join("");
+    document.querySelector<HTMLElement>("[data-streams]")!.hidden = false;
+  });
+</script>

@@ -1,0 +1,19 @@
+---
+interface Props {
+  label?: string;
+}
+
+const { label } = Astro.props;
+---
+
+{
+  label ? (
+    <div data-divider class="my-10 not-prose flex items-center gap-4">
+      <div class="flex-1 border-t border-slate-200" />
+      <span class="text-[11px] font-bold uppercase tracking-widest text-slate-400">{label}</span>
+      <div class="flex-1 border-t border-slate-200" />
+    </div>
+  ) : (
+    <div data-divider class="my-10 not-prose border-t border-slate-200" />
+  )
+}

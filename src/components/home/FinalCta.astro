@@ -1,0 +1,29 @@
+---
+/** Дата старта и код квиза в ссылке подставляются скриптом страницы (index.astro) */
+import { ArrowRight } from "@lucide/astro";
+import { botLink } from "@/lib/home-links";
+---
+
+<section class="cv-auto px-4 pb-24 sm:px-6 md:pb-28">
+  <div class="relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] bg-night px-6 py-16 text-center sm:px-12 md:py-24">
+    <div aria-hidden="true" class="pointer-events-none absolute left-1/2 top-0 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600/40 blur-3xl"></div>
+    <h2 class="relative text-3xl font-semibold tracking-tight text-white md:text-5xl text-balance">Права — через два месяца</h2>
+    <p class="relative mx-auto mt-5 max-w-xl text-lg text-white/60">
+      <span data-next-start>Новый поток стартует каждый месяц.</span> Есть вопросы — ответим в Telegram.
+    </p>
+    <div class="relative mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+      <a href="#pricing" class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ffffff] px-6 py-3.5 text-base font-semibold text-[#0f172a] transition-colors hover:bg-[#e2e8f0]">
+        Выбрать тариф <ArrowRight class="h-4 w-4" />
+      </a>
+      <a
+        href={botLink("course_qualify", null)}
+        data-bot-param="course_qualify"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-flex items-center justify-center rounded-xl border border-white/15 px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-white/10"
+      >
+        Задать вопрос
+      </a>
+    </div>
+  </div>
+</section>

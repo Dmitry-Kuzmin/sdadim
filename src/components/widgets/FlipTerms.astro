@@ -1,0 +1,88 @@
+---
+/**
+ * Карточки-перевёртыши словаря (статья /blog/slovar-dgt).
+ * Переворот: наведение мышью, тап или Enter/пробел — карточка это <button>, перевод есть в HTML.
+ */
+import {
+  ArrowUpRight, BadgeEuro, Ban, BookOpen, CarFront, Eye, FileText, Fingerprint, Gauge, MapPin, MoveRight, Scale, Siren, StopCircle, TrafficCone,
+} from "@lucide/astro";
+
+interface Term {
+  es: string;
+  ru: string;
+  desc: string;
+  icon: typeof FileText;
+  iconClass: string;
+}
+
+const SETS: Record<"common" | "actions", Term[]> = {
+  common: [
+    { es: "Permiso de Conducir", ru: "Водительское удостоверение", desc: "Документ, удостоверяющий право управления ТС. Выдается после сдачи экзаменов.", icon: FileText, iconClass: "text-blue-600" },
+    { es: "Examen Teórico", ru: "Теоретический экзамен", desc: "30 вопросов с вариантами ответов на знание ПДД и безопасного вождения.", icon: BookOpen, iconClass: "text-emerald-600" },
+    { es: "Examen Práctico", ru: "Практический экзамен", desc: "Экзамен по вождению на дорогах общего пользования в Испании.", icon: CarFront, iconClass: "text-amber-600" },
+    { es: "NIE / TIE", ru: "Номер / Карта Иностранца", desc: "Обязательный идентификатор для записи в автошколу и DGT.", icon: Fingerprint, iconClass: "text-indigo-600" },
+    { es: "Empadronamiento", ru: "Прописка", desc: "Регистрация по месту жительства. Можно прописаться даже в арендованной квартире.", icon: MapPin, iconClass: "text-rose-600" },
+    { es: "Tasa", ru: "Госпошлина", desc: "Государственный сбор, оплачиваемый за процедуры в DGT (около 94 евро).", icon: BadgeEuro, iconClass: "text-yellow-600" },
+    { es: "DGT", ru: "Dirección General de Tráfico", desc: "Генеральная дирекция движения — государственный орган, выдающий вам права.", icon: Scale, iconClass: "text-blue-500" },
+    { es: "Señales de Tráfico", ru: "Дорожные знаки", desc: "Указатели и символы. Основа испанского Código de Circulación.", icon: TrafficCone, iconClass: "text-orange-600" },
+    { es: "Multa", ru: "Штраф", desc: "Денежное наказание за нарушение. Возможна оплата со скидкой 50% в первые 20 дней.", icon: Siren, iconClass: "text-red-500" },
+  ],
+  actions: [
+    { es: "Izquierda / Derecha", ru: "Налево / Направо", desc: "Главные команды инструктора: Girar a la izquierda (повернуть налево).", icon: MoveRight, iconClass: "text-slate-700" },
+    { es: "Glorieta (Rotonda)", ru: "Круговое движение", desc: "Самый частый элемент дорог Испании. Tercera salida - третий съезд.", icon: ArrowUpRight, iconClass: "text-emerald-600" },
+    { es: "Ceda el paso", ru: "Уступи дорогу", desc: "Знак в виде перевернутого треугольника. Ключевое правило безопасности.", icon: Ban, iconClass: "text-rose-500" },
+    { es: "Paso de peatones", ru: "Пешеходный переход", desc: "В Испании к ним относятся с максимальным уважением. Тормозить заранее!", icon: Eye, iconClass: "text-blue-700" },
+    { es: "Estacionar / Aparcar", ru: "Припарковаться", desc: "Остановка (Parada - до 2 мин, не выходя) и стоянка (Estacionamiento).", icon: StopCircle, iconClass: "text-amber-500" },
+    { es: "Acelerar / Frenar", ru: "Ускориться / Затормозить", desc: "Límite de velocidad — ограничение скорости, нужно строго соблюдать.", icon: Gauge, iconClass: "text-purple-600" },
+  ],
+};
+
+interface Props {
+  set: keyof typeof SETS;
+}
+
+const terms = SETS[Astro.props.set];
+const FACE = "absolute inset-0 w-full h-full rounded-[inherit] shadow-lg [backface-visibility:hidden] [-webkit-backface-visibility:hidden]";
+---
+
+<div class="not-prose flex flex-wrap gap-5 justify-center sm:justify-start">
+  {
+    terms.map((t) => (
+      <div class="w-full sm:w-[calc(50%-10px)] max-w-sm shrink-0 flex justify-center">
+        <button
+          type="button"
+          data-flip
+          aria-pressed="false"
+          aria-label={`${t.es} — показать перевод`}
+          class="group/flip block text-left [perspective:1000px]"
+          style="width: 280px; height: 220px"
+        >
+          <div class="relative w-full h-full rounded-xl transition-transform duration-700 [transform-style:preserve-3d] group-hover/flip:[transform:rotateY(180deg)] group-aria-pressed/flip:[transform:rotateY(180deg)] w-full max-w-sm">
+            <div class={`${FACE} bg-[#0A101A] border border-white/10 text-white`}>
+              <div class="flex flex-col h-full w-full p-6 justify-center items-center text-center">
+                <div class="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-6 shadow-xl">
+                  <t.icon class={`w-6 h-6 ${t.iconClass}`} />
+                </div>
+                <p class="text-xl font-bold tracking-tight mb-2 text-slate-900">{t.es}</p>
+                <p class="text-sm font-medium text-blue-600">Нажми, чтобы перевести</p>
+              </div>
+            </div>
+            <div class={`${FACE} bg-gradient-to-br from-blue-900/40 to-[#0A101A] border border-blue-500/20 text-white [transform:rotateY(180deg)]`}>
+              <div class="flex flex-col items-center justify-center h-full w-full p-6 text-center">
+                <p class="text-lg font-bold text-slate-900 mb-3">{t.ru}</p>
+                <p class="text-sm text-blue-900/70 leading-relaxed mb-6">{t.desc}</p>
+                <div class="uppercase tracking-widest text-[10px] font-bold text-blue-600/50">Справочник DGT</div>
+              </div>
+            </div>
+          </div>
+        </button>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-flip]").forEach((b) =>
+    b.addEventListener("click", () => b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true")))
+  );
+</script>

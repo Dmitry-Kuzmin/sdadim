@@ -1,0 +1,24 @@
+---
+/**
+ * Оформление Markdown внутри статьи — те же классы, что были у статей вручную.
+ */
+---
+
+<div class="article-prose"><slot /></div>
+
+<style is:global>
+  .article-prose > h2:not([class]) {
+    @apply text-2xl font-bold text-slate-900 mt-12 mb-4 pb-3 border-b border-slate-200 scroll-mt-24;
+  }
+  /* В исходной вёрстке часть заголовков после разделителя — с меньшим отступом */
+  .article-prose > h2:not([class])[data-tight] { @apply mt-8; }
+  .article-prose > h3:not([class]) { @apply text-xl font-bold text-slate-900 mt-8 mb-3 scroll-mt-24; }
+  .article-prose > p:not([class]) { @apply text-[15px] text-slate-700 leading-[1.85] mb-4; }
+  .article-prose > ul:not([class]), .article-prose > ol:not([class]) { @apply text-[15px] text-slate-700 leading-[1.85] mb-4 pl-5 space-y-1.5; }
+  .article-prose > ul { list-style: disc; }
+  .article-prose > ol { list-style: decimal; }
+  .article-prose strong { @apply font-bold; }
+  .article-prose :where(p, li, td) > strong:not([class]) { @apply text-slate-900; }
+  .article-prose :where(p, li) > a:not([class]) { @apply text-blue-600 underline decoration-blue-600/30 underline-offset-2 hover:decoration-blue-600; }
+  .callout-body > p + p { @apply mt-3; }
+</style>

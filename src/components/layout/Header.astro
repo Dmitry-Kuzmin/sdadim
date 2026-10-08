@@ -2,7 +2,7 @@
 /**
  * Шапка сайта: статичный HTML + ~1 КБ скрипта (тема, меню, граница при прокрутке). Без React.
  */
-import { Menu, Moon, Sun, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "@lucide/astro";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -45,8 +45,8 @@ const toggleClass =
         ))
       }
       <button data-theme-toggle aria-label="Переключить тему" title="Переключить тему" class={cn(toggleClass, "ml-2")}>
-        <Sun className="absolute h-[18px] w-[18px] -rotate-90 scale-50 opacity-0 transition-all duration-300 dark:rotate-0 dark:scale-100 dark:opacity-100" />
-        <Moon className="absolute h-[18px] w-[18px] rotate-0 scale-100 opacity-100 transition-all duration-300 dark:rotate-90 dark:scale-50 dark:opacity-0" />
+        <Sun class="absolute h-[18px] w-[18px] -rotate-90 scale-50 opacity-0 transition-all duration-300 dark:rotate-0 dark:scale-100 dark:opacity-100" />
+        <Moon class="absolute h-[18px] w-[18px] rotate-0 scale-100 opacity-100 transition-all duration-300 dark:rotate-90 dark:scale-50 dark:opacity-0" />
       </button>
       <a
         href="/#pricing"
@@ -58,12 +58,12 @@ const toggleClass =
 
     <div class="-mr-2 flex items-center gap-1 md:hidden">
       <button data-theme-toggle aria-label="Переключить тему" title="Переключить тему" class={toggleClass}>
-        <Sun className="absolute h-[18px] w-[18px] -rotate-90 scale-50 opacity-0 transition-all duration-300 dark:rotate-0 dark:scale-100 dark:opacity-100" />
-        <Moon className="absolute h-[18px] w-[18px] rotate-0 scale-100 opacity-100 transition-all duration-300 dark:rotate-90 dark:scale-50 dark:opacity-0" />
+        <Sun class="absolute h-[18px] w-[18px] -rotate-90 scale-50 opacity-0 transition-all duration-300 dark:rotate-0 dark:scale-100 dark:opacity-100" />
+        <Moon class="absolute h-[18px] w-[18px] rotate-0 scale-100 opacity-100 transition-all duration-300 dark:rotate-90 dark:scale-50 dark:opacity-0" />
       </button>
       <button data-menu-toggle class="group p-2 text-slate-700" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobile-menu">
-        <Menu className="h-5 w-5 group-aria-expanded:hidden" />
-        <X className="hidden h-5 w-5 group-aria-expanded:block" />
+        <Menu class="h-5 w-5 group-aria-expanded:hidden" />
+        <X class="hidden h-5 w-5 group-aria-expanded:block" />
       </button>
     </div>
   </div>

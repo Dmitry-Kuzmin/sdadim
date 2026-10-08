@@ -1,0 +1,229 @@
+---
+/**
+ * Подбор тарифа + калькулятор полной стоимости прав (главная, #calc).
+ * Все вопросы и начальный расчёт — в HTML; скрипт ведёт шаги, считает и подсвечивает тариф в #pricing.
+ * Логика и тексты — @/lib/course-quiz.
+ */
+import { ArrowLeft, ArrowRight, Check, Info, RotateCcw } from "@lucide/astro";
+import { costRows, costTableHtml, costVerdictHtml, QUESTIONS, recommend } from "@/lib/course-quiz";
+import { getPlans } from "@/lib/plans";
+import { BOT_URL } from "@/lib/home-links";
+
+const plans = getPlans();
+const initPlan = plans.find((p) => p.id === recommend(0, 0)) ?? plans[0];
+const init = costRows(initPlan.price, 0, 0, "none");
+const total = QUESTIONS.length;
+---
+
+<div
+  data-checklist
+  data-plans={JSON.stringify(plans.map((p) => ({ id: p.id, name: p.name, price: p.price, botParam: p.botParam })))}
+  data-bot={BOT_URL}
+  class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.18)]"
+>
+  <div class="grid lg:grid-cols-[1.15fr_1fr]">
+    <div class="p-6 sm:p-10">
+      <div class="flex items-center justify-between text-sm">
+        <button type="button" data-back class="invisible inline-flex items-center gap-1.5 font-medium text-slate-500 transition-colors hover:text-slate-900">
+          <ArrowLeft class="h-4 w-4" /> Назад
+        </button>
+        <span data-counter class="tabular-nums text-slate-400">1 из {total}</span>
+      </div>
+      <div class="mt-4 flex gap-1.5">
+        {QUESTIONS.map(() => <div data-bar class="h-1 flex-1 rounded-full bg-slate-100 transition-colors duration-300" />)}
+      </div>
+
+      {
+        QUESTIONS.map((q, qi) => (
+          <div data-step={qi} hidden={qi > 0} class="cl-step mt-8">
+            <h3 class="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl text-balance">{q.title}</h3>
+            {q.note && <p class="mt-2 text-sm leading-relaxed text-slate-500">{q.note}</p>}
+            <div class="mt-6 grid gap-2">
+              {q.choices.map((c, ci) => (
+                <button
+                  type="button"
+                  data-choice={ci}
+                  aria-pressed="false"
+                  class="group flex items-center justify-between gap-4 rounded-xl border px-4 py-3.5 text-left transition-all aria-pressed:border-blue-600 aria-pressed:bg-blue-50/60 aria-[pressed=false]:border-slate-200 aria-[pressed=false]:hover:border-slate-300 aria-[pressed=false]:hover:bg-slate-50 aria-[pressed=false]:active:scale-[0.99]"
+                >
+                  <span>
+                    <span class="block text-[15px] font-medium text-slate-900">{c.label}</span>
+                    {c.hint && <span class="mt-0.5 block text-sm text-slate-500">{c.hint}</span>}
+                  </span>
+                  <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors group-aria-pressed:border-blue-600 group-aria-pressed:bg-blue-600 group-aria-pressed:text-white group-aria-[pressed=false]:border-slate-300 group-aria-[pressed=false]:group-hover:border-slate-400">
+                    <Check class="hidden h-3 w-3 group-aria-pressed:block" stroke-width={3} />
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+
+      <div data-done hidden class="cl-done mt-8">
+        <div data-eu hidden>
+          <p class="text-sm font-medium text-emerald-700">Хорошая новость</p>
+          <h3 class="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Экзамен вам, скорее всего, не нужен</h3>
+          <p class="mt-3 leading-relaxed text-slate-600">Права стран ЕС действуют в Испании, их можно обменять без экзаменов. Напишите нам — подскажем, как это сделать.</p>
+          <a data-eu-link href={BOT_URL} target="_blank" rel="noreferrer" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-inverse px-5 py-3 text-sm font-semibold text-on-inverse hover:bg-inverse/85">
+            Задать вопрос в Telegram <ArrowRight class="h-4 w-4" />
+          </a>
+        </div>
+        <div data-plan-result>
+          <p class="text-sm font-medium text-blue-700">Вам подойдёт</p>
+          <div class="mt-2 flex flex-wrap items-baseline gap-x-3">
+            <h3 data-plan-name class="text-3xl font-semibold tracking-tight text-slate-900"></h3>
+            <span data-plan-price class="text-3xl font-semibold tracking-tight text-slate-400 tabular-nums"></span>
+          </div>
+          <p data-reason class="mt-3 leading-relaxed text-slate-600"></p>
+          <p data-tourist hidden class="mt-4 flex gap-2.5 rounded-xl bg-amber-50 p-3.5 text-sm leading-relaxed text-amber-900">
+            <Info class="mt-0.5 h-4 w-4 shrink-0" />
+            С туристической визой сдать экзамен DGT нельзя, но готовиться можно уже сейчас — и сдать сразу после получения ВНЖ.
+          </p>
+          <div class="mt-6 flex flex-col gap-2 sm:flex-row">
+            <a data-enroll href={BOT_URL} target="_blank" rel="noreferrer" class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700">
+              <span data-enroll-text></span> <ArrowRight class="h-4 w-4" />
+            </a>
+            <button type="button" data-compare class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50">
+              Сравнить тарифы
+            </button>
+          </div>
+        </div>
+        <button type="button" data-reset class="mt-6 inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-700">
+          <RotateCcw class="h-3.5 w-3.5" /> Пройти заново
+        </button>
+      </div>
+    </div>
+
+    <div data-cost-panel class="hidden border-t border-slate-100 bg-slate-50/70 p-6 sm:p-10 lg:block lg:border-l lg:border-t-0">
+      <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Сколько стоят права целиком</p>
+      <div data-cost-table class="mt-6 grid grid-cols-[1fr_auto_auto] gap-x-5 text-sm" set:html={costTableHtml(init)} />
+      <div data-cost-verdict set:html={costVerdictHtml(init)} />
+      <p data-cost-note class="mt-4 text-xs leading-relaxed text-slate-400">Ответьте на вопросы — расчёт подстроится под вас.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cl-step:not([hidden]) { animation: cl-in 0.2s ease-out; }
+  .cl-done:not([hidden]) { animation: cl-up 0.25s ease-out; }
+  @keyframes cl-in { from { opacity: 0; transform: translateX(12px); } }
+  @keyframes cl-up { from { opacity: 0; transform: translateY(8px); } }
+  @media (prefers-reduced-motion: reduce) { .cl-step, .cl-done { animation: none !important; } }
+</style>
+
+<script>
+  import { costRows, costTableHtml, costVerdictHtml, encodeAnswers, QUESTIONS, REASONS, recommend, type Choice } from "@/lib/course-quiz";
+  import { loadPlanPrices } from "@/lib/course-data";
+  import { getPlans } from "@/lib/plans";
+  import { setQuizCode } from "@/lib/home-links";
+
+  const root = document.querySelector<HTMLElement>("[data-checklist]");
+  if (root) {
+    type P = { id: string; name: string; price: number; botParam?: string };
+    let plans = JSON.parse(root.dataset.plans!) as P[];
+    const bot = root.dataset.bot!;
+    const $ = <T extends Element = HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const steps = [...root.querySelectorAll<HTMLElement>("[data-step]")];
+    const bars = [...root.querySelectorAll<HTMLElement>("[data-bar]")];
+    let step = 0;
+    let answers: Record<string, Choice> = {};
+    const shown: Record<string, number> = {};
+
+    // Числа «едут» к новому значению за 450 мс (ease-out cubic), как раньше
+    const animate = () =>
+      root.querySelectorAll<HTMLElement>("[data-num]").forEach((el) => {
+        const key = el.dataset.num!;
+        const to = Number(el.textContent!.replace(/\D/g, ""));
+        const from = shown[key] ?? to;
+        shown[key] = to;
+        if (from === to || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const t0 = performance.now();
+        const tick = (now: number) => {
+          const p = Math.min((now - t0) / 450, 1);
+          el.textContent = `€${Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)))}`;
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        el.textContent = `€${from}`;
+        requestAnimationFrame(tick);
+      });
+
+    const render = () => {
+      const done = step >= QUESTIONS.length;
+      const risk = Object.values(answers).reduce((a, c) => a + c.risk, 0);
+      const spanishRisk = answers.spanish?.risk ?? 0;
+      const isEu = answers.license?.flag === "eu";
+      const planId = recommend(risk, spanishRisk);
+      const plan = plans.find((p) => p.id === planId) ?? plans[0];
+      const cost = costRows(plan.price, spanishRisk, risk, answers.lessons?.lessons ?? "none");
+      const started = Object.keys(answers).length > 0;
+      const code = encodeAnswers(answers);
+
+      $("[data-back]").classList.toggle("invisible", step === 0);
+      $("[data-counter]").textContent = done ? "Готово" : `${step + 1} из ${QUESTIONS.length}`;
+      bars.forEach((b, i) => {
+        b.classList.toggle("bg-blue-600", i < step);
+        b.classList.toggle("bg-slate-100", i >= step);
+      });
+      steps.forEach((s, i) => {
+        if ((i === step) === s.hidden) s.hidden = i !== step;
+        const q = QUESTIONS[i];
+        s.querySelectorAll<HTMLElement>("[data-choice]").forEach((b) =>
+          b.setAttribute("aria-pressed", String(answers[q.id]?.label === q.choices[Number(b.dataset.choice)].label))
+        );
+      });
+
+      const doneEl = $("[data-done]");
+      if (doneEl.hidden === done) doneEl.hidden = !done;
+      if (done) {
+        $("[data-eu]").hidden = !isEu;
+        $("[data-plan-result]").hidden = isEu;
+        $<HTMLAnchorElement>("[data-eu-link]").href = `${bot}?start=course_qualify_${code}`;
+        $("[data-plan-name]").textContent = plan.name;
+        $("[data-plan-price]").textContent = `€${plan.price}`;
+        $("[data-reason]").textContent = REASONS[planId];
+        $("[data-tourist]").hidden = answers.residence?.flag !== "tourist";
+        $<HTMLAnchorElement>("[data-enroll]").href = `${bot}?start=${plan.botParam}_${code}`;
+        $("[data-enroll-text]").textContent = `Записаться · €${plan.price}`;
+        $("[data-compare]").dataset.plan = planId;
+        if (!isEu) {
+          setQuizCode(code);
+          window.dispatchEvent(new CustomEvent("sdadim:recommend", { detail: planId }));
+        }
+      }
+
+      const panel = $("[data-cost-panel]");
+      panel.classList.toggle("hidden", !started);
+      $("[data-cost-table]").innerHTML = costTableHtml(cost);
+      $("[data-cost-verdict]").innerHTML = costVerdictHtml(cost);
+      $("[data-cost-note]").textContent = started
+        ? "Средние цены по Испании, у каждой автошколы свои. Меняются от уровня испанского, знания ПДД и нужной практики."
+        : "Ответьте на вопросы — расчёт подстроится под вас.";
+      animate();
+    };
+
+    steps.forEach((s, i) =>
+      s.querySelectorAll<HTMLElement>("[data-choice]").forEach((b) =>
+        b.addEventListener("click", () => {
+          answers = { ...answers, [QUESTIONS[i].id]: QUESTIONS[i].choices[Number(b.dataset.choice)] };
+          step = i + 1;
+          render();
+        })
+      )
+    );
+    $("[data-back]").addEventListener("click", () => ((step = Math.max(0, step - 1)), render()));
+    $("[data-reset]").addEventListener("click", () => ((answers = {}), (step = 0), render()));
+    $("[data-compare]").addEventListener("click", (e) =>
+      document.getElementById(`plan-${(e.currentTarget as HTMLElement).dataset.plan}`)?.scrollIntoView({ behavior: "smooth", block: "center" })
+    );
+
+    // Актуальные цены — из той же базы, что у бота
+    loadPlanPrices().then((prices) => {
+      if (!prices) return;
+      plans = getPlans(prices).map((p) => ({ id: p.id, name: p.name, price: p.price, botParam: p.botParam }));
+      animate();
+      if (Object.keys(answers).length) render();
+    });
+    animate();
+  }
+</script>

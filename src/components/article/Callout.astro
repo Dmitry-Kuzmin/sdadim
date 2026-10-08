@@ -1,0 +1,28 @@
+---
+import { AlertCircle, CheckCircle2, Info, Lightbulb, XCircle } from "@lucide/astro";
+import { cn } from "@/lib/utils";
+
+const CONFIG = {
+  info: { icon: Info, bg: "bg-blue-500/8", border: "border-blue-500/20", text: "text-blue-700", label: "Примечание" },
+  tip: { icon: Lightbulb, bg: "bg-emerald-500/8", border: "border-emerald-500/20", text: "text-emerald-700", label: "Совет" },
+  warning: { icon: AlertCircle, bg: "bg-amber-500/8", border: "border-amber-500/20", text: "text-amber-700", label: "Важно" },
+  danger: { icon: XCircle, bg: "bg-red-500/8", border: "border-red-500/20", text: "text-red-700", label: "Внимание" },
+  success: { icon: CheckCircle2, bg: "bg-emerald-500/8", border: "border-emerald-500/20", text: "text-emerald-700", label: "Хорошо знать" },
+};
+
+interface Props {
+  type?: keyof typeof CONFIG;
+  title?: string;
+}
+
+const { type = "info", title } = Astro.props;
+const { icon: Icon, bg, border, text, label } = CONFIG[type];
+---
+
+<div class={cn("my-8 not-prose rounded-2xl border p-5", bg, border)}>
+  <div class={cn("flex items-center gap-2 text-xs font-bold uppercase tracking-wider mb-2", text)}>
+    <Icon class="w-3.5 h-3.5" />
+    {title ?? label}
+  </div>
+  <div class="callout-body text-[15px] text-slate-700 leading-relaxed"><slot /></div>
+</div>

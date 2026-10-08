@@ -5,31 +5,24 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --port 4321",
-    "prebuild": "npm run generate:discovery && node scripts/cover-variants.mjs",
-    "build": "astro build && npm run seo:assert:dist",
-    "generate:discovery": "node scripts/generate-discovery.mjs",
+    "prebuild": "node scripts/cover-variants.mjs",
+    "build": "astro build && node scripts/seo-assert-dist.mjs && node scripts/check-links.mjs && node scripts/indexnow.mjs",
     "seo:assert:dist": "node scripts/seo-assert-dist.mjs",
     "preview": "astro preview",
     "covers": "node scripts/render-covers.mjs",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "check": "node scripts/seo-assert-dist.mjs && node scripts/check-links.mjs"
   },
   "dependencies": {
-    "@astrojs/react": "^7.0.0",
+    "@astrojs/mdx": "^8.0.3",
     "@fontsource-variable/inter": "^5.3.0",
+    "@lucide/astro": "^1.49.0",
     "astro": "^7.3.5",
-    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "framer-motion": "^13.4.6",
-    "html-react-parser": "^6.1.8",
-    "lucide-react": "^1.49.0",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
     "tailwind-merge": "^2.6.1"
   },
   "devDependencies": {
     "@types/node": "^22.20.4",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.6.1",
     "postcss": "^8.4.47",
     "puppeteer": "^25.12.0",

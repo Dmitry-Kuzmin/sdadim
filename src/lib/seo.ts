@@ -1,8 +1,8 @@
 /**
  * SEO — единый источник для <head> всех страниц (рендерится на сервере в Base.astro).
- * Даты, обложки и категории статей берутся из blog-posts.json, здесь — только тексты.
+ * Тексты, даты и обложки статей — во frontmatter MDX (src/content/blog).
  */
-import { blogPosts, type BlogPost } from "@/lib/blog-posts";
+import { cardTitle, getPosts, modified, type Post } from "@/lib/blog";
 import { getPlans } from "@/lib/plans";
 import { FAQ_DATA } from "@/lib/home-faq";
 
@@ -107,89 +107,63 @@ export const HOME_SEO: PageSeo = {
   jsonLd: [LD_ORGANIZATION, LD_WEBSITE, ldCourse(), ldFaq()],
 };
 
-export const BLOG_SEO: PageSeo = {
-  title: "Блог о правах в Испании | Сдадим",
-  description: "Полезные статьи о получении прав в Испании для русскоязычных: гайды, советы, разбор экзамена DGT, стоимость и документы.",
-  canonical: `${SITE_URL}/blog`,
-  ogType: "website",
-  jsonLd: [
-    {
-      "@context": "https://schema.org",
-      "@type": "Blog",
-      name: "Блог Сдадим",
-      url: `${SITE_URL}/blog`,
-      inLanguage: "ru",
-      publisher: { "@id": `${SITE_URL}/#org` },
-      blogPost: blogPosts.map((p) => ({ "@type": "BlogPosting", headline: p.title, url: `${SITE_URL}/blog/${p.slug}`, datePublished: p.published_at })),
-    },
-    breadcrumbs([
-      { name: "Главная", url: `${SITE_URL}/` },
-      { name: "Блог", url: `${SITE_URL}/blog` },
-    ]),
-  ],
-};
-
-/** Тексты статей (перенесены из useSEO-хуков компонентов) */
-const ARTICLE_TEXT: Record<string, { title: string; description: string; ogTitle?: string; ogDescription?: string }> = {
-  "oshibki-ekzamen-vozhdeniya": {
-    title: "Все ошибки на экзамене по вождению DGT 2026 — полная таблица штрафных баллов | Сдадим",
-    description: "Полная таблица ошибок на практическом экзамене DGT в Испании: leves, deficientes, eliminatorias. Как их избежать и сдать с первого раза (2026).",
-    ogTitle: "Все ошибки на экзамене по вождению DGT 2026 — полная таблица штрафных баллов",
-    ogDescription: "Официальный перечень ошибок DGT на русском: 14 разделов, 3 уровня тяжести, советы по каждой ситуации.",
-  },
-  "istoriya-sdachi-prav-malaga": {
-    title: "Как я сдавала практику по вождению в Испании: честная история из Малаги | Сдадим",
-    description: "Реальная история сдачи практики DGT в Малаге: подготовка теории онлайн, 10 уроков за 5 дней, ноль ошибок на экзамене. Что отличает вождение в Испании и сколько всё стоит.",
-    ogDescription: "739 евро, полгода и ноль ошибок. Теория онлайн, практика в малагской автошколе — рассказываю всё как есть.",
-  },
-  "tseny-na-prava": {
-    title: "Сколько стоит получить права в Испании? (Калькулятор 2026) | Сдадим",
-    description: "Полный разбор цен на водительские права в Испании в 2026 году: пошлина DGT 94,05€ и когда её платят повторно, автошкола, медкомиссия, пересдачи. Калькулятор бюджета.",
-    ogTitle: "Цены на водительские права в Испании 2026 + калькулятор",
-  },
-  "slovar-dgt": {
-    title: "Словарик будущего водителя в Испании: термины DGT на русском | Сдадим",
-    description: "Словарь автомобильных терминов Испании: документы (NIE, Tasa), команды экзаменатора (Glorieta, Paso de peatones) и знаки с русским переводом.",
-    ogTitle: "Испанский словарь водителя — термины DGT на русском",
-  },
-  "prakticheskiy-ekzamen": {
-    title: "Как сдать практический экзамен по вождению в Испании с первого раза | Сдадим",
-    description: "Сдаём практический экзамен DGT с первого раза: вопросы экзаменатора, ловушки на маршруте и психология успешной сдачи (2026).",
-    ogDescription: "Полное руководство: от проверки масла до ловушек экзаменатора на маршруте.",
-  },
-  "poddelnyye-prava-ispaniya": {
-    title: "Поддельные права в Испании: тюрьма, штрафы и легальный путь (2026) | Сдадим",
-    description: "Чем грозит покупка поддельных прав в Испании: штраф от 12 до 24 месяцев, лишение свободы до 3 лет, отказ страховой. И как получить права легально с первого раза.",
-    ogTitle: "Поддельные права в Испании: цена обмана и легальный путь",
-  },
-  "ekonomichnoe-vozhdenie": {
-    title: "Экономичное вождение: 13 техник для снижения расхода топлива | Сдадим",
-    description: "13 техник экономичного вождения: педаль газа, инерция, скорость на трассе и мифы бывалых. Разбор вопросов DGT на тему расхода топлива.",
-    ogDescription: "Плавный разгон, чтение дороги, инерция, давление в шинах и разбор мифов про нейтралку. Включает вопросы темы DGT.",
-  },
-};
-
-export function articleSeo(post: BlogPost): PageSeo {
-  const text = ARTICLE_TEXT[post.slug] ?? { title: `${post.title} | Сдадим`, description: post.excerpt };
-  const url = `${SITE_URL}/blog/${post.slug}`;
-  const image = post.cover_image ? abs(post.cover_image) : DEFAULT_OG_IMAGE;
+export async function blogSeo(): Promise<PageSeo> {
+  const posts = await getPosts();
   return {
-    ...text,
+    title: "Блог о правах в Испании | Сдадим",
+    description: "Полезные статьи о получении прав в Испании для русскоязычных: гайды, советы, разбор экзамена DGT, стоимость и документы.",
+    canonical: `${SITE_URL}/blog`,
+    ogType: "website",
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        name: "Блог Сдадим",
+        url: `${SITE_URL}/blog`,
+        inLanguage: "ru",
+        publisher: { "@id": `${SITE_URL}/#org` },
+        blogPost: posts.map((p) => ({
+          "@type": "BlogPosting",
+          headline: cardTitle(p),
+          url: `${SITE_URL}/blog/${p.id}`,
+          datePublished: p.data.publishedAt.toISOString(),
+        })),
+      },
+      breadcrumbs([
+        { name: "Главная", url: `${SITE_URL}/` },
+        { name: "Блог", url: `${SITE_URL}/blog` },
+      ]),
+    ],
+  };
+}
+
+export function articleSeo(post: Post): PageSeo {
+  const d = post.data;
+  const url = `${SITE_URL}/blog/${post.id}`;
+  const image = abs(d.cover);
+  const headline = d.ogTitle ?? cardTitle(post);
+  return {
+    title: d.seoTitle,
+    description: d.description,
+    ogTitle: d.ogTitle,
+    ogDescription: d.ogDescription,
     canonical: url,
     ogImage: image,
     ogType: "article",
-    article: { publishedTime: post.published_at, modifiedTime: post.updated_at, section: post.category },
+    article: { publishedTime: d.publishedAt.toISOString(), modifiedTime: modified(post).toISOString(), section: d.category },
     jsonLd: [
       {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
-        headline: text.ogTitle ?? post.title,
-        description: text.description,
+        headline,
+        description: d.description,
         image: [image],
-        datePublished: post.published_at,
-        dateModified: post.updated_at,
+        datePublished: d.publishedAt.toISOString(),
+        dateModified: modified(post).toISOString(),
         inLanguage: "ru",
-        articleSection: post.category,
+        articleSection: d.category,
+        wordCount: post.body ? post.body.split(/\s+/).length : undefined,
+        timeRequired: `PT${d.readingTime}M`,
         mainEntityOfPage: url,
         author: { "@id": `${SITE_URL}/#org` },
         publisher: { "@id": `${SITE_URL}/#org` },
@@ -198,7 +172,7 @@ export function articleSeo(post: BlogPost): PageSeo {
       breadcrumbs([
         { name: "Главная", url: `${SITE_URL}/` },
         { name: "Блог", url: `${SITE_URL}/blog` },
-        { name: post.title, url },
+        { name: cardTitle(post), url },
       ]),
     ],
   };

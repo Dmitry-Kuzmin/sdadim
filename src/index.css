@@ -9,6 +9,11 @@
     padding: 0;
   }
 
+  /* hidden сильнее утилит display (flex, inline-flex…): иначе скрытый элемент с классом flex виден */
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
@@ -132,3 +137,15 @@ html.dark img[src^="/assets/blog/"] {
 :where(html:not(.dark)) .text-rose-400 { color: rgb(var(--c-rose-700) / var(--tw-text-opacity, 1)); }
 :where(html:not(.dark)) .text-rose-500 { color: rgb(var(--c-rose-700) / var(--tw-text-opacity, 1)); }
 :where(html:not(.dark)) .text-rose-600 { color: rgb(var(--c-rose-700) / var(--tw-text-opacity, 1)); }
+
+/* Аккордеоны и спойлеры на <details>: плавное раскрытие там, где браузер умеет анимировать height: auto */
+@supports (interpolate-size: allow-keywords) {
+  :root { interpolate-size: allow-keywords; }
+  .smooth-details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: block-size 0.3s ease, opacity 0.3s ease, content-visibility 0.3s allow-discrete;
+  }
+  .smooth-details[open]::details-content { block-size: auto; opacity: 1; }
+}

@@ -1,31 +1,31 @@
 ---
 /**
- * Главная: статичный HTML + маленькие острова. JS грузится только для интерактива:
- * плашка потока и мобильная панель — обычные скрипты; вопрос DGT, калькулятор/тарифы и FAQ — React при прокрутке к ним.
+ * Главная: статичный HTML + маленькие скрипты, без фреймворков.
+ * Интерактив — вопрос DGT в hero, квиз-калькулятор, тарифы, FAQ — ванильный TS в своих компонентах.
  */
 import Base from "@/layouts/Base.astro";
 import { HOME_SEO } from "@/lib/seo";
-import { Hero, HowItWorks, Included, Testimonials, Blog, FinalCta } from "@/views/home/Sections";
-import HeroBadge from "@/views/home/HeroBadge.astro";
-import { ExamQuestionCard } from "@/views/home/ExamQuestionCard";
-import { CalcAndPricing } from "@/views/home/CalcAndPricing";
-import { Faq } from "@/views/home/Faq";
-import StickyBar from "@/views/home/StickyBar.astro";
+import Hero from "@/components/home/Hero.astro";
+import HowItWorks from "@/components/home/HowItWorks.astro";
+import Included from "@/components/home/Included.astro";
+import Pricing from "@/components/home/Pricing.astro";
+import Testimonials from "@/components/home/Testimonials.astro";
+import Faq from "@/components/home/Faq.astro";
+import HomeBlog from "@/components/home/HomeBlog.astro";
+import FinalCta from "@/components/home/FinalCta.astro";
+import StickyBar from "@/components/home/StickyBar.astro";
 ---
 
 <Base seo={HOME_SEO}>
   <div class="bg-white text-slate-900">
     <main>
-      <Hero>
-        <HeroBadge slot="badge" />
-        <ExamQuestionCard slot="card" client:visible />
-      </Hero>
+      <Hero />
       <HowItWorks />
       <Included />
-      <CalcAndPricing client:visible={{ rootMargin: "400px" }} />
+      <Pricing />
       <Testimonials />
-      <Faq client:visible={{ rootMargin: "400px" }} />
-      <Blog />
+      <Faq />
+      <HomeBlog />
       <FinalCta />
     </main>
     <StickyBar />
@@ -34,8 +34,8 @@ import StickyBar from "@/views/home/StickyBar.astro";
 
 <script>
   import { loadStreams } from "@/lib/course-data";
-  import { botLink, QUIZ_EVENT } from "@/views/home/links";
-  import { openStreams, startLine } from "@/views/home/streams";
+  import { botLink, QUIZ_EVENT } from "@/lib/home-links";
+  import { openStreams, startLine } from "@/lib/streams";
 
   // Финальный блок: дата ближайшего старта
   loadStreams().then((streams) => {
@@ -44,7 +44,7 @@ import StickyBar from "@/views/home/StickyBar.astro";
     if (next && el) el.textContent = `${startLine(next)}.`;
   });
 
-  // Калькулятор пройден — код ответов во все ссылки в бот вне острова тарифов
+  // Калькулятор пройден — код ответов во все ссылки в бот
   addEventListener(QUIZ_EVENT, (e) => {
     const code = (e as CustomEvent<string>).detail;
     document.querySelectorAll<HTMLAnchorElement>("a[data-bot-param]").forEach((a) => (a.href = botLink(a.dataset.botParam!, code)));

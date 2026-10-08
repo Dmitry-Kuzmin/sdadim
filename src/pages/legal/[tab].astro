@@ -1,16 +1,76 @@
 ---
+/** Правовые документы: статичный HTML, вкладки — обычные ссылки на /legal/<tab> */
+import { ChevronLeft, Cookie, CreditCard, FileText, RefreshCw, Shield } from "@lucide/astro";
 import Base from "@/layouts/Base.astro";
-import Legal from "@/views/Legal";
+import { CONTENT } from "@/data/legal";
 import { LEGAL_TABS, legalSeo, type LegalTab } from "@/lib/seo";
+import { cn } from "@/lib/utils";
 
 export function getStaticPaths() {
   return LEGAL_TABS.map((tab) => ({ params: { tab } }));
 }
 
 const tab = Astro.params.tab as LegalTab;
+const content = CONTENT[tab];
+const TABS = [
+  { id: "terms", icon: FileText, label: "Оферта" },
+  { id: "privacy", icon: Shield, label: "Конфиденциальность" },
+  { id: "cookies", icon: Cookie, label: "Cookies" },
+  { id: "subscription", icon: CreditCard, label: "Подписка" },
+  { id: "refund", icon: RefreshCw, label: "Возврат" },
+] as const;
 ---
 
-<!-- Без client:* — чистый HTML, ноль JS -->
 <Base seo={legalSeo(tab)}>
-  <Legal tab={tab} />
+  <main class="pt-10 md:pt-14 pb-20 px-4">
+    <div class="max-w-3xl mx-auto">
+      <a href="/" class="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 text-sm mb-8 transition-colors">
+        <ChevronLeft class="w-4 h-4" />
+        Назад
+      </a>
+
+      <h1 class="text-2xl font-bold text-slate-900 mb-2">Правовые документы</h1>
+      <p class="text-slate-500 text-sm mb-8">Sdadim.eu · Испания, Таррагона</p>
+
+      <nav class="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-10 -mx-4 px-4" aria-label="Документы">
+        {
+          TABS.map(({ id, icon: Icon, label }) => (
+            <a
+              href={`/legal/${id}`}
+              aria-current={tab === id ? "page" : undefined}
+              class={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all",
+                tab === id ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "bg-slate-100 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              )}
+            >
+              <Icon class="w-3.5 h-3.5" />
+              {label}
+            </a>
+          ))
+        }
+      </nav>
+
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden">
+        <div class="px-6 py-5 border-b border-slate-200">
+          <h2 class="text-lg font-bold text-slate-900">{content.title}</h2>
+          <p class="text-xs text-slate-400 mt-1">{content.updated}</p>
+        </div>
+        <div class="px-6 py-6 space-y-8">
+          {
+            content.sections.map((section) => (
+              <section>
+                <h3 class="font-bold text-slate-900 mb-2">{section.title}</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">{section.body}</p>
+              </section>
+            ))
+          }
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50">
+          <p class="text-xs text-slate-400">
+            Вопросы: <a href="mailto:support@skilyapp.com" class="text-blue-600 hover:underline">support@skilyapp.com</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
 </Base>

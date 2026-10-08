@@ -1,0 +1,138 @@
+---
+/**
+ * Каркас статьи: «← Все статьи», плашка рубрики, H1, лид, мета-строка, текст и сайдбар.
+ * Всё оформление статьи — здесь; MDX содержит только текст и блоки кита.
+ */
+import { ArrowLeft, ArrowRight, Clock } from "@lucide/astro";
+import Base from "@/layouts/Base.astro";
+import Sidebar from "@/components/blog/Sidebar.astro";
+import Prose from "@/components/blog/Prose.astro";
+import { ARTICLE_ICONS } from "@/lib/article-icons";
+import { articleSeo } from "@/lib/seo";
+import { cardTitle, getPosts, postUrl, ruDate, type Post } from "@/lib/blog";
+import { coverSrcSet } from "@/lib/covers";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const d = post.data;
+
+const ACCENT = {
+  blue: "text-blue-600 bg-blue-500/10",
+  emerald: "text-emerald-600 bg-emerald-500/10",
+  red: "text-red-600 bg-red-500/10",
+  amber: "text-amber-600 bg-amber-500/10",
+};
+
+const meta = d.meta ?? [
+  { icon: "calendar" as const, text: ruDate(d.publishedAt) },
+  { icon: "clock" as const, text: `${d.readingTime} мин чтения` },
+];
+
+// «Читайте также»: сначала та же рубрика, потом свежие
+const all = (await getPosts()).filter((p) => p.id !== post.id);
+const related = [...all.filter((p) => p.data.category === d.category), ...all.filter((p) => p.data.category !== d.category)].slice(0, 2);
+---
+
+<Base seo={articleSeo(post)}>
+  <div data-reading-progress class="fixed left-0 top-0 z-[60] h-0.5 w-full origin-left scale-x-0 bg-blue-600" aria-hidden="true"></div>
+  <div class="min-h-screen bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
+        <main class="lg:col-span-8 min-w-0">
+          <a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-8">
+            <ArrowLeft class="w-4 h-4" /> Все статьи
+          </a>
+
+          <article>
+            <header class="mb-8">
+              <span class={cn("inline-block text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full mb-4", ACCENT[d.accent])}>
+                {d.chip ?? d.category}
+              </span>
+              <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight tracking-tight mb-5" set:html={d.title} />
+              <p class="text-lg text-slate-600 leading-relaxed mb-5 [&_strong]:text-slate-800" set:html={d.lead} />
+              <div class="flex flex-wrap items-center gap-4 text-sm text-slate-400">
+                {
+                  meta.map((m) => {
+                    const Icon = ARTICLE_ICONS[m.icon];
+                    return (
+                      <span class="flex items-center gap-1.5">
+                        <Icon class={cn("w-3.5 h-3.5", m.iconClass)} /> {m.text}
+                      </span>
+                    );
+                  })
+                }
+              </div>
+            </header>
+
+            <Prose><slot /></Prose>
+          </article>
+
+          {
+            related.length > 0 && (
+              <section class="mt-16 border-t border-slate-200 pt-10" aria-labelledby="related-title">
+                <p id="related-title" class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-5">Читайте также</p>
+                <div class="grid gap-5 sm:grid-cols-2">
+                  {related.map((p) => (
+                    <a href={postUrl(p)} class="group flex flex-col rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all duration-300 overflow-hidden">
+                      <div class="h-36 overflow-hidden">
+                        <img
+                          src={p.data.cover}
+                          srcset={coverSrcSet(p.data.cover)}
+                          sizes="(min-width: 640px) 360px, 100vw"
+                          alt=""
+                          width="1600"
+                          height="1000"
+                          loading="lazy"
+                          decoding="async"
+                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                      <div class="flex flex-1 flex-col p-5">
+                        <span class="flex items-center gap-1 text-[11px] text-slate-400 mb-2">
+                          <Clock class="w-3 h-3" /> {p.data.readingTime} мин
+                        </span>
+                        <p class="font-bold text-slate-900 text-[15px] leading-snug group-hover:text-blue-700 transition-colors line-clamp-2">{cardTitle(p)}</p>
+                        <span class="mt-4 flex items-center gap-1 text-[12px] text-slate-500 group-hover:text-blue-600 transition-colors font-medium">
+                          Читать <ArrowRight class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                        </span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )
+          }
+        </main>
+
+        {
+          d.sidebar.length > 0 && (
+            <aside class="hidden lg:block lg:col-span-4">
+              <Sidebar blocks={d.sidebar} />
+            </aside>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</Base>
+
+<script>
+  // Полоса прочитанного: transform, без перерисовки страницы
+  const bar = document.querySelector<HTMLElement>("[data-reading-progress]");
+  const article = document.querySelector("article");
+  if (bar && article) {
+    let ticking = false;
+    const update = () => {
+      const r = article.getBoundingClientRect();
+      const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
+      bar.style.transform = `scaleX(${p})`;
+      ticking = false;
+    };
+    addEventListener("scroll", () => !ticking && (ticking = requestAnimationFrame(update) > 0), { passive: true });
+    update();
+  }
+</script>

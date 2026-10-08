@@ -1,0 +1,53 @@
+---
+/** YouTube без тяжёлого iframe до клика: превью + кнопка, плеер — по нажатию */
+import { Play } from "@lucide/astro";
+
+interface Props {
+  youtubeId?: string;
+  src?: string;
+  caption?: string;
+}
+
+const { youtubeId, src, caption } = Astro.props;
+const url = youtubeId ? `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0` : src;
+---
+
+{
+  url && (
+    <figure class="my-8 not-prose">
+      <div class="relative w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100" style="padding-bottom: 56.25%">
+        {youtubeId ? (
+          <div class="absolute inset-0" data-yt={url} data-title={caption ?? "Видео"}>
+            <img src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`} alt="" loading="lazy" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <button
+                type="button"
+                class="w-16 h-16 rounded-full bg-white/90 hover:bg-white text-zinc-900 flex items-center justify-center transition-all hover:scale-110 shadow-2xl"
+                aria-label="Воспроизвести видео"
+              >
+                <Play class="w-6 h-6 fill-current ml-0.5" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <iframe src={url} allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen class="absolute inset-0 w-full h-full" title={caption ?? "Видео"} loading="lazy" />
+        )}
+      </div>
+      {caption && <figcaption class="text-center text-xs text-slate-400 mt-3">{caption}</figcaption>}
+    </figure>
+  )
+}
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-yt]").forEach((box) =>
+    box.querySelector("button")!.addEventListener("click", () => {
+      const f = document.createElement("iframe");
+      f.src = box.dataset.yt!;
+      f.title = box.dataset.title!;
+      f.allow = "autoplay; encrypted-media; picture-in-picture";
+      f.allowFullscreen = true;
+      f.className = "absolute inset-0 w-full h-full";
+      box.replaceWith(f);
+    })
+  );
+</script>

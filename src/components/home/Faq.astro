@@ -1,0 +1,66 @@
+---
+/**
+ * FAQ главной: все вопросы всех рубрик — в HTML (их видят поисковики и FAQPage-схема),
+ * скрипт только переключает рубрику. Ответ раскрывается нативным <details>.
+ */
+import { ChevronDown } from "@lucide/astro";
+import { FAQ_CATEGORIES, FAQ_DATA } from "@/lib/home-faq";
+import SectionHead from "./SectionHead.astro";
+
+const keys = Object.keys(FAQ_CATEGORIES) as (keyof typeof FAQ_CATEGORIES)[];
+---
+
+<section id="faq" data-faq class="cv-auto scroll-mt-16 py-20 md:py-28">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.6fr] lg:gap-16 [&>*]:min-w-0">
+    <div>
+      <SectionHead index="06" eyebrow="Вопросы" title="Частые вопросы" />
+      <div class="-mx-4 -mt-4 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide lg:mx-0 lg:mt-0 lg:flex-col lg:items-start lg:overflow-visible lg:px-0" role="tablist">
+        {
+          keys.map((key, i) => (
+            <button
+              type="button"
+              role="tab"
+              data-faq-tab={key}
+              aria-selected={i === 0 ? "true" : "false"}
+              class="shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors lg:rounded-lg lg:px-3 aria-selected:bg-inverse aria-selected:text-on-inverse aria-[selected=false]:border aria-[selected=false]:border-slate-200 aria-[selected=false]:text-slate-600 aria-[selected=false]:hover:text-slate-900 lg:aria-[selected=false]:border-transparent"
+            >
+              {FAQ_CATEGORIES[key]}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+    <div>
+      {
+        keys.map((key, i) => (
+          <div data-faq-panel={key} role="tabpanel" hidden={i > 0} class="border-t border-slate-200 lg:mt-2">
+            {FAQ_DATA[key].map((item) => (
+              <details class="group/faq smooth-details border-b border-slate-200">
+                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-6 py-5 text-left [&::-webkit-details-marker]:hidden">
+                  <span class="text-[15px] font-medium text-slate-900 sm:text-base">{item.question}</span>
+                  <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 transition-transform group-open/faq:rotate-180">
+                    <ChevronDown class="h-4 w-4 text-slate-500" />
+                  </span>
+                </summary>
+                <p class="pb-6 pr-4 text-[15px] leading-relaxed text-slate-600 whitespace-pre-line sm:pr-12">{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-faq]");
+  if (root) {
+    const tabs = root.querySelectorAll<HTMLButtonElement>("[data-faq-tab]");
+    tabs.forEach((t) =>
+      t.addEventListener("click", () => {
+        tabs.forEach((x) => x.setAttribute("aria-selected", String(x === t)));
+        root.querySelectorAll<HTMLElement>("[data-faq-panel]").forEach((p) => (p.hidden = p.dataset.faqPanel !== t.dataset.faqTab));
+      })
+    );
+  }
+</script>

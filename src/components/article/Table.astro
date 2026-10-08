@@ -1,0 +1,34 @@
+---
+/** Таблица: ячейки — строки, допускается inline-HTML (<strong>, <br>) */
+import { cn } from "@/lib/utils";
+
+interface Props {
+  headers: string[];
+  rows: string[][];
+  caption?: string;
+}
+
+const { headers, rows, caption } = Astro.props;
+---
+
+<div class="my-8 not-prose overflow-x-auto rounded-2xl border border-slate-200">
+  <table class="w-full min-w-[480px] text-sm">
+    <thead>
+      <tr class="border-b border-slate-200 bg-slate-50">
+        {headers.map((h) => <th class="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-slate-500">{h}</th>)}
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-200">
+      {
+        rows.map((row) => (
+          <tr class="hover:bg-slate-50 transition-colors">
+            {row.map((cell, ci) => (
+              <td class={cn("px-5 py-3.5 text-slate-700 leading-snug", ci === 0 && "font-medium text-slate-900")} set:html={cell} />
+            ))}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  {caption && <p class="text-center text-xs text-slate-400 py-3 border-t border-slate-200">{caption}</p>}
+</div>

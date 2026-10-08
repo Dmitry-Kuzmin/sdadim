@@ -1,9 +1,16 @@
 ---
 import Base from "@/layouts/Base.astro";
-import NotFound from "@/views/NotFound";
 import { NOT_FOUND_SEO } from "@/lib/seo";
 ---
 
 <Base seo={NOT_FOUND_SEO}>
-  <NotFound />
+  <main class="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+    <div class="text-6xl mb-6">🚦</div>
+    <h1 class="text-3xl font-bold text-slate-900 mb-3">Страница не найдена</h1>
+    <p class="text-slate-600 text-sm mb-8">Возможно, адрес изменился или страница была удалена.</p>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <a href="/" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors">На главную →</a>
+      <a href="/blog" class="px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-colors">Блог о правах</a>
+    </div>
+  </main>
 </Base>

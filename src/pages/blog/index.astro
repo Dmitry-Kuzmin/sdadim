@@ -1,9 +1,191 @@
 ---
+/**
+ * Блог: все карточки — в HTML, поиск и рубрики фильтруют их на месте (без React).
+ * Рубрика и запрос живут в адресе (?cat=…&q=…) — ссылкой на отфильтрованный блог можно поделиться.
+ */
+import { ArrowRight, BookOpen, Calendar, Clock, GraduationCap, Lightbulb, MapPin, Newspaper, Search, Users } from "@lucide/astro";
 import Base from "@/layouts/Base.astro";
-import Blog from "@/views/Blog";
-import { BLOG_SEO } from "@/lib/seo";
+import { blogSeo } from "@/lib/seo";
+import { cardTitle, getPosts, postUrl } from "@/lib/blog";
+import { coverSrcSet } from "@/lib/covers";
+
+const posts = await getPosts();
+
+const CATEGORIES = [
+  { id: "all", label: "Все статьи", icon: Newspaper },
+  { id: "Практика DGT", label: "Практика DGT", icon: GraduationCap },
+  { id: "Истории сдачи", label: "Истории сдачи", icon: Users },
+  { id: "Подготовка к DGT", label: "Подготовка", icon: Lightbulb },
+  { id: "Финансы", label: "Финансы", icon: MapPin },
+  { id: "Закон и Штрафы", label: "Закон", icon: BookOpen },
+  { id: "Полезно", label: "Полезно", icon: Newspaper },
+];
+const count = (id: string) => (id === "all" ? posts.length : posts.filter((p) => p.data.category === id).length);
+const date = (d: Date) => d.toLocaleDateString("ru-RU", { year: "numeric", month: "long", day: "numeric" });
 ---
 
-<Base seo={BLOG_SEO}>
-  <Blog client:idle />
+<Base seo={await blogSeo()}>
+  <div class="min-h-screen bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
+      <div class="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-10">
+        <aside class="lg:col-span-1">
+          <div class="sticky top-24 space-y-8">
+            <div>
+              <h1 class="text-2xl font-bold text-slate-900 mb-1.5">Блог</h1>
+              <p class="text-sm text-slate-500 leading-relaxed">Инструкции и советы о правах в Испании</p>
+            </div>
+
+            <nav class="space-y-0.5" aria-label="Рубрики">
+              {
+                CATEGORIES.map((cat, i) => (
+                  <button
+                    type="button"
+                    data-cat={cat.id}
+                    aria-pressed={i === 0 ? "true" : "false"}
+                    class="group w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-between gap-3 border-l-2 aria-pressed:bg-blue-500/10 aria-pressed:text-blue-700 aria-pressed:border-blue-500 aria-[pressed=false]:text-slate-600 aria-[pressed=false]:hover:bg-slate-50 aria-[pressed=false]:hover:text-slate-900 aria-[pressed=false]:border-transparent"
+                  >
+                    <div class="flex items-center gap-2.5">
+                      <cat.icon class="w-4 h-4 flex-shrink-0 group-aria-pressed:text-blue-600 group-aria-[pressed=false]:text-slate-400" />
+                      <span>{cat.label}</span>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full tabular-nums group-aria-pressed:bg-blue-500/15 group-aria-pressed:text-blue-600 group-aria-[pressed=false]:bg-slate-100 group-aria-[pressed=false]:text-slate-400">
+                      {count(cat.id)}
+                    </span>
+                  </button>
+                ))
+              }
+            </nav>
+
+            <div class="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+              <p class="text-slate-900 font-semibold text-sm mb-1">Готовиться к DGT?</p>
+              <p class="text-slate-600 text-xs leading-relaxed mb-3">Тренируйте тесты с полной базой вопросов DGT в SkilyApp.</p>
+              <a href="https://t.me/skilyapp_bot" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                Попробовать бесплатно <ArrowRight class="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+        </aside>
+
+        <main class="lg:col-span-3 xl:col-span-4">
+          <div class="relative mb-8">
+            <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+            <input
+              type="search"
+              data-search
+              placeholder="Поиск статей..."
+              aria-label="Поиск статей"
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500/50 focus:bg-slate-50 transition-all"
+            />
+            <kbd class="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 rounded">⌘K</kbd>
+          </div>
+
+          <div data-empty hidden class="text-center py-16">
+            <BookOpen class="w-12 h-12 mx-auto mb-4 text-slate-400" />
+            <p class="text-slate-600 font-semibold mb-1">Статьи не найдены</p>
+            <p class="text-slate-400 text-sm">Попробуйте изменить запрос или категорию</p>
+          </div>
+
+          <div data-results>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {
+                posts.map((post, i) => (
+                  <a
+                    href={postUrl(post)}
+                    data-post
+                    data-category={post.data.category}
+                    data-text={`${cardTitle(post)} ${post.data.excerpt}`.toLowerCase()}
+                    class="group flex flex-col rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all duration-300 overflow-hidden"
+                  >
+                    <div class="h-44 overflow-hidden">
+                      <img
+                        src={post.data.cover}
+                        srcset={coverSrcSet(post.data.cover)}
+                        sizes="(min-width: 768px) 440px, 100vw"
+                        alt={cardTitle(post)}
+                        width="1600"
+                        height="1000"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading={i < 2 ? "eager" : "lazy"}
+                        fetchpriority={i === 0 ? "high" : "auto"}
+                      />
+                    </div>
+                    <div class="flex flex-col flex-1 p-6">
+                      <div class="flex items-center gap-2.5 mb-3">
+                        <span class="text-[10px] uppercase tracking-widest font-bold text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded-full">{post.data.category}</span>
+                        <span class="flex items-center gap-1 text-[11px] text-slate-400">
+                          <Clock class="w-3 h-3" />
+                          {post.data.readingTime} мин
+                        </span>
+                      </div>
+                      <h2 class="font-bold text-slate-900 text-[17px] leading-snug mb-3 group-hover:text-blue-700 transition-colors line-clamp-2">{cardTitle(post)}</h2>
+                      <p class="text-slate-500 text-[13px] leading-relaxed flex-1 line-clamp-3">{post.data.excerpt}</p>
+                      <div class="flex items-center justify-between mt-5 pt-4 border-t border-slate-200">
+                        <div class="flex items-center gap-1.5 text-[11px] text-slate-400">
+                          <Calendar class="w-3 h-3" />
+                          <time datetime={post.data.publishedAt.toISOString()}>{date(post.data.publishedAt)}</time>
+                        </div>
+                        <span class="flex items-center gap-1 text-[12px] text-slate-500 group-hover:text-blue-600 transition-colors font-medium">
+                          Читать <ArrowRight class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                ))
+              }
+            </div>
+
+            <div class="mt-12 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-600/10 to-cyan-600/5 p-8 text-center">
+              <p class="text-slate-900 font-bold text-xl mb-2">Готовы сдать теорию DGT?</p>
+              <p class="text-slate-600 text-sm mb-6 max-w-md mx-auto">Присоединяйтесь к курсу с живыми уроками или тренируйтесь самостоятельно в SkilyApp.</p>
+              <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="https://t.me/skilyapp_bot?start=course" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors">
+                  Записаться на курс →
+                </a>
+                <a href="https://t.me/skilyapp_bot" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-900 font-semibold text-sm transition-colors">
+                  Тренировать тесты бесплатно
+                </a>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
 </Base>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>("[data-search]")!;
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-cat]")];
+  const cards = [...document.querySelectorAll<HTMLElement>("[data-post]")];
+  const params = new URLSearchParams(location.search);
+  let cat = buttons.some((b) => b.dataset.cat === params.get("cat")) ? params.get("cat")! : "all";
+  input.value = params.get("q") ?? "";
+
+  const apply = () => {
+    const q = input.value.trim().toLowerCase();
+    let shown = 0;
+    cards.forEach((c) => {
+      const ok = (cat === "all" || c.dataset.category === cat) && (!q || c.dataset.text!.includes(q));
+      c.hidden = !ok;
+      if (ok) shown++;
+    });
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.cat === cat)));
+    document.querySelector<HTMLElement>("[data-empty]")!.hidden = shown > 0;
+    document.querySelector<HTMLElement>("[data-results]")!.hidden = shown === 0;
+    const url = new URL(location.href);
+    cat === "all" ? url.searchParams.delete("cat") : url.searchParams.set("cat", cat);
+    q ? url.searchParams.set("q", q) : url.searchParams.delete("q");
+    history.replaceState(null, "", url);
+  };
+
+  buttons.forEach((b) => b.addEventListener("click", () => ((cat = b.dataset.cat!), apply())));
+  input.addEventListener("input", apply);
+  // ⌘K / Ctrl+K — к поиску
+  addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      input.focus();
+    }
+  });
+  if (cat !== "all" || input.value) apply();
+</script>
