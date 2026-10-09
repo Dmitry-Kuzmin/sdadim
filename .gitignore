@@ -15,3 +15,5 @@ Icon?
 
 # Адаптивные обложки — генерируются при сборке (scripts/cover-variants.mjs)
 public/assets/blog/w/
+.vercel
+.env*

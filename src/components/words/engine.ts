@@ -137,7 +137,7 @@ export function pickLesson(pool: Word[], p: Progress, size = 8): Word[] {
  * Такие не ставим рядом — это была бы нечестная ловушка.
  */
 const parts = (s: string) =>
-  s.toLowerCase().split(/[,;()/—–]|\s-\s/).map((x) => x.replace(/[¿?¡!.…«»"]/g, "").trim()).filter((x) => x.length >= 3);
+  s.toLowerCase().replace(/\u00a0/g, " ").split(/[,;()/—–]|\s-\s/).map((x) => x.replace(/[¿?¡!.…«»"]/g, "").trim()).filter((x) => x.length >= 3);
 export function similar(a: string, b: string): boolean {
   const pa = parts(a), pb = parts(b);
   return pa.some((x) => pb.some((y) => x === y || x.includes(y) || y.includes(x)));

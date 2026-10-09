@@ -48,6 +48,23 @@
           "value": "public, max-age=604800, stale-while-revalidate=86400"
         }
       ]
+    },
+    {
+      "source": "/ispanskij-dlya-dgt/slovar.bin",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://sdadim.eu"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }

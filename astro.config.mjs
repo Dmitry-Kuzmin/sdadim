@@ -1,5 +1,9 @@
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
+import { randomBytes } from "node:crypto";
+
+// Ключ данных тренажёра слов — новый на каждую сборку (src/pages/ispanskij-dlya-dgt/slovar.bin.ts)
+const WORDS_KEY = randomBytes(32).toString("base64");
 
 export default defineConfig({
   site: "https://sdadim.eu",
@@ -13,5 +17,6 @@ export default defineConfig({
   vite: {
     // Переменные окружения исторически с префиксом VITE_
     envPrefix: ["VITE_", "PUBLIC_"],
+    define: { __WORDS_KEY__: JSON.stringify(WORDS_KEY) },
   },
 });

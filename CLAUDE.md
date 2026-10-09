@@ -61,6 +61,17 @@ Frontmatter — единственный источник: страница, к�
 - Испанские слова в статьях блога сами становятся ссылками на страницы слов (`src/lib/word-links.ts` в `Prose.astro`,
   1 ссылка на абзац, до 12 на статью) с подсказкой `WordTip.astro`. Rehype-плагины MDX в Astro 7 (Satteri) не работают — правим HTML.
 
+## Защита словаря от выкачки
+
+Всё, что видит Google (темы и страницы слов), видит и скрапер — закрыть это нельзя, можно сделать дорогим и доказуемым.
+- **Край Vercel** (дашборд → sdadim → Firewall → Rules → Bot Protection: **Challenge**) — скрипты без браузера (curl/python, даже с UA Chrome)
+  получают JS-проверку, проверенные боты (Google, Yandex, ChatGPT, Claude, Perplexity) проходят. Пропуск — превью Telegram/VK/WhatsApp по их ASN.
+- **Данные игр** — не чистый JSON, а `/ispanskij-dlya-dgt/slovar.bin`: gzip + XOR ключом, новым на каждую сборку
+  (`__WORDS_KEY__` в `astro.config.mjs`, клиент — `src/components/words/data.ts`). Это обфускация, не шифр. `words.json` не возвращать.
+- **Водяной знак** — `src/lib/watermark.ts`: в русских полях слов неразрывные пробелы после коротких слов по секретному рисунку.
+  Нашли копию — `npm run words:watermark -- <url>`, вывод + web.archive.org → жалоба хостингу и в Google (DMCA). SALT не менять.
+  Сравнивая русские строки в коде, считайте `\u00a0` пробелом.
+
 ## Главная и данные
 
 | Что | Где |

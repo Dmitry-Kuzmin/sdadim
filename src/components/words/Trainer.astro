@@ -12,8 +12,9 @@ import "./words.css";
 <script>
   import * as E from "./engine";
   import { speak } from "./fx";
+  import { loadWords } from "./data";
   import type { Word } from "@/lib/words";
-  // Не из @/lib/words: тот тянет words.json целиком в бандл страницы.
+  // Не из @/lib/words: тот тянет src/data/words.json целиком в бандл страницы.
   const plural = (n: number, one: string, few: string, many: string) => {
     const a = n % 10, b = n % 100;
     return `${n} ${a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many}`;
@@ -56,7 +57,7 @@ import "./words.css";
     // Прогресс по темам: нужен список слов — только тем, кто уже занимался.
     const bars = document.querySelectorAll<HTMLElement>("[data-set-bar]");
     if (!bars.length || !E.hasProgress()) return;
-    const words: Word[] = await fetch("/ispanskij-dlya-dgt/words.json").then((r) => r.json()).catch(() => []);
+    const words: Word[] = await loadWords().catch(() => []);
     bars.forEach((el) => {
       const m = el.dataset.setBar!;
       const ids = (m === "top" ? words.slice(0, 100) : words.filter((w) => w.m === m)).map((w) => w.id);

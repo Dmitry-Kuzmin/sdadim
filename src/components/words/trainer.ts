@@ -14,6 +14,7 @@ import * as fx from "./fx";
 import { radar, pairs } from "./arcade";
 import { road } from "./road";
 import { h, picture } from "./dom";
+import { loadWords } from "./data";
 
 export type Summary = {
   correct: number;
@@ -59,9 +60,6 @@ export type Ctx = {
 };
 
 /* ─── Данные ─────────────────────────────────────────────── */
-
-let wordsP: Promise<Word[]> | null = null;
-export const loadWords = () => (wordsP ??= fetch("/ispanskij-dlya-dgt/words.json").then((r) => r.json()));
 
 function poolFor(all: Word[], module?: string) {
   if (module === "top") return all.slice(0, 100);

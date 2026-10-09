@@ -6,12 +6,13 @@
  *   src/data/word-questions.json вопросы DGT со словом для его страницы ← npm run words:sync
  *   public/img/slova/<id>.webp картинки со знаком sdadim.eu ← npm run words:sync
  *
- * Игры получают слова из /ispanskij-dlya-dgt/words.json (src/pages/ispanskij-dlya-dgt/words.json.ts),
+ * Игры получают слова из /ispanskij-dlya-dgt/slovar.bin (src/pages/ispanskij-dlya-dgt/slovar.bin.ts),
  * а не из HTML: так страница темы лёгкая, а «Тренировка дня» видит весь словарь.
  */
 import raw from "@/data/words.json";
 import rawQs from "@/data/word-questions.json";
 import { TOP_SIZE, WORD_SETS, type WordSet } from "@/data/word-sets";
+import { markWord } from "@/lib/watermark";
 
 export type Word = {
   id: string;
@@ -42,7 +43,8 @@ export type ExamQuestion = {
 };
 
 export const BASE = "/ispanskij-dlya-dgt";
-export const WORDS = raw as Word[];
+/** С водяным знаком в русских полях (src/lib/watermark.ts) — и в HTML, и в данных для игр. */
+export const WORDS = (raw as Word[]).map(markWord);
 export const wordImg = (id: string) => `/img/slova/${id}.webp`;
 export const qImg = (id: string) => `/img/voprosy/${id}.webp`;
 export const setUrl = (s: WordSet) => `${BASE}/${s.slug}`;
