@@ -16,10 +16,11 @@ Frontmatter — единственный источник: страница, к�
 `src/layouts/ArticleLayout.astro`, в MDX только текст и блоки.
 
 - Абзацы и `##` — обычный Markdown; заголовок с якорем для оглавления — `<h2 id="slug">Текст</h2>`.
-- Блоки кита без импорта: `Figure Callout CardGrid Divider Banner Accordion List Stats Table Quote Tabs/TabPanel Spoiler Comparison LinkCard Video Quiz`
+- Блоки кита без импорта: `Figure Callout CardGrid Divider Banner Accordion List Stats Table Quote Tabs/TabPanel Spoiler Comparison LinkCard Video Quiz Skily`
   (`src/components/article/`). Свой виджет статьи — `src/components/widgets/*.astro` + `import` в MDX.
 - Текст внутри `<p>`, `<h3>`, `<a>`… пишите **в одну строку**: многострочный MDX оборачивает в лишний `<p>`.
-- Сайдбар — блоки `sidebar:` во frontmatter (toc, fact, card, stat, banner).
+- Сайдбар — блоки `sidebar:` во frontmatter (toc, fact, card, stat, banner); карточка Skilyapp под оглавлением ставится сама.
+- Промо Skilyapp: баннер под шапкой и карточка в сайдбаре — автоматически; в тексте — `<Skily feature="tests|duels|dictionary|lingo|ai" />` по смыслу раздела. Тексты и ссылки с UTM — `src/lib/skily.ts`.
 - Обложка: HTML-шаблон `scripts/covers/<slug>.html` → `npm run covers -- <slug>` → `public/assets/blog/<slug>.jpg`.
 
 ## Годы, пошлины и штрафы — только из единого источника
