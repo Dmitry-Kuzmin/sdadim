@@ -394,7 +394,7 @@ function runSteps(ctx: Ctx, steps: Step[]) {
     if (n < first) ctx.mark(n, "cur");
     lastSrc = null;
     render(ctx, step, (ok) => {
-      if (step.k === "new") return void ctx.mark(n, "done");
+      if (step.k === "new") return void (ctx.mark(n, "done"), next());
       if (!step.retry) total++;
       const seg = n < first ? ctx.mark(n, ok ? "ok" : "bad") : null;
       const src = lastSrc ?? ctx.stage.querySelector(".wt-q");
