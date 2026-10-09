@@ -3,12 +3,14 @@
  *
  *   src/data/words.json        слова из словаря SkilyApp ← npm run words:sync (от частых к редким)
  *   src/data/word-sets.ts      темы — пишем руками
+ *   src/data/word-questions.json вопросы DGT со словом для его страницы ← npm run words:sync
  *   public/img/slova/<id>.webp картинки со знаком sdadim.eu ← npm run words:sync
  *
  * Игры получают слова из /ispanskij-dlya-dgt/words.json (src/pages/ispanskij-dlya-dgt/words.json.ts),
  * а не из HTML: так страница темы лёгкая, а «Тренировка дня» видит весь словарь.
  */
 import raw from "@/data/words.json";
+import rawQs from "@/data/word-questions.json";
 import { TOP_SIZE, WORD_SETS, type WordSet } from "@/data/word-sets";
 
 export type Word = {
@@ -27,6 +29,9 @@ export type Word = {
   h?: string;
   img?: "pic" | "sign";
 };
+
+/** Настоящий бесплатный вопрос DGT: ответы в порядке экзамена, ровно один верный, объяснение по-русски. */
+export type ExamQuestion = { es: string; ru: string; a: { es: string; ru: string; ok?: boolean }[]; x?: string };
 
 export const BASE = "/ispanskij-dlya-dgt";
 export const WORDS = raw as Word[];
@@ -49,6 +54,10 @@ export const wordSet = (w: Word) => BY_MODULE.get(w.m)!;
  */
 export const hasPage = (w: Word) => w.q > 0 || !!w.ex;
 export const PAGE_WORDS = WORDS.filter(hasPage);
+
+/** До 3 вопросов экзамена со словом — для его страницы; первый совпадает с примером ex. */
+const QS = rawQs as Record<string, ExamQuestion[]>;
+export const wordQuestions = (w: Word): ExamQuestion[] => QS[w.id] ?? [];
 
 /** Соседи по теме для «Похожих слов»: ближайшие по частоте, со своей страницей. */
 export function related(w: Word, n = 8): Word[] {

@@ -1,12 +1,13 @@
 ---
 /**
- * Страница слова: перевод, толкование, картинка, слово в настоящем вопросе DGT, ловушка,
- * мини-тест на соседнем слове и похожие слова. Страница есть только у слов с содержанием (hasPage).
+ * Страница слова: перевод, толкование, картинка и главное — настоящие вопросы DGT с этим словом,
+ * на которые можно ответить: так видно, зачем слово знать. Дальше ловушка, тренировка и похожие слова.
+ * Нет вопросов с ответами — пример из вопроса и мини-тест на соседнем слове. Страница есть только у hasPage.
  */
 import Base from "@/layouts/Base.astro";
 import Trainer from "@/components/words/Trainer.astro";
 import Crumbs from "@/components/words/Crumbs.astro";
-import { BASE, PAGE_WORDS, WORDS, cap, plural, rank, related, setUrl, wordImg, wordSet, wordUrl, type Word } from "@/lib/words";
+import { BASE, PAGE_WORDS, WORDS, cap, plural, rank, related, setUrl, wordImg, wordQuestions, wordSet, wordUrl, type Word } from "@/lib/words";
 import { findIn, similar } from "@/components/words/engine";
 import { wordSeo } from "@/lib/seo";
 
@@ -21,10 +22,16 @@ const at = PAGE_WORDS.indexOf(w);
 const prev = PAGE_WORDS[at - 1];
 const next = PAGE_WORDS[at + 1];
 const hit = w.ex ? findIn(w.ex.es, w.es) : null;
+const qs = wordQuestions(w);
+/** Вопрос по частям: слово подсвечено. */
+const parts = (es: string) => {
+  const m = findIn(es, w.es);
+  return m ? [es.slice(0, m[0]), es.slice(m[0], m[1]), es.slice(m[1])] : [es, "", ""];
+};
 
 // Мини-тест — на соседнем слове: проверка, а не повтор того, что написано выше. Неверные варианты — ближайшие
 // по частоте слова той же темы без синонимов: без случайности, HTML не меняется от сборки к сборке.
-const quiz = near[0];
+const quiz = qs.length ? undefined : near[0];
 const wrong: Word[] = [];
 for (const x of quiz ? related(quiz, 30) : []) {
   if (wrong.length >= 3) break;
@@ -61,31 +68,64 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
               width="640"
               height="480"
               fetchpriority="high"
-              class={`w-full rounded-2xl sm:w-80 ${w.img === "sign" ? "max-w-[220px] object-contain" : "aspect-[4/3] object-cover bg-slate-100"}`}
+              class={`w-full rounded-2xl sm:w-80 ${w.img === "sign" ? "aspect-square max-w-[220px] bg-white object-contain p-4 ring-1 ring-slate-200" : "aspect-[4/3] object-cover"}`}
             />
           )
         }
       </header>
 
       {
-        w.ex && (
+        qs.length > 0 ? (
           <section class="mt-10" aria-labelledby="exam">
-            <h2 id="exam" class="text-xl font-bold text-slate-900">«{w.es}» в вопросе экзамена DGT</h2>
-            <figure class="mt-4 rounded-2xl border-l-4 border-blue-600 bg-slate-50 p-5">
-              <blockquote class="text-lg font-medium leading-relaxed text-slate-900" lang="es">
-                {hit ? (
-                  <>
-                    {w.ex.es.slice(0, hit[0])}
-                    <mark class="rounded bg-yellow-200 px-0.5 text-slate-900">{w.ex.es.slice(hit[0], hit[1])}</mark>
-                    {w.ex.es.slice(hit[1])}
-                  </>
-                ) : (
-                  w.ex.es
-                )}
-              </blockquote>
-              <figcaption class="mt-2 text-slate-600">{w.ex.ru}</figcaption>
-            </figure>
+            <h2 id="exam" class="text-xl font-bold text-slate-900">Ответьте на {qs.length > 1 ? "вопросы" : "вопрос"} экзамена DGT со словом «{w.es}»</h2>
+            <p class="mt-1 text-slate-600">Так слово выглядит на экзамене — по-испански. Выберите ответ: покажем перевод и объяснение.</p>
+            <ol class="mt-5 space-y-5">
+              {qs.map((q, i) => {
+                const [a, b, c] = parts(q.es);
+                return (
+                  <li class="rounded-2xl border border-slate-200 p-5" data-xq>
+                    {qs.length > 1 && <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Вопрос {i + 1} из {qs.length}</p>}
+                    <p class="text-lg font-semibold leading-relaxed text-slate-900" lang="es">
+                      {a}{b && <mark class="rounded bg-yellow-200 px-0.5 text-slate-900">{b}</mark>}{c}
+                    </p>
+                    <p class="mt-1 text-slate-600" data-xq-ru hidden>{q.ru}</p>
+                    <div class="mt-4 grid gap-2">
+                      {q.a.map((o, j) => (
+                        <button type="button" data-ok={o.ok ? "1" : undefined} class="flex gap-3 rounded-xl border-2 border-b-4 border-slate-200 px-4 py-3 text-left transition hover:border-blue-300 disabled:cursor-default">
+                          <span class="font-bold text-slate-400">{"abcd"[j]}</span>
+                          <span>
+                            <span class="block font-medium text-slate-800" lang="es">{o.es}</span>
+                            <span class="mt-0.5 block text-sm text-slate-500" data-xq-ru hidden>{o.ru}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    {q.x && <p class="mt-4 rounded-xl bg-blue-50 p-4 leading-relaxed text-slate-700" data-xq-ru hidden>{q.x}</p>}
+                  </li>
+                );
+              })}
+            </ol>
           </section>
+        ) : (
+          w.ex && (
+            <section class="mt-10" aria-labelledby="exam">
+              <h2 id="exam" class="text-xl font-bold text-slate-900">«{w.es}» в вопросе экзамена DGT</h2>
+              <figure class="mt-4 rounded-2xl border-l-4 border-blue-600 bg-slate-50 p-5">
+                <blockquote class="text-lg font-medium leading-relaxed text-slate-900" lang="es">
+                  {hit ? (
+                    <>
+                      {w.ex.es.slice(0, hit[0])}
+                      <mark class="rounded bg-yellow-200 px-0.5 text-slate-900">{w.ex.es.slice(hit[0], hit[1])}</mark>
+                      {w.ex.es.slice(hit[1])}
+                    </>
+                  ) : (
+                    w.ex.es
+                  )}
+                </blockquote>
+                <figcaption class="mt-2 text-slate-600">{w.ex.ru}</figcaption>
+              </figure>
+            </section>
+          )
         )
       }
 
@@ -110,7 +150,7 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
 
       {
         quiz && opts.length > 0 && (
-          <section class="mt-10" aria-labelledby="quiz" data-wq>
+          <section class="mt-10" aria-labelledby="quiz" data-xq>
             <h2 id="quiz" class="text-xl font-bold text-slate-900">Проверьте себя: что значит «{quiz.es}»?</h2>
             <div class="mt-4 grid gap-2 sm:grid-cols-2">
               {opts.map((o) => (
@@ -119,7 +159,7 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
                 </button>
               ))}
             </div>
-            <p class="mt-3 text-sm text-slate-600" data-wq-result hidden>
+            <p class="mt-3 text-sm text-slate-600" data-xq-ru hidden>
               <a href={wordUrl(quiz)} class="font-semibold text-blue-700">Подробнее о «{quiz.es}» →</a>
             </p>
           </section>
@@ -154,17 +194,18 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
 </Base>
 
 <script>
-  // Мини-тест: верный вариант — зелёный, неверный — красный, потом ссылка на слово.
-  document.querySelectorAll<HTMLElement>("[data-wq]").forEach((q) => {
+  // Вопрос экзамена и мини-тест: верный вариант — зелёный, неверный — красный, потом раскрывается
+  // перевод с объяснением (вопрос экзамена) или ссылка на слово (мини-тест).
+  document.querySelectorAll<HTMLElement>("[data-xq]").forEach((q) => {
     const btns = q.querySelectorAll<HTMLButtonElement>("button");
     btns.forEach((b) =>
       b.addEventListener("click", () => {
         btns.forEach((x) => {
           x.disabled = true;
-          if (x.dataset.ok) x.classList.add("!border-emerald-500", "!bg-emerald-50", "!text-emerald-800");
+          if (x.dataset.ok) x.classList.add("!border-emerald-500", "!bg-emerald-50");
         });
-        if (!b.dataset.ok) b.classList.add("!border-rose-500", "!bg-rose-50", "!text-rose-800");
-        q.querySelector<HTMLElement>("[data-wq-result]")!.hidden = false;
+        if (!b.dataset.ok) b.classList.add("!border-rose-500", "!bg-rose-50");
+        q.querySelectorAll<HTMLElement>("[data-xq-ru]").forEach((x) => (x.hidden = false));
       }),
     );
   });

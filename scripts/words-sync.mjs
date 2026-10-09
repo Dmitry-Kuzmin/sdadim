@@ -8,6 +8,8 @@
  * поэтому сайт не зависит от базы ни при сборке, ни в браузере:
  *   src/data/words.json          [{ id, es, ru, d, m, q, ex?, h?, img? }] — от частых в вопросах DGT к редким
  *   src/data/words-sync.json     дата последнего изменения словаря (lastmod в sitemap)
+ *   src/data/word-questions.json { id: [вопрос с ответами и объяснением] } — до 3 вопросов DGT со словом
+ *                                для его страницы (только сборка, в браузер не уходит)
  *   public/img/slova/<id>.webp   картинка со знаком sdadim.eu (качается, только если её нет, она поменялась
  *                                в SkilyApp или поменялся знак — WM)
  * id строится из испанского написания: на нём держится прогресс учеников — не менять termId().
@@ -21,7 +23,7 @@ const META = r("../src/data/words-images.json");
 const IMG_DIR = r("../public/img/slova/");
 
 /** Версия знака: поменял его вид — подними число, и все картинки перекачаются. */
-const WM = 1;
+const WM = 2;
 /** Ширина картинки на сайте: в тренажёре и списке она не бывает шире 640 px. */
 const W = 640;
 
@@ -56,8 +58,20 @@ function mark(width) {
   };
 }
 
+/**
+ * У части картинок SkilyApp вокруг рисунка зашита серая рамка — обрезаем её (trim по цвету угла),
+ * а затем приводим всё к одному кадру 4:3: на сайте картинка заполняет рамку целиком (object-cover).
+ * Если «рамка» вышла больше трёх четвертей кадра — это не рамка, а однотонный фон рисунка: не трогаем.
+ */
+async function frame(buf) {
+  const src = await sharp(buf).metadata();
+  const { data, info } = await sharp(buf).trim({ threshold: 14 }).toBuffer({ resolveWithObject: true });
+  const body = info.width * info.height >= src.width * src.height * 0.25 ? data : buf;
+  return sharp(body).resize({ width: W, height: Math.round((W * 3) / 4), fit: "cover" }).toBuffer();
+}
+
 async function watermark(buf) {
-  const img = sharp(buf).resize({ width: W, withoutEnlargement: true });
+  const img = sharp(await frame(buf));
   const { data, info } = await img.toBuffer({ resolveWithObject: true });
   const m = mark(info.width);
   return sharp(data)
@@ -82,7 +96,7 @@ for (let from = 0; ; from += 1000) {
  */
 const questions = [];
 for (let from = 0; ; from += 1000) {
-  const res = await fetch(`${URL_}/rest/v1/questions_new?select=question_es,question_ru,is_premium&country=eq.es&is_premium=eq.false&question_es=not.is.null&order=id`, {
+  const res = await fetch(`${URL_}/rest/v1/questions_new?select=id,question_es,question_ru,explanation_ru,is_premium&country=eq.es&is_premium=eq.false&question_es=not.is.null&order=id`, {
     headers: { ...headers, Range: `${from}-${from + 999}` },
   });
   if (!res.ok) throw new Error(`questions_new: ${res.status} ${await res.text()}`);
@@ -92,7 +106,7 @@ for (let from = 0; ; from += 1000) {
 }
 const flat = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 const full = questions
-  .map((q) => ({ es: q.question_es.replace(/\s+/g, " ").trim(), ru: q.question_ru.replace(/\s+/g, " ").trim() }))
+  .map((q) => ({ id: q.id, es: q.question_es.replace(/\s+/g, " ").trim(), ru: q.question_ru.replace(/\s+/g, " ").trim(), x: q.explanation_ru }))
   .filter((q) => /[?.]$/.test(q.es) && !/…|\.\.\./.test(q.es) && !/[:]$/.test(q.es))
   .map((q) => ({ ...q, n: q.es.split(" ").length, low: flat(q.es) }))
   .filter((q) => q.n >= 5 && q.n <= 24);
@@ -106,12 +120,17 @@ const pattern = (es) =>
   new RegExp(`(^|[^a-z])${flat(es).replace(/[¿?¡!.,]/g, "").split(/\s+/).map(stem).join("\\s+")}(?![a-z])`);
 /** Лучший пример: длина ближе к 12 словам, и один вопрос не повторяется у многих слов. */
 const used = new Map();
-function example(es) {
+/** Вопросы для страницы слова: первый — тот же, что в примере, без отсылок к картинке («esta señal»). */
+const pageQs = new Map();
+const NEEDS_PIC = /\b(est[ea]s?|imagen|figura|foto)\b/;
+function example(es, id) {
   const re = pattern(es);
   const hits = full.filter((q) => re.test(q.low));
   if (!hits.length) return undefined;
-  const best = hits.sort((a, b) => Math.abs(a.n - 12) + 4 * (used.get(a.es) ?? 0) - (Math.abs(b.n - 12) + 4 * (used.get(b.es) ?? 0)))[0];
+  hits.sort((a, b) => Math.abs(a.n - 12) + 4 * (used.get(a.es) ?? 0) - (Math.abs(b.n - 12) + 4 * (used.get(b.es) ?? 0)));
+  const best = hits[0];
   used.set(best.es, (used.get(best.es) ?? 0) + 1);
+  pageQs.set(id, [best, ...hits.slice(1).filter((q) => !NEEDS_PIC.test(q.low))].slice(0, 3));
   return { es: best.es, ru: best.ru };
 }
 
@@ -130,7 +149,7 @@ for (const s of rows) {
   seen.add(id);
   const w = { id, es: clean(s.term_es), ru: clean(s.term_ru), d: clean(s.description_ru), m: s.module, q: s.q_count ?? 0 };
   const own = s.example_es && s.example_ru && !/…|\.\.\.|:$/.test(s.example_es.trim()) ? { es: clean(s.example_es), ru: clean(s.example_ru) } : undefined;
-  const ex = (w.es.length > 2 && example(w.es)) || own;
+  const ex = (w.es.length > 2 && example(w.es, id)) || own;
   if (ex) w.ex = ex;
   if (s.hint_ru) w.h = clean(s.hint_ru);
   if (s.image_url) {
@@ -162,6 +181,26 @@ if (!existsSync(OUT) || readFileSync(OUT, "utf8") !== json || !existsSync(SYNCED
   writeFileSync(SYNCED, JSON.stringify({ date: new Date().toISOString().slice(0, 10) }) + "\n");
 }
 writeFileSync(OUT, json);
+
+// Ответы к вопросам страниц слов — одной выборкой по id (порциями: длина адреса ограничена).
+const qIds = [...new Set([...pageQs.values()].flat().map((q) => q.id))];
+const answers = new Map();
+for (let i = 0; i < qIds.length; i += 150) {
+  const res = await fetch(`${URL_}/rest/v1/answer_options?select=question_id,text_es,text_ru,is_correct,position&question_id=in.(${qIds.slice(i, i + 150).join(",")})&order=position`, { headers });
+  if (!res.ok) throw new Error(`answer_options: ${res.status} ${await res.text()}`);
+  for (const a of await res.json()) {
+    if (!answers.has(a.question_id)) answers.set(a.question_id, []);
+    answers.get(a.question_id).push({ es: clean(a.text_es), ru: clean(a.text_ru), ok: a.is_correct || undefined });
+  }
+}
+const wq = {};
+for (const w of out) {
+  const qs = (pageQs.get(w.id) ?? [])
+    .map((q) => ({ es: q.es, ru: q.ru, a: answers.get(q.id) ?? [], x: clean(q.x) }))
+    .filter((q) => q.a.length >= 2 && q.a.filter((a) => a.ok).length === 1 && q.a.every((a) => a.es && a.ru));
+  if (qs.length) wq[w.id] = qs;
+}
+writeFileSync(r("../src/data/word-questions.json"), JSON.stringify(wq) + "\n");
 writeFileSync(META, JSON.stringify(meta, null, 0).replace(/\},"/g, '},\n"') + "\n");
-console.log(`✓ ${out.length} слов → src/data/words.json, с картинкой ${out.filter((w) => w.img).length}, скачано ${fetched}`);
+console.log(`✓ ${out.length} слов → src/data/words.json, с картинкой ${out.filter((w) => w.img).length}, скачано ${fetched}, вопросов для страниц ${Object.values(wq).flat().length}`);
 console.log(`  примеры: ${out.filter((w) => w.ex).length} (из ${full.length} бесплатных вопросов экзамена)`);

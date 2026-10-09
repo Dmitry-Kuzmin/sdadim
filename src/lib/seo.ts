@@ -5,7 +5,7 @@
 import { cardTitle, getPosts, modified, type Post } from "@/lib/blog";
 import { getPlans } from "@/lib/plans";
 import { FAQ_DATA } from "@/lib/home-faq";
-import { BASE, cap, plural, setUrl, setWords, wordSet, wordUrl, type Word, type WordSet } from "@/lib/words";
+import { BASE, cap, plural, setUrl, setWords, wordQuestions, wordSet, wordUrl, type Word, type WordSet } from "@/lib/words";
 
 export const SITE_URL = "https://sdadim.eu";
 export const SITE_NAME = "Сдадим";
@@ -284,7 +284,7 @@ export function wordSeo(w: Word): PageSeo {
   const set = wordSet(w);
   return {
     title: `${cap(w.es)} — перевод и значение на экзамене DGT | Сдадим`,
-    description: clip(`${cap(w.es)} — ${w.ru}. ${w.d ?? ""} ${w.ex ? "Пример из настоящего вопроса DGT с переводом" : "Картинка, произношение"} и тренажёр, чтобы запомнить.`.replace(/\s+/g, " ")),
+    description: clip(`${cap(w.es)} — ${w.ru}. ${w.d ?? ""} ${wordQuestions(w).length ? "Настоящие вопросы DGT с этим словом: ответ, перевод и объяснение" : w.ex ? "Пример из настоящего вопроса DGT с переводом" : "Картинка, произношение"} и тренажёр, чтобы запомнить.`.replace(/\s+/g, " ")),
     canonical: abs(wordUrl(w)),
     ogTitle: `${w.es} — ${w.ru}`,
     jsonLd: [
