@@ -155,3 +155,86 @@ export function engine() {
     return none;
   }
 }
+
+/* ─── Искры и вспышки (как ParticleBurst в SkilyApp / migran, только без React) ─── */
+
+const OK = ["#14b8a6", "#10b981", "#34d399", "#6ee7b7", "#a7f3d0"];
+const BAD = ["#f43f5e", "#e11d48", "#fb7185", "#fda4af", "#fecaca"];
+const GOLD = ["#f59e0b", "#fbbf24", "#fde047", "#fb923c", "#fff7ed"];
+let layer: HTMLElement | null = null;
+const fxLayer = () => {
+  if (!layer?.isConnected) {
+    layer = document.createElement("div");
+    layer.className = "wt-fx";
+    document.body.append(layer);
+  }
+  return layer;
+};
+const center = (el: Element) => {
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height };
+};
+const dot = (c: string, size: number) => {
+  const d = document.createElement("i");
+  d.style.cssText = `width:${size}px;height:${size}px;background:${c};box-shadow:0 0 ${size * 2}px ${c}`;
+  fxLayer().append(d);
+  return d;
+};
+
+/**
+ * Искры от ответа. С `to` — летят по дуге к цели (сегмент прогресса, счёт), без — разлетаются кольцом.
+ * tone: ok — зелёные, bad — красные, gold — серия и рекорды.
+ */
+export function burst(from: Element, ok: boolean | "gold", to?: Element | null, n = 20) {
+  if (reduced() || !from.isConnected) return;
+  const s = center(from);
+  const t = to?.isConnected ? center(to) : null;
+  const colors = ok === "gold" ? GOLD : ok ? OK : BAD;
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const r0 = Math.min(s.w, s.h) * 0.25 + Math.random() * 20;
+    const x0 = s.x + Math.cos(a) * r0, y0 = s.y + Math.sin(a) * r0;
+    const size = 4 + Math.random() * 4;
+    const d = dot(colors[i % colors.length], size);
+    const dur = 450 + Math.random() * 250;
+    const frames = t
+      ? [
+          { transform: `translate(${x0}px,${y0}px) scale(.4)`, opacity: 0 },
+          { transform: `translate(${(x0 + t.x) / 2 + (Math.random() - 0.5) * 90}px,${Math.min(y0, t.y) - 30 - Math.random() * 50}px) scale(1.1)`, opacity: 1, offset: 0.3 },
+          { transform: `translate(${t.x + (Math.random() - 0.5) * 14}px,${t.y}px) scale(.2)`, opacity: 0 },
+        ]
+      : [
+          { transform: `translate(${x0}px,${y0}px) scale(.4)`, opacity: 0 },
+          { transform: `translate(${x0 + Math.cos(a) * 40}px,${y0 + Math.sin(a) * 40}px) scale(1.1)`, opacity: 1, offset: 0.25 },
+          { transform: `translate(${x0 + Math.cos(a) * (90 + Math.random() * 70)}px,${y0 + Math.sin(a) * (90 + Math.random() * 70) + 30}px) scale(.2)`, opacity: 0 },
+        ];
+    d.animate(frames, { duration: dur, delay: i * 12, easing: "cubic-bezier(.22,.7,.3,1)", fill: "both" }).onfinish = () => d.remove();
+  }
+  // Цель «вспыхивает», когда до неё долетели искры.
+  if (to && t) to.animate([{ filter: "brightness(1)" }, { filter: "brightness(1.6)" }, { filter: "brightness(1)" }], { duration: 400, delay: 380 });
+}
+
+/** Расходящееся кольцо вокруг элемента — подтверждение ответа. */
+export function ring(el: Element, ok: boolean | "gold") {
+  if (reduced() || !el.isConnected) return;
+  const r = el.getBoundingClientRect();
+  const d = document.createElement("i");
+  d.className = "is-ring";
+  const c = ok === "gold" ? "#f59e0b" : ok ? "#10b981" : "#f43f5e";
+  d.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;border-color:${c};border-radius:${getComputedStyle(el).borderRadius}`;
+  fxLayer().append(d);
+  d.animate([{ transform: "scale(1)", opacity: 0.9 }, { transform: "scale(1.12)", opacity: 0 }], { duration: 500, easing: "ease-out" }).onfinish = () => d.remove();
+}
+
+/** Число «докручивается» до значения (итоги игры). */
+export function countUp(el: HTMLElement, to: number, ms = 900, fmt = (n: number) => String(Math.round(n))) {
+  if (reduced() || to === 0) return void (el.textContent = fmt(to));
+  let t0 = 0;
+  const step = (t: number) => {
+    t0 ||= t;
+    const k = Math.max(0, Math.min(1, (t - t0) / ms));
+    el.textContent = fmt(to * (1 - Math.pow(1 - k, 3)));
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}

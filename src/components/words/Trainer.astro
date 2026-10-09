@@ -2,7 +2,8 @@
 /**
  * Подключение тренажёра слов к странице: стили + лёгкий скрипт. Код игр (trainer.ts) грузится
  * только по первому клику на [data-play] — страница остаётся статическим HTML.
- * Кнопки [data-say="слово"] произносят слово по-испански. Заодно заполняет статистику игрока: [data-ws="xp|rank|rank-emoji|streak|learned|goal"],
+ * Кнопки [data-say="слово"] произносят слово по-испански. Заодно заполняет статистику игрока: [data-ws="xp|rank|rank-emoji|rank-next|streak|learned|goal|due"],
+ * рекорды аркад [data-ws-best="<игра>"], кольцо цели [data-ws-goal-ring],
  * полосы [data-ws-bar="rank|goal"] и прогресс тем [data-set-bar="<module>"] / [data-set-pct="<module>"].
  */
 import "./words.css";
@@ -12,6 +13,11 @@ import "./words.css";
   import * as E from "./engine";
   import { speak } from "./fx";
   import type { Word } from "@/lib/words";
+  // Не из @/lib/words: тот тянет words.json целиком в бандл страницы.
+  const plural = (n: number, one: string, few: string, many: string) => {
+    const a = n % 10, b = n % 100;
+    return `${n} ${a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many}`;
+  };
 
   document.addEventListener("click", async (e) => {
     const say = (e.target as Element).closest<HTMLElement>("[data-say]");
@@ -40,6 +46,13 @@ import "./words.css";
     set("learned", String(Object.values(p.cards).filter(E.isLearned).length));
     bar("rank", r.frac);
     bar("goal", p.today.xp / E.DAILY_GOAL);
+    const due = Object.values(p.cards).filter((c) => E.isDue(c)).length;
+    set("due", due ? `🔁 ${plural(due, "слово", "слова", "слов")} пора повторить` : "");
+    document.querySelectorAll<HTMLElement>("[data-ws-best]").forEach((el) => {
+      const b = p.best[el.dataset.wsBest!];
+      el.textContent = b == null ? "" : `🏆 ${b}${el.dataset.wsBest === "pairs" ? " с" : ""}`;
+    });
+    document.querySelectorAll<HTMLElement>("[data-ws-goal-ring]").forEach((el) => el.style.setProperty("--f", String(Math.min(1, p.today.xp / E.DAILY_GOAL))));
     // Прогресс по темам: нужен список слов — только тем, кто уже занимался.
     const bars = document.querySelectorAll<HTMLElement>("[data-set-bar]");
     if (!bars.length || !E.hasProgress()) return;

@@ -1,34 +1,36 @@
 ---
-/** Панель игрока: ранг, опыт, серия дней, цель дня, выучено слов. Заполняет Trainer.astro из localStorage. */
+/** Панель игрока: ранг, опыт, цель дня (кольцо), серия дней, выучено слов. Заполняет Trainer.astro из localStorage. */
 import { DAILY_GOAL, RANKS } from "./engine";
 ---
 
-<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-  <div class="col-span-2 rounded-2xl border border-slate-200 p-4">
-    <div class="flex items-center gap-3">
-      <span class="grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-2xl" data-ws="rank-emoji">{RANKS[0].emoji}</span>
-      <div class="min-w-0 flex-1">
-        <p class="text-xs font-medium text-slate-500">Ваш ранг</p>
-        <p class="truncate font-bold text-slate-900" data-ws="rank">{RANKS[0].name}</p>
-      </div>
-      <p class="text-right text-sm font-bold tabular-nums text-slate-900"><span data-ws="xp">0</span> XP</p>
-    </div>
-    <div class="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><i class="block h-full w-0 rounded-full bg-blue-600 transition-all duration-700" data-ws-bar="rank"></i></div>
-    <p class="mt-1.5 text-xs text-slate-500" data-ws="rank-next">до «{RANKS[1].name}» — {RANKS[1].xp} XP</p>
+<div class="relative rounded-3xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-6">
+  <div class="flex items-center justify-between gap-3">
+    <p class="text-sm font-bold text-slate-900">Ваш прогресс</p>
+    <p class="text-xs text-slate-500">хранится в этом браузере</p>
   </div>
-  <div class="rounded-2xl border border-slate-200 p-4">
-    <p class="text-xs font-medium text-slate-500">Цель дня</p>
-    <p class="mt-1 font-bold tabular-nums text-slate-900" data-ws="goal">0 / {DAILY_GOAL} XP</p>
-    <div class="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><i class="block h-full w-0 rounded-full bg-orange-500 transition-all duration-700" data-ws-bar="goal"></i></div>
-  </div>
-  <div class="grid grid-cols-2 gap-3 md:grid-cols-1">
-    <div class="rounded-2xl border border-slate-200 px-4 py-2.5">
-      <p class="text-xs font-medium text-slate-500">Дней подряд</p>
-      <p class="font-bold tabular-nums text-slate-900">🔥 <span data-ws="streak">0</span></p>
+  <div class="mt-4 flex items-center gap-3.5">
+    <span class="grid h-14 w-14 flex-none place-items-center rounded-2xl bg-blue-50 text-3xl" data-ws="rank-emoji">{RANKS[0].emoji}</span>
+    <div class="min-w-0 flex-1">
+      <p class="text-xs font-medium text-slate-500">Ранг</p>
+      <p class="text-lg font-extrabold leading-tight text-slate-900" data-ws="rank">{RANKS[0].name}</p>
     </div>
-    <div class="rounded-2xl border border-slate-200 px-4 py-2.5">
-      <p class="text-xs font-medium text-slate-500">Выучено слов</p>
-      <p class="font-bold tabular-nums text-slate-900">✅ <span data-ws="learned">0</span></p>
+    <p class="text-right text-lg font-extrabold tabular-nums text-blue-600"><span data-ws="xp">0</span><span class="ml-0.5 text-xs font-bold text-slate-500">XP</span></p>
+  </div>
+  <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-slate-100"><i class="block h-full w-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-700" data-ws-bar="rank"></i></div>
+  <p class="mt-1.5 text-xs text-slate-500" data-ws="rank-next">до «{RANKS[1].name}» — {RANKS[1].xp} XP</p>
+
+  <div class="mt-5 grid grid-cols-3 gap-2.5">
+    <div class="flex flex-col items-center gap-1.5 rounded-2xl bg-slate-50 px-2 py-3 text-center">
+      <span class="ws-ring" data-ws-goal-ring style="--f:0"><span aria-hidden="true">🎯</span></span>
+      <span class="text-xs leading-tight text-slate-500">Цель дня<br /><b class="text-[13px] tabular-nums text-slate-900" data-ws="goal">0 / {DAILY_GOAL} XP</b></span>
+    </div>
+    <div class="flex flex-col items-center gap-1.5 rounded-2xl bg-slate-50 px-2 py-3 text-center">
+      <span class="grid h-11 w-11 place-items-center text-2xl" aria-hidden="true">🔥</span>
+      <span class="text-xs leading-tight text-slate-500">Дней подряд<br /><b class="text-[13px] tabular-nums text-slate-900" data-ws="streak">0</b></span>
+    </div>
+    <div class="flex flex-col items-center gap-1.5 rounded-2xl bg-slate-50 px-2 py-3 text-center">
+      <span class="grid h-11 w-11 place-items-center text-2xl" aria-hidden="true">✅</span>
+      <span class="text-xs leading-tight text-slate-500">Выучено<br /><b class="text-[13px] tabular-nums text-slate-900" data-ws="learned">0</b></span>
     </div>
   </div>
 </div>

@@ -24,6 +24,8 @@ export type Summary = {
   score?: number;
   scoreLabel?: string;
   lowerBetter?: boolean;
+  /** Лучшая серия верных ответов подряд. */
+  combo?: number;
 };
 
 export type Ctx = {
@@ -33,6 +35,15 @@ export type Ctx = {
   p: E.Progress;
   setBar(frac: number): void;
   setHud(html: string): void;
+  /** Бейдж серии с огоньком в шапке (с 2 подряд). */
+  setStreak(n: number): void;
+  /** Прогресс из n капсул вместо сплошной полосы; mark() красит капсулу и возвращает её — цель для искр. */
+  segments(n: number): void;
+  mark(i: number, state: "cur" | "ok" | "bad" | "done"): HTMLElement | null;
+  /** Элемент счёта в шапке — цель для искр в аркадах. */
+  hudEl: HTMLElement;
+  /** Запуск по «Ещё раз»: аркады пропускают экран правил. */
+  again: boolean;
   /** Ответ по слову: интервальное повторение + опыт. */
   answer(w: Word, ok: boolean): void;
   finish(s: Summary): void;
@@ -83,7 +94,7 @@ function close(fromHistory = false) {
 }
 addEventListener("popstate", () => root && close(true));
 
-export async function open(mode: ModeId, module?: string, only?: Word[]) {
+export async function open(mode: ModeId, module?: string, only?: Word[], again = false) {
   if (!root) {
     root = h("div.wt", { role: "dialog", "aria-modal": "true", "aria-label": "Тренажёр слов" });
     document.body.append(root);
@@ -113,10 +124,13 @@ export async function open(mode: ModeId, module?: string, only?: Word[]) {
     E.save(p);
   };
   const stage = h("main.wt-stage");
+  const barBox = h("div.wt-bar", {}, bar);
+  const streakEl = h("span.wt-streak", { "aria-live": "polite" });
   root.replaceChildren(
-    h("header.wt-top", {}, h("button.wt-icon", { type: "button", "aria-label": "Закрыть", title: "Закрыть (Esc)", onclick: () => close() }, "✕"), h("div.wt-title", {}, `${info.emoji} ${info.title}`), h("div.wt-bar", {}, bar), hud, muteBtn),
+    h("header.wt-top", {}, h("button.wt-icon", { type: "button", "aria-label": "Закрыть", title: "Закрыть (Esc)", onclick: () => close() }, "✕"), h("div.wt-title", {}, `${info.emoji} ${info.title}`), barBox, streakEl, hud, muteBtn),
     stage,
   );
+  root.dataset.mode = mode;
 
   let live = true;
   disposers.push(() => (live = false));
@@ -136,6 +150,26 @@ export async function open(mode: ModeId, module?: string, only?: Word[]) {
     p,
     setBar: (f) => (bar.style.width = `${Math.round(Math.min(1, f) * 100)}%`),
     setHud: (html) => (hud.innerHTML = html),
+    setStreak(n) {
+      const prev = Number(streakEl.dataset.n || 0);
+      streakEl.dataset.n = String(n);
+      streakEl.dataset.tier = n >= 10 ? "hot" : n >= 6 ? "warm" : n >= 3 ? "mild" : n >= 2 ? "seed" : "";
+      streakEl.innerHTML = n >= 2 ? `<b aria-hidden="true">🔥</b><span>${n}</span>` : "";
+      streakEl.setAttribute("aria-label", n >= 2 ? `Серия: ${n} подряд` : "");
+      if (n > prev && n >= 2) fx.pop(streakEl);
+    },
+    segments(n) {
+      barBox.classList.add("is-seg");
+      barBox.replaceChildren(...Array.from({ length: n }, () => h("span")));
+    },
+    mark(i, state) {
+      const seg = barBox.children[i] as HTMLElement | undefined;
+      if (!seg) return null;
+      seg.className = `is-${state}`;
+      return seg;
+    },
+    hudEl: hud,
+    again,
     answer(w, ok) {
       E.record(p, w.id, ok);
       E.addXp(p, ok ? 10 : 2);
@@ -162,21 +196,21 @@ export async function open(mode: ModeId, module?: string, only?: Word[]) {
 
 function results(mode: ModeId, module: string | undefined, s: Summary, p: E.Progress) {
   cleanup();
-  const esc = (e: KeyboardEvent) => e.key === "Escape" && close();
-  addEventListener("keydown", esc);
-  disposers.push(() => removeEventListener("keydown", esc));
   const stage = root?.querySelector<HTMLElement>(".wt-stage");
   if (!stage) return;
-  root!.querySelector<HTMLElement>(".wt-bar i")!.style.width = "100%";
+  root!.querySelector<HTMLElement>(".wt-bar")!.classList.remove("is-seg");
+  root!.querySelector<HTMLElement>(".wt-bar")!.replaceChildren(h("i", { style: "width:100%" }));
   root!.querySelector(".wt-hud")!.innerHTML = "";
+  root!.querySelector(".wt-streak")!.innerHTML = "";
 
-  const rankBefore = E.rankOf(p.xp).i;
-  const goalBefore = p.today.xp >= E.DAILY_GOAL;
   // Опыт упражнений уже начислен по словам; аркадам — сейчас, за очки.
+  const xpBefore = s.score != null ? p.xp : p.xp - s.xp;
+  const rankBefore = E.rankOf(xpBefore);
+  const goalBefore = p.today.xp - (s.score != null ? 0 : s.xp) >= E.DAILY_GOAL;
   if (s.score != null) E.addXp(p, s.xp);
+  const prev = p.best[mode];
   let record = false;
   if (s.score != null) {
-    const prev = p.best[mode];
     const better = prev == null ? s.score > 0 : s.lowerBetter ? s.score < prev : s.score > prev;
     if (better) p.best[mode] = s.score;
     // Первая игра — ещё не рекорд: празднуем, только когда побит прошлый результат.
@@ -184,65 +218,125 @@ function results(mode: ModeId, module: string | undefined, s: Summary, p: E.Prog
   }
   E.save(p);
   const rank = E.rankOf(p.xp);
-  const levelUp = rank.i > rankBefore;
+  const levelUp = rank.i > rankBefore.i;
   const goalNow = !goalBefore && p.today.xp >= E.DAILY_GOAL;
   const acc = s.total ? Math.round((s.correct / s.total) * 100) : 0;
   const perfect = s.total > 0 && s.correct === s.total;
+  const arcade = s.score != null;
 
-  const title = levelUp ? `Новый ранг: ${rank.emoji} ${rank.name}!` : record ? "Новый рекорд!" : perfect ? "Без единой ошибки!" : acc >= 70 ? "Отлично!" : "Хорошее начало";
+  const tone = levelUp || record ? "gold" : perfect || acc >= 70 ? "ok" : "calm";
+  const title = levelUp ? "Новый ранг!" : record ? "Новый рекорд!" : perfect ? "Без единой ошибки!" : acc >= 70 ? "Отличный результат" : acc >= 40 ? "Неплохо, но можно лучше" : "Слова ещё новые — повторим";
   const emoji = levelUp ? rank.emoji : record ? "🏆" : perfect ? "🌟" : acc >= 70 ? "🎉" : "💪";
-  if (levelUp || record || perfect || goalNow) {
-    fx.sfx("win");
-    fx.confetti();
-  }
+  const celebrate = levelUp || record || perfect || goalNow;
 
-  const tile = (v: string, l: string) => h("div.wt-tile", {}, h("b", {}, v), h("span", {}, l));
-  const best = p.best[mode];
-  const streak = E.streak(p.days);
-  const again = h("button.wt-btn.is-primary", { type: "button", onclick: () => open(mode, module) }, "Ещё раз");
+  // Главное число: очки (секунды) в аркаде, точность — в упражнениях.
+  const big = h("b.wt-res-big", {}, "0");
+  const fmtBig = (n: number) => (arcade ? (s.lowerBetter ? n.toFixed(1) : String(Math.round(n))) : `${Math.round(n)}%`);
+  const bigVal = arcade ? s.score! : acc;
+  const sub = arcade
+    ? record
+      ? `было ${prev}${s.lowerBetter ? " с" : ""}`
+      : prev != null
+        ? `рекорд — ${p.best[mode]}${s.lowerBetter ? " с" : ""}`
+        : s.scoreLabel ?? "очков"
+    : `${s.correct} из ${s.total} верно`;
+
+  const chip = (icon: string, text: string, cls = "") => h("span.wt-chip" + cls, {}, h("span", { "aria-hidden": "true" }, icon), text);
+  const xpNum = h("span", {}, "+0");
+  const xpChip = h("span.wt-chip.is-xp", {}, h("span", { "aria-hidden": "true" }, "⚡"), xpNum, " XP");
+  const chips = h(
+    "div.wt-chips",
+    {},
+    xpChip,
+    arcade && s.total ? chip("🎯", `${s.correct}/${s.total} верно`) : null,
+    s.combo && s.combo >= 3 ? chip("🔥", `серия ${s.combo}`) : null,
+  );
+
+  // Ранг: полоса докручивается от «было» к «стало».
+  const fill = h("i", { style: `width:${Math.round((levelUp ? 0 : rankBefore.frac) * 100)}%` });
+  const goalFrac = Math.min(1, p.today.xp / E.DAILY_GOAL);
+  const goal = h(
+    "div.wt-goal" + (goalFrac >= 1 ? ".is-done" : ""),
+    { style: `--f:${goalFrac}`, title: "Цель дня" },
+    h("span", {}, goalFrac >= 1 ? "✓" : `${Math.round(goalFrac * 100)}%`),
+  );
+  const progress = h(
+    "div.wt-res-rank",
+    {},
+    h("span.wt-res-rank-emoji", { "aria-hidden": "true" }, rank.emoji),
+    h(
+      "div.wt-res-rank-body",
+      {},
+      h("div", {}, h("b", {}, rank.name), h("span", {}, rank.next ? `${p.xp} / ${rank.next.xp} XP` : `${p.xp} XP`)),
+      h("div.wt-meter", {}, fill),
+      h("small", {}, goalFrac >= 1 ? (goalNow ? "Цель дня выполнена! 🎯" : "Цель дня выполнена") : `Цель дня: ещё ${E.DAILY_GOAL - p.today.xp} XP`),
+    ),
+    goal,
+  );
+
+  const again = h("button.wt-btn" + (s.mistakes.length ? "" : ".is-primary"), { type: "button", onclick: () => open(mode, module, undefined, true) }, "↻ Ещё раз");
+  const fix = s.mistakes.length ? h("button.wt-btn.is-primary", { type: "button", onclick: () => open("daily", module, s.mistakes.slice(0, 8)) }, `Повторить ошибки · ${Math.min(8, s.mistakes.length)}`) : null;
+  const main = fix ?? again;
+
   const box = h(
     "div.wt-result",
     {},
-    h("div.wt-result-emoji", {}, emoji),
-    h("h2", {}, title),
     h(
-      "div.wt-tiles",
+      "section.wt-res-hero.is-" + tone,
       {},
-      tile(`+${s.xp}`, "опыта"),
-      s.score != null ? tile(String(s.score), s.scoreLabel ?? "очков") : tile(`${acc}%`, "верно"),
-      best != null && s.score != null ? tile(String(best), "рекорд") : tile(`${s.correct}/${s.total}`, "ответов"),
-      tile(`🔥 ${streak}`, streak === 1 ? "день подряд" : "дней подряд"),
+      h("div.wt-res-badge", { "aria-hidden": "true" }, emoji),
+      h("p.wt-res-kicker", {}, levelUp ? `${rank.name}` : MODES.find((m) => m.id === mode)!.title),
+      h("h2", {}, title),
+      big,
+      h("p.wt-res-sub", {}, sub),
+      chips,
     ),
-    h(
-      "div.wt-rank",
-      {},
-      h("div", {}, h("span", {}, `${rank.emoji} ${rank.name}`), h("span", {}, rank.next ? `${p.xp} / ${rank.next.xp} XP` : `${p.xp} XP`)),
-      h("div.wt-meter", {}, h("i", { style: `width:${Math.round(rank.frac * 100)}%` })),
-      h("div", {}, h("span", {}, "Цель дня"), h("span", {}, p.today.xp >= E.DAILY_GOAL ? "выполнена ✓" : `${p.today.xp} / ${E.DAILY_GOAL} XP`)),
-      h("div.wt-meter.is-goal", {}, h("i", { style: `width:${Math.min(100, Math.round((p.today.xp / E.DAILY_GOAL) * 100))}%` })),
-    ),
+    progress,
     s.mistakes.length
       ? h(
-          "div.wt-mistakes",
+          "section.wt-mistakes",
           {},
-          h("h3", {}, "Повторите эти слова"),
+          h("h3", {}, "Слова с ошибками"),
           h(
             "ul",
             {},
-            ...s.mistakes.slice(0, 12).map((w) => h("li", {}, h("button.wt-say", { type: "button", "aria-label": `Произнести ${w.es}`, onclick: () => fx.speak(w.es) }, "🔊"), h("b", {}, w.es), h("span", {}, w.ru))),
+            ...s.mistakes.slice(0, 8).map((w) =>
+              h(
+                "li",
+                {},
+                picture(w, "is-thumb") ?? h("span.wt-pic.is-thumb.is-empty"),
+                h("div", {}, h("b", {}, w.es), h("span", {}, w.ru)),
+                h("button.wt-say", { type: "button", "aria-label": `Произнести ${w.es}`, onclick: () => fx.speak(w.es) }, "🔊"),
+              ),
+            ),
           ),
         )
       : null,
-    h(
-      "div.wt-actions",
-      {},
-      s.mistakes.length ? h("button.wt-btn.is-primary", { type: "button", onclick: () => open("daily", module, s.mistakes.slice(0, 8)) }, "Повторить ошибки") : again,
-      s.mistakes.length ? again : null,
-      h("button.wt-btn", { type: "button", onclick: () => close() }, "Другие игры"),
-    ),
+    h("div.wt-actions", {}, main, fix ? again : null, h("button.wt-btn", { type: "button", onclick: () => close() }, "Другие игры")),
     h("p.wt-cta", { html: `Слова знаете? Проверьте себя на настоящих вопросах DGT — <a href="${skilyUrl("/ru", "words-result")}" target="_blank" rel="noopener">тесты на русском в Skilyapp →</a>` }),
   );
   stage.replaceChildren(box);
+  stage.scrollTop = 0;
+  main.focus({ preventScroll: true });
+  const keys = (e: KeyboardEvent) => {
+    if (e.key === "Escape") close();
+    else if (e.key === "Enter" && document.activeElement === document.body) main.click();
+  };
+  addEventListener("keydown", keys);
+  disposers.push(() => removeEventListener("keydown", keys));
+
+  // Анимация: число докручивается, опыт перетекает в полосу ранга.
+  fx.countUp(big, bigVal, 900, fmtBig);
+  fx.countUp(xpNum, s.xp, 700, (n) => `+${Math.round(n)}`);
+  const t = setTimeout(() => {
+    fill.style.width = `${Math.round(rank.frac * 100)}%`;
+    fx.burst(xpChip, "gold", fill.parentElement, 14);
+  }, 650);
+  disposers.push(() => clearTimeout(t));
+  if (celebrate) {
+    fx.sfx("win");
+    fx.confetti();
+  }
 }
 
 /* ─── Упражнения ─────────────────────────────────────────── */
@@ -288,29 +382,39 @@ async function exercises(ctx: Ctx, mode: ModeId) {
   runSteps(ctx, E.shuffle(words).map((w) => ({ w, k: kind })));
 }
 
+/** Откуда летят искры: кнопка ответа, иначе — само задание. */
+let lastSrc: Element | null = null;
+
 function runSteps(ctx: Ctx, steps: Step[]) {
   const first = steps.length;
-  let i = 0, correct = 0, total = 0, combo = 0, xp = 0;
+  let i = 0, correct = 0, total = 0, combo = 0, best = 0, xp = 0;
   const mistakes = new Map<string, Word>();
+  ctx.segments(first);
 
-  const hud = () => ctx.setHud(combo >= 3 ? `<span class="wt-combo">🔥 ${combo}</span>` : "");
   const next = () => {
     if (!ctx.alive()) return;
     if (i >= steps.length) {
       const bonus = mistakes.size === 0 && total > 0 ? 20 : 0;
       if (bonus) E.addXp(ctx.p, bonus), E.save(ctx.p);
-      return ctx.finish({ correct, total, mistakes: [...mistakes.values()], xp: xp + bonus });
+      return ctx.finish({ correct, total, mistakes: [...mistakes.values()], xp: xp + bonus, combo: best });
     }
-    ctx.setBar(Math.min(i, first) / first);
+    const n = i;
     const step = steps[i++];
+    if (n < first) ctx.mark(n, "cur");
+    lastSrc = null;
     render(ctx, step, (ok) => {
-      if (step.k === "new") return next();
+      if (step.k === "new") return void ctx.mark(n, "done");
       if (!step.retry) total++;
+      const seg = n < first ? ctx.mark(n, ok ? "ok" : "bad") : null;
+      const src = lastSrc ?? ctx.stage.querySelector(".wt-q");
+      if (src) fx.burst(src, ok, seg);
       if (ok) {
         if (!step.retry) correct++;
         combo++;
+        best = Math.max(best, combo);
         xp += 10;
-        fx.sfx(combo > 0 && combo % 5 === 0 ? "combo" : "ok");
+        fx.sfx(combo % 5 === 0 ? "combo" : "ok");
+        if (combo % 5 === 0) fx.burst(ctx.hudEl.parentElement!.querySelector(".wt-streak") ?? src!, "gold");
       } else {
         combo = 0;
         xp += 2;
@@ -320,11 +424,10 @@ function runSteps(ctx: Ctx, steps: Step[]) {
         if (!step.retry) steps.push({ w: step.w, k: step.w.img ? "img" : "pickRu", retry: true });
       }
       if (!step.retry) ctx.answer(step.w, ok);
-      hud();
+      ctx.setStreak(combo);
     }, next);
   };
   ctx.onKey((e) => stepKey?.(e));
-  hud();
   next();
 }
 
@@ -377,6 +480,7 @@ function render(ctx: Ctx, step: Step, done: (ok: boolean) => void, next: () => v
         x.disabled = true;
         if (list[n].id === w.id) x.classList.add("is-ok");
       });
+      lastSrc = b;
       if (!ok) b.classList.add("is-bad"), fx.shake(b);
       else fx.pop(b);
       onPick?.(ok);
@@ -456,6 +560,7 @@ function build(ctx: Ctx, w: Word, stage: HTMLElement, head: (l: string, ...k: (N
   const isLetter = (c: string) => /[\p{L}]/u.test(c);
   const slots = chars.map((c) => h("span.wt-slot" + (isLetter(c) ? "" : ".is-fixed"), {}, isLetter(c) ? "" : c === " " ? " " : c));
   const order = chars.map((c, i) => (isLetter(c) ? i : -1)).filter((i) => i >= 0);
+  const slotsBox = h("div.wt-slots", {}, ...slots);
   let pos = 0, errors = 0, finished = false;
   const tiles = E.shuffle(order).map((i) => {
     const t = h("button.wt-tile-letter", { type: "button" }, chars[i]);
@@ -464,6 +569,7 @@ function build(ctx: Ctx, w: Word, stage: HTMLElement, head: (l: string, ...k: (N
   });
   const end = (ok: boolean) => {
     finished = true;
+    lastSrc = slotsBox;
     tiles.forEach((t) => (t.disabled = true));
     sheet(ok);
   };
@@ -510,7 +616,7 @@ function build(ctx: Ctx, w: Word, stage: HTMLElement, head: (l: string, ...k: (N
     const t = (exact && exact.textContent!.toLowerCase() === need ? exact : loose) ?? exact;
     if (t) tap(t);
   });
-  stage.append(head("Соберите слово по-испански", picture(w), h("div.wt-big.is-ru", {}, w.ru)), h("div.wt-slots", {}, ...slots), h("div.wt-letters", {}, ...tiles), h("div.wt-row", {}, hint));
+  stage.append(head("Соберите слово по-испански", picture(w), h("div.wt-big.is-ru", {}, w.ru)), slotsBox, h("div.wt-letters", {}, ...tiles), h("div.wt-row", {}, hint));
 }
 
 /** Собери вопрос: настоящий вопрос DGT разбит на кусочки по 1–3 слова. */
@@ -531,6 +637,7 @@ function phrase(w: Word, stage: HTMLElement, head: (l: string, ...k: (Node | nul
     const ok = placed.map((b) => b.textContent).join(" ") === ex.es;
     [...answer.children, ...bank.children].forEach((b) => ((b as HTMLButtonElement).disabled = true));
     answer.classList.add(ok ? "is-ok" : "is-bad");
+    lastSrc = answer;
     sheet(ok, ok ? undefined : h("p.wt-sentence.is-small", {}, ex.es));
   };
   for (const c of E.shuffle(chunks)) {

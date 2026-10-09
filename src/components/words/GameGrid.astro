@@ -1,55 +1,112 @@
 ---
-/** Сетка игр тренажёра слов. module — тема (или "top"); без него игры идут по всему словарю. */
+/**
+ * Игры тренажёра слов: «Тренировка дня» крупно, под ней две группы — упражнения (пишут в повторение)
+ * и аркады (на скорость и рекорд). module — тема (или "top"); без него игры идут по всему словарю.
+ * Рекорды [data-ws-best] и «пора повторить» [data-ws="due"] заполняет Trainer.astro.
+ */
 import { MODES } from "./modes";
 
 interface Props {
   module?: string;
+  /** Уровень заголовков групп: на хабе под h2 «Играть» — h3. */
+  level?: 3 | 4;
 }
-const { module } = Astro.props;
-const [daily, ...games] = MODES;
+const { module, level = 3 } = Astro.props;
+const daily = MODES.find((m) => m.kind === "daily")!;
+const drills = MODES.filter((m) => m.kind === "drill");
+const arcades = MODES.filter((m) => m.kind === "arcade");
+const H = `h${level}` as "h3";
 
 // Полные имена классов — чтобы Tailwind их увидел.
 const TINT: Record<string, string> = {
-  emerald: "bg-emerald-50 text-emerald-700",
-  amber: "bg-amber-50 text-amber-700",
-  violet: "bg-violet-50 text-violet-700",
-  rose: "bg-rose-50 text-rose-700",
-  cyan: "bg-cyan-50 text-cyan-700",
-  indigo: "bg-indigo-50 text-indigo-700",
-  orange: "bg-orange-50 text-orange-700",
+  emerald: "bg-emerald-100 text-emerald-700",
+  amber: "bg-amber-100 text-amber-700",
+  violet: "bg-violet-100 text-violet-700",
+  rose: "bg-rose-100 text-rose-700",
+  cyan: "bg-cyan-100 text-cyan-700",
+  indigo: "bg-indigo-100 text-indigo-700",
+  orange: "bg-orange-100 text-orange-700",
 };
+const GLOW: Record<string, string> = {
+  emerald: "from-emerald-50",
+  amber: "from-amber-50",
+  violet: "from-violet-50",
+};
+const PARTS = [
+  ["🖼️", "картинка"],
+  ["🎧", "слух"],
+  ["🔤", "по буквам"],
+  ["🧩", "в вопросе"],
+];
+const groups = [
+  { title: "Упражнения", note: "запоминают слово надолго: ответы идут в интервальное повторение", list: drills },
+  { title: "Аркады", note: "на скорость и рекорд — когда слова уже знакомы", list: arcades },
+];
 ---
 
-<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+<div class="grid gap-8">
   <button
     type="button"
     data-play={daily.id}
     data-module={module}
-    class="group relative overflow-hidden rounded-2xl bg-blue-600 p-5 text-left text-white shadow-[0_5px_0_rgb(var(--c-blue-800))] transition active:translate-y-1 active:shadow-none sm:col-span-2 lg:row-span-2 lg:flex lg:flex-col lg:justify-between lg:p-7"
+    class="group relative grid overflow-hidden rounded-3xl bg-blue-600 p-6 text-left text-white shadow-[0_6px_0_rgb(var(--c-blue-800))] transition active:translate-y-1 active:shadow-[0_2px_0_rgb(var(--c-blue-800))] sm:p-8 md:grid-cols-[1fr_auto] md:items-center md:gap-10"
   >
-    <span class="absolute -right-6 -top-8 text-[9rem] leading-none opacity-15 transition-transform group-hover:rotate-12" aria-hidden="true">{daily.emoji}</span>
+    <span class="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-[#fff]/10 blur-2xl" aria-hidden="true"></span>
+    <span class="pointer-events-none absolute -bottom-28 left-1/3 h-64 w-64 rounded-full bg-cyan-400/30 blur-3xl" aria-hidden="true"></span>
     <span class="relative">
-      <span class="inline-block rounded-full bg-[#fff]/20 px-2.5 py-0.5 text-xs font-semibold">{daily.tag}</span>
-      <span class="mt-3 block text-2xl font-extrabold lg:text-3xl">{daily.emoji} {daily.title}</span>
-      <span class="mt-2 block max-w-md text-sm leading-relaxed text-[#fff]/85 lg:text-base">{daily.text}</span>
+      <span class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+        <span class="rounded-full bg-[#fff]/20 px-2.5 py-1">⏱ {daily.tag}</span>
+        <span class="rounded-full bg-[#fff]/20 px-2.5 py-1 empty:hidden" data-ws="due"></span>
+      </span>
+      <span class="mt-4 block text-2xl font-extrabold tracking-tight sm:text-3xl">{daily.emoji} {daily.title}</span>
+      <span class="mt-2 block max-w-xl text-[15px] leading-relaxed text-[#fff]/85">{daily.text}</span>
+      <span class="mt-6 inline-flex items-center gap-2 rounded-2xl bg-[#fff] px-6 py-3.5 text-[15px] font-bold text-[#1d4ed8] shadow-[0_4px_0_rgb(0_0_0/0.15)] transition group-hover:gap-3">Начать урок <span aria-hidden="true">→</span></span>
     </span>
-    <span class="relative mt-5 inline-flex items-center gap-2 rounded-xl bg-[#fff] px-5 py-3 text-sm font-bold text-[#1d4ed8] lg:self-start">Начать урок →</span>
+    <span class="relative mt-6 hidden grid-cols-2 gap-2.5 sm:grid md:mt-0" aria-hidden="true">
+      {
+        PARTS.map(([e, t], i) => (
+          <span class="flex w-36 items-center gap-2.5 rounded-2xl bg-[#fff]/10 px-3 py-3 text-sm font-semibold ring-1 ring-[#fff]/15 backdrop-blur transition duration-300 group-hover:-translate-y-1" style={`transition-delay:${i * 40}ms`}>
+            <span class="text-2xl">{e}</span>
+            {t}
+          </span>
+        ))
+      }
+    </span>
   </button>
+
   {
-    games.map((m) => (
-      <button
-        type="button"
-        data-play={m.id}
-        data-module={module}
-        class="group flex flex-col gap-2 rounded-2xl border-2 border-b-4 border-slate-200 bg-white p-4 text-left transition hover:border-blue-300 active:translate-y-0.5 active:border-b-2"
-      >
-        <span class="flex items-center justify-between gap-2">
-          <span class={`grid h-11 w-11 place-items-center rounded-xl text-2xl ${TINT[m.color]}`} aria-hidden="true">{m.emoji}</span>
-          <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">{m.tag}</span>
-        </span>
-        <span class="text-base font-bold text-slate-900">{m.title}</span>
-        <span class="text-[13px] leading-snug text-slate-500">{m.text}</span>
-      </button>
+    groups.map((g) => (
+      <div>
+        <div class="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <H class="text-lg font-bold text-slate-900">{g.title}</H>
+          <p class="text-sm text-slate-500">{g.note}</p>
+        </div>
+        <div class={`grid gap-3 sm:grid-cols-2 ${g.list.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+          {g.list.map((m) => (
+            <button
+              type="button"
+              data-play={m.id}
+              data-module={module}
+              class={`group relative flex flex-col gap-3 rounded-2xl border-2 border-b-4 border-slate-200 p-4 text-left transition hover:-translate-y-0.5 hover:border-blue-300 active:translate-y-0.5 active:border-b-2 ${m.kind === "arcade" ? `bg-gradient-to-br ${GLOW[m.color]} to-white to-60%` : "bg-white"}`}
+            >
+              <span class="flex items-center gap-3">
+                <span class={`grid h-12 w-12 flex-none place-items-center rounded-2xl text-2xl transition-transform group-hover:-rotate-6 group-hover:scale-110 ${TINT[m.color]}`} aria-hidden="true">
+                  {m.emoji}
+                </span>
+                <span class="min-w-0">
+                  <span class="block font-bold text-slate-900">{m.title}</span>
+                  <span class="block text-xs font-semibold text-slate-500">{m.tag}</span>
+                </span>
+              </span>
+              <span class="text-[13.5px] leading-snug text-slate-600">{m.text}</span>
+              <span class="mt-auto flex items-center justify-between gap-2 pt-1 text-sm font-bold">
+                {m.kind === "arcade" ? <span class="text-xs font-semibold tabular-nums text-amber-700 empty:hidden" data-ws-best={m.id} /> : <span />}
+                <span class="text-blue-600 transition group-hover:translate-x-0.5">Играть →</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
     ))
   }
 </div>
