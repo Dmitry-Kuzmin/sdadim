@@ -64,7 +64,7 @@ const LIGHT = `<div class="r3-light"><i></i><i></i><i></i></div>`;
 
 type Mark = { el: HTMLElement; y: number };
 /** Смена пейзажа — каждые столько слов. */
-const PER_BIOME = 6;
+const PER_BIOME = 4;
 
 export function road(ctx: Ctx) {
   intro(ctx, "road", [
@@ -351,7 +351,7 @@ function play(ctx: Ctx) {
       v += (target * (over ? 0 : 1) - v) * Math.min(1, dt * (over ? 1.5 : 1.2));
       const dy = v * dt;
       y += dy;
-      land.step(dy);
+      land.step(dy, dt);
       for (let i = skids.length - 1; i >= 0; i--) {
         const s = skids[i];
         s.y += dy;
