@@ -51,6 +51,7 @@ Frontmatter — единственный источник: страница, к�
 | Квиз подбора тарифа | `src/lib/course-quiz.ts` (порядок ответов синхронно с ботом) |
 | Цены прав, пошлина DGT | `src/lib/license-costs.ts` (синхронно с migran.es) |
 | SEO, JSON-LD | `src/lib/seo.ts`; sitemap/RSS/llms — `src/pages/*.ts` |
+| Логотип и фавиконы | `public/logo.svg` → `npm run icons` (favicon.png, apple-touch-icon.png, logo.png) |
 
 Классы Tailwind из `.mdx` тоже сканируются (`tailwind.config.ts`). Тёмная тема — через CSS-переменные,
 `dark:`-варианты не нужны.

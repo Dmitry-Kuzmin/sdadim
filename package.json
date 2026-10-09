@@ -12,7 +12,9 @@
     "covers": "node scripts/render-covers.mjs",
     "typecheck": "astro check",
     "check": "node scripts/seo-assert-dist.mjs && node scripts/check-links.mjs",
-    "fines:snapshot": "node scripts/fines-snapshot.mjs"
+    "fines:snapshot": "node scripts/fines-snapshot.mjs",
+    "icons": "node scripts/render-icons.mjs",
+    "words:sync": "node scripts/words-sync.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.3",

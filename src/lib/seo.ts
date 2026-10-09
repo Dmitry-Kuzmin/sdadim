@@ -34,7 +34,7 @@ export const LD_ORGANIZATION = {
   name: SITE_NAME,
   alternateName: "Sdadim",
   url: SITE_URL,
-  logo: `${SITE_URL}/favicon-s.svg`,
+  logo: `${SITE_URL}/logo.png`,
   email: "support@skilyapp.com",
   sameAs: ["https://t.me/skilyapp_bot"],
   contactPoint: { "@type": "ContactPoint", contactType: "customer support", availableLanguage: ["Russian"] },

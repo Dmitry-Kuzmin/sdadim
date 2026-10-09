@@ -6,6 +6,11 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/favicon-s.svg",
+      "destination": "/logo.svg",
+      "permanent": true
+    },
+    {
       "source": "/legal",
       "destination": "/legal/terms",
       "permanent": true
@@ -36,7 +41,7 @@
       ]
     },
     {
-      "source": "/(favicon.png|favicon-s.svg|apple-touch-icon.png|nrtv-logo.png)",
+      "source": "/(favicon.png|logo.svg|logo.png|apple-touch-icon.png|nrtv-logo.png)",
       "headers": [
         {
           "key": "Cache-Control",
