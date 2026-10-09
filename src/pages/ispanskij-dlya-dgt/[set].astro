@@ -1,0 +1,62 @@
+---
+/** Страница темы тренажёра слов: игры на словах темы и полный список слов (всё в HTML — для поиска). */
+import Base from "@/layouts/Base.astro";
+import Trainer from "@/components/words/Trainer.astro";
+import GameGrid from "@/components/words/GameGrid.astro";
+import WordItem from "@/components/words/WordItem.astro";
+import Crumbs from "@/components/words/Crumbs.astro";
+import { BASE, WORD_SETS, plural, setUrl, setWords, type WordSet } from "@/lib/words";
+import { wordSetSeo } from "@/lib/seo";
+
+export function getStaticPaths() {
+  return WORD_SETS.map((set) => ({ params: { set: set.slug }, props: { set } }));
+}
+
+const { set } = Astro.props as { set: WordSet };
+const words = setWords(set);
+const inExam = words.filter((w) => w.q > 0).length;
+const others = WORD_SETS.filter((s) => s.slug !== set.slug);
+---
+
+<Base seo={wordSetSeo(set)}>
+  <Trainer />
+  <main class="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6 md:pt-10">
+    <Crumbs items={[{ name: "Главная", href: "/" }, { name: "Испанский для DGT", href: BASE }, { name: set.short }]} />
+
+    <header class="max-w-3xl">
+      <p class="text-5xl" aria-hidden="true">{set.emoji}</p>
+      <h1 class="mt-3 text-[1.9rem] font-extrabold leading-[1.12] tracking-tight text-slate-900 sm:text-4xl text-balance">{set.title}</h1>
+      <p class="mt-4 text-lg leading-relaxed text-slate-600 text-pretty">{set.intro}</p>
+      <p class="mt-3 text-sm text-slate-500">
+        {plural(words.length, "слово", "слова", "слов")}{inExam > 0 && inExam < words.length && ` · ${inExam} встречаются в вопросах экзамена`} · выучено: <b class="tabular-nums text-slate-700" data-set-pct={set.module}>0%</b>
+      </p>
+      <div class="mt-3 h-2 max-w-sm overflow-hidden rounded-full bg-slate-100"><i class="block h-full w-0 rounded-full bg-emerald-500 transition-all duration-700" data-set-bar={set.module}></i></div>
+    </header>
+
+    <section class="mt-10" aria-labelledby="games">
+      <h2 id="games" class="mb-4 text-xl font-bold text-slate-900">Учить слова темы в игре</h2>
+      <GameGrid module={set.module} />
+    </section>
+
+    <section class="mt-14" aria-labelledby="list">
+      <h2 id="list" class="text-xl font-bold text-slate-900">Все слова темы — от частых к редким</h2>
+      <p class="mt-1 text-sm text-slate-500">«в N вопр.» — в скольких официальных вопросах DGT встречается слово. 🔊 — послушать произношение.</p>
+      <ul class="mt-5 grid gap-3 lg:grid-cols-2">
+        {words.map((w, i) => <WordItem w={w} eager={i < 2} />)}
+      </ul>
+    </section>
+
+    <section class="mt-16" aria-labelledby="more">
+      <h2 id="more" class="mb-4 text-xl font-bold text-slate-900">Другие темы</h2>
+      <div class="flex flex-wrap gap-2">
+        {
+          others.map((s) => (
+            <a href={setUrl(s)} class="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-blue-300 hover:text-blue-700">
+              {s.emoji} {s.short}
+            </a>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</Base>

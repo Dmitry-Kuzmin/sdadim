@@ -4,6 +4,8 @@
  */
 import { getPosts, cardTitle, modified, type Post } from "@/lib/blog";
 import { LEGAL_TABS } from "@/lib/seo";
+import { BASE, PAGE_WORDS, WORD_SETS, setUrl, wordUrl } from "@/lib/words";
+import synced from "@/data/words-sync.json";
 
 export const SITE_URL = "https://sdadim.eu";
 export const BUILD_DATE = new Date().toISOString().slice(0, 10);
@@ -15,7 +17,7 @@ export interface DiscoveryPage {
   changefreq: "daily" | "weekly" | "monthly";
   priority: string;
   lastmod: string;
-  kind: "home" | "blog-index" | "legal" | "article";
+  kind: "home" | "blog-index" | "legal" | "article" | "words";
   llmsRequired?: boolean;
 }
 
@@ -28,6 +30,16 @@ export async function discoveryPages(): Promise<{ pages: DiscoveryPage[]; posts:
   const pages: DiscoveryPage[] = [
     { route: "/", outputPath: "index.html", canonical: `${SITE_URL}/`, changefreq: "daily", priority: "1.0", lastmod: BUILD_DATE, kind: "home" },
     { route: "/blog", outputPath: "blog.html", canonical: `${SITE_URL}/blog`, changefreq: "daily", priority: "0.9", lastmod: blogLastmod, kind: "blog-index" },
+    // Тренажёр слов: хаб, темы, страницы слов (lastmod — дата изменения словаря, npm run words:sync)
+    ...[BASE, ...WORD_SETS.map(setUrl), ...PAGE_WORDS.map(wordUrl)].map((route, i) => ({
+      route,
+      outputPath: `${route.slice(1)}.html`,
+      canonical: `${SITE_URL}${route}`,
+      changefreq: "monthly" as const,
+      priority: i === 0 ? "0.9" : i <= WORD_SETS.length ? "0.75" : "0.6",
+      lastmod: synced.date,
+      kind: "words" as const,
+    })),
     ...LEGAL_TABS.map((t) => ({
       route: `/legal/${t}`,
       outputPath: `legal/${t}.html`,

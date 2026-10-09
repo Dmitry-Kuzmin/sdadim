@@ -1,0 +1,20 @@
+---
+/** Хлебные крошки раздела (разметка BreadcrumbList — в seo.ts). */
+interface Props {
+  items: { name: string; href?: string }[];
+}
+const { items } = Astro.props;
+---
+
+<nav aria-label="Навигация" class="mb-5 text-sm text-slate-500">
+  <ol class="flex flex-wrap items-center gap-1.5">
+    {
+      items.map((it, i) => (
+        <li class="flex items-center gap-1.5">
+          {i > 0 && <span aria-hidden="true">/</span>}
+          {it.href ? <a href={it.href} class="hover:text-slate-900">{it.name}</a> : <span class="text-slate-700">{it.name}</span>}
+        </li>
+      ))
+    }
+  </ol>
+</nav>

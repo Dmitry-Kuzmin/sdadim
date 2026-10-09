@@ -5,6 +5,7 @@
 import { cardTitle, getPosts, modified, type Post } from "@/lib/blog";
 import { getPlans } from "@/lib/plans";
 import { FAQ_DATA } from "@/lib/home-faq";
+import { BASE, cap, plural, setUrl, setWords, wordSet, wordUrl, type Word, type WordSet } from "@/lib/words";
 
 export const SITE_URL = "https://sdadim.eu";
 export const SITE_NAME = "Сдадим";
@@ -89,7 +90,7 @@ function ldFaq() {
   };
 }
 
-const breadcrumbs = (items: { name: string; url: string }[]) => ({
+export const breadcrumbs = (items: { name: string; url: string }[]) => ({
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, item: it.url })),
@@ -213,3 +214,82 @@ export const NOT_FOUND_SEO: PageSeo = {
   canonical: `${SITE_URL}/404`,
   noindex: true,
 };
+
+/* ─── Тренажёр слов /ispanskij-dlya-dgt ──────────────────── */
+
+const WORDS_CRUMB = { name: "Испанский для DGT", url: `${SITE_URL}${BASE}` };
+const faqLd = (faq: { q: string; a: string }[]) => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+});
+const termLd = (w: Word, set?: WordSet) => ({
+  "@type": "DefinedTerm",
+  name: w.es,
+  description: `${w.ru}${w.d ? `. ${w.d}` : ""}`,
+  inLanguage: "es",
+  url: abs(wordUrl(w)),
+  ...(set ? { inDefinedTermSet: abs(setUrl(set)) } : {}),
+});
+/** Описание в пределах ~160 символов: обрезаем по слову. */
+const clip = (s: string, n = 158) => (s.length <= n ? s : s.slice(0, s.lastIndexOf(" ", n - 1)).replace(/[,.;:—–-]+$/, "") + "…");
+
+export function wordsHubSeo(total: number, faq: { q: string; a: string }[], sets: WordSet[]): PageSeo {
+  return {
+    title: "Испанский для экзамена DGT — тренажёр слов и игры | Сдадим",
+    description: `${total} испанских слов из вопросов экзамена DGT с переводом на русский, картинками и примерами. 8 игр, интервальные повторения и тренировка дня — бесплатно.`,
+    canonical: `${SITE_URL}${BASE}`,
+    ogTitle: "Испанский для экзамена DGT: тренажёр слов",
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "LearningResource",
+        name: "Тренажёр испанских слов для экзамена DGT",
+        url: `${SITE_URL}${BASE}`,
+        inLanguage: "ru",
+        teaches: "Испанская лексика теоретического экзамена DGT",
+        learningResourceType: "Interactive exercise",
+        isAccessibleForFree: true,
+        provider: { "@id": `${SITE_URL}/#org` },
+        hasPart: sets.map((s) => ({ "@type": "DefinedTermSet", name: s.title, url: abs(setUrl(s)) })),
+      },
+      faqLd(faq),
+      breadcrumbs([{ name: "Главная", url: `${SITE_URL}/` }, WORDS_CRUMB]),
+    ],
+  };
+}
+
+export function wordSetSeo(set: WordSet): PageSeo {
+  const words = setWords(set);
+  return {
+    title: `${set.title} — ${plural(words.length, "слово", "слова", "слов")} с переводом | Сдадим`,
+    description: clip(`${set.intro} Перевод, картинки, примеры из вопросов DGT и игры для запоминания.`),
+    canonical: abs(setUrl(set)),
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "DefinedTermSet",
+        name: set.title,
+        description: set.intro,
+        url: abs(setUrl(set)),
+        inLanguage: "es",
+        hasDefinedTerm: words.slice(0, 120).map((w) => termLd(w)),
+      },
+      breadcrumbs([{ name: "Главная", url: `${SITE_URL}/` }, WORDS_CRUMB, { name: set.short, url: abs(setUrl(set)) }]),
+    ],
+  };
+}
+
+export function wordSeo(w: Word): PageSeo {
+  const set = wordSet(w);
+  return {
+    title: `${cap(w.es)} — перевод и значение на экзамене DGT | Сдадим`,
+    description: clip(`${cap(w.es)} — ${w.ru}. ${w.d ?? ""} ${w.ex ? "Пример из настоящего вопроса DGT с переводом" : "Картинка, произношение"} и тренажёр, чтобы запомнить.`.replace(/\s+/g, " ")),
+    canonical: abs(wordUrl(w)),
+    ogTitle: `${w.es} — ${w.ru}`,
+    jsonLd: [
+      { "@context": "https://schema.org", ...termLd(w, set) },
+      breadcrumbs([{ name: "Главная", url: `${SITE_URL}/` }, WORDS_CRUMB, { name: set.short, url: abs(setUrl(set)) }, { name: w.es, url: abs(wordUrl(w)) }]),
+    ],
+  };
+}

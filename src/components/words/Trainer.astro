@@ -1,0 +1,57 @@
+---
+/**
+ * Подключение тренажёра слов к странице: стили + лёгкий скрипт. Код игр (trainer.ts) грузится
+ * только по первому клику на [data-play] — страница остаётся статическим HTML.
+ * Кнопки [data-say="слово"] произносят слово по-испански. Заодно заполняет статистику игрока: [data-ws="xp|rank|rank-emoji|streak|learned|goal"],
+ * полосы [data-ws-bar="rank|goal"] и прогресс тем [data-set-bar="<module>"] / [data-set-pct="<module>"].
+ */
+import "./words.css";
+---
+
+<script>
+  import * as E from "./engine";
+  import { speak } from "./fx";
+  import type { Word } from "@/lib/words";
+
+  document.addEventListener("click", async (e) => {
+    const say = (e.target as Element).closest<HTMLElement>("[data-say]");
+    if (say) return speak(say.dataset.say!);
+    const b = (e.target as Element).closest<HTMLElement>("[data-play]");
+    if (!b) return;
+    e.preventDefault();
+    b.setAttribute("aria-busy", "true");
+    const { open } = await import("./trainer");
+    b.removeAttribute("aria-busy");
+    open(b.dataset.play as never, b.dataset.module || undefined);
+  });
+
+  const set = (k: string, v: string) => document.querySelectorAll<HTMLElement>(`[data-ws="${k}"]`).forEach((el) => (el.textContent = v));
+  const bar = (k: string, f: number) => document.querySelectorAll<HTMLElement>(`[data-ws-bar="${k}"]`).forEach((el) => (el.style.width = `${Math.round(Math.min(1, f) * 100)}%`));
+
+  async function paint() {
+    const p = E.load();
+    const r = E.rankOf(p.xp);
+    set("xp", String(p.xp));
+    set("rank", r.name);
+    set("rank-emoji", r.emoji);
+    set("rank-next", r.next ? `до «${r.next.name}» — ${r.next.xp - p.xp} XP` : "высший ранг");
+    set("streak", String(E.streak(p.days)));
+    set("goal", p.today.xp >= E.DAILY_GOAL ? "выполнена ✓" : `${p.today.xp} / ${E.DAILY_GOAL} XP`);
+    set("learned", String(Object.values(p.cards).filter(E.isLearned).length));
+    bar("rank", r.frac);
+    bar("goal", p.today.xp / E.DAILY_GOAL);
+    // Прогресс по темам: нужен список слов — только тем, кто уже занимался.
+    const bars = document.querySelectorAll<HTMLElement>("[data-set-bar]");
+    if (!bars.length || !E.hasProgress()) return;
+    const words: Word[] = await fetch("/ispanskij-dlya-dgt/words.json").then((r) => r.json()).catch(() => []);
+    bars.forEach((el) => {
+      const m = el.dataset.setBar!;
+      const ids = (m === "top" ? words.slice(0, 100) : words.filter((w) => w.m === m)).map((w) => w.id);
+      const f = E.mastery(ids, p);
+      el.style.width = `${Math.round(f * 100)}%`;
+      document.querySelectorAll<HTMLElement>(`[data-set-pct="${m}"]`).forEach((x) => (x.textContent = f > 0 ? `${Math.round(f * 100)}%` : ""));
+    });
+  }
+  paint();
+  document.addEventListener("words:progress", paint);
+</script>

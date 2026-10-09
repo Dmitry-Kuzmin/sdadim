@@ -1,0 +1,23 @@
+---
+/** Карточка темы: эмодзи, название, сколько слов, примеры слов, прогресс игрока (заполняет Trainer.astro). */
+import { plural, setUrl, setWords, type WordSet } from "@/lib/words";
+
+interface Props {
+  set: WordSet;
+}
+const { set } = Astro.props;
+const words = setWords(set);
+---
+
+<a href={setUrl(set)} class="group flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5">
+  <span class="flex items-start justify-between gap-3">
+    <span class="text-3xl" aria-hidden="true">{set.emoji}</span>
+    <span class="text-xs font-semibold tabular-nums text-blue-600" data-set-pct={set.module}></span>
+  </span>
+  <span>
+    <span class="block font-bold text-slate-900 group-hover:text-blue-700">{set.short}</span>
+    <span class="text-sm text-slate-500">{plural(words.length, "слово", "слова", "слов")}</span>
+  </span>
+  <span class="line-clamp-1 text-[13px] italic text-slate-400">{words.slice(0, 4).map((w) => w.es).join(" · ")}</span>
+  <span class="mt-auto block h-1.5 overflow-hidden rounded-full bg-slate-100"><i class="block h-full w-0 rounded-full bg-emerald-500 transition-all duration-700" data-set-bar={set.module}></i></span>
+</a>

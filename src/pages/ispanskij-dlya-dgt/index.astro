@@ -1,0 +1,116 @@
+---
+/**
+ * Хаб тренажёра слов «Испанский для DGT»: игры, темы, топ слов экзамена, FAQ.
+ * Данные — src/lib/words.ts, игры — src/components/words/.
+ */
+import Base from "@/layouts/Base.astro";
+import Trainer from "@/components/words/Trainer.astro";
+import GameGrid from "@/components/words/GameGrid.astro";
+import PlayerStats from "@/components/words/PlayerStats.astro";
+import SetCard from "@/components/words/SetCard.astro";
+import Crumbs from "@/components/words/Crumbs.astro";
+import Faq from "@/components/words/Faq.astro";
+import { WORDS_FAQ } from "@/data/word-sets";
+import { PAGE_WORDS, WORDS, WORD_SETS, hasPage, wordImg, wordUrl } from "@/lib/words";
+import { MODES } from "@/components/words/modes";
+import { wordsHubSeo } from "@/lib/seo";
+import { skilyUrl } from "@/lib/skily";
+
+const withEx = WORDS.filter((w) => w.ex).length;
+const top = WORDS.slice(0, 24);
+const STEPS = [
+  { emoji: "🖼️", title: "Узнать", text: "Новое слово — с картинкой, произношением и настоящим вопросом экзамена, где оно встречается." },
+  { emoji: "🎮", title: "Закрепить", text: "Игры гоняют слово в разных видах: перевод, на слух, по буквам, в пропуске вопроса." },
+  { emoji: "🔁", title: "Не забыть", text: "Интервальные повторения: слово возвращается через 1, 3, 7, 16 и 35 дней — ровно когда начинаете забывать." },
+];
+---
+
+<Base seo={wordsHubSeo(WORDS.length, WORDS_FAQ, WORD_SETS)}>
+  <Trainer />
+  <main class="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6 md:pt-10">
+    <Crumbs items={[{ name: "Главная", href: "/" }, { name: "Испанский для DGT" }]} />
+
+    <header class="grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:items-end">
+      <div>
+        <p class="mb-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">🇪🇸 Бесплатно · без регистрации</p>
+        <h1 class="text-[2rem] font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl text-balance">Испанский для экзамена DGT: тренажёр слов</h1>
+        <p class="mt-4 max-w-xl text-lg leading-relaxed text-slate-600 text-pretty">
+          {WORDS.length} слов из официальных вопросов экзамена — от самых частых к редким. Учите их в {MODES.length} играх, а интервальные повторения не дадут забыть.
+        </p>
+        <dl class="mt-6 flex flex-wrap gap-x-8 gap-y-3">
+          <div><dt class="text-xs text-slate-500">слов с переводом</dt><dd class="text-2xl font-extrabold tabular-nums text-slate-900">{WORDS.length}</dd></div>
+          <div><dt class="text-xs text-slate-500">примеров из вопросов DGT</dt><dd class="text-2xl font-extrabold tabular-nums text-slate-900">{withEx}</dd></div>
+          <div><dt class="text-xs text-slate-500">игр и упражнений</dt><dd class="text-2xl font-extrabold tabular-nums text-slate-900">{MODES.length}</dd></div>
+        </dl>
+      </div>
+      <PlayerStats />
+    </header>
+
+    <section class="mt-12" aria-labelledby="games">
+      <h2 id="games" class="mb-4 text-2xl font-bold text-slate-900">Играть</h2>
+      <GameGrid />
+    </section>
+
+    <section class="mt-16" aria-labelledby="sets">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-2">
+        <h2 id="sets" class="text-2xl font-bold text-slate-900">Темы</h2>
+        <p class="text-sm text-slate-500">В каждой теме — все игры, но только на её словах</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+        {WORD_SETS.map((s) => <SetCard set={s} />)}
+      </div>
+    </section>
+
+    <section class="mt-16 grid gap-4 md:grid-cols-3" aria-label="Как это работает">
+      {
+        STEPS.map((s, i) => (
+          <div class="rounded-2xl bg-slate-50 p-6">
+            <p class="text-3xl" aria-hidden="true">{s.emoji}</p>
+            <p class="mt-3 text-xs font-semibold text-blue-600">Шаг {i + 1}</p>
+            <h3 class="text-lg font-bold text-slate-900">{s.title}</h3>
+            <p class="mt-1 text-sm leading-relaxed text-slate-600">{s.text}</p>
+          </div>
+        ))
+      }
+    </section>
+
+    <section class="mt-16" aria-labelledby="top">
+      <h2 id="top" class="text-2xl font-bold text-slate-900">Самые частые слова экзамена DGT</h2>
+      <p class="mt-2 max-w-2xl text-slate-600">Число — в скольких официальных вопросах встречается слово. Нажмите на слово, чтобы увидеть пример из экзамена.</p>
+      <ol class="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          top.map((w, i) => (
+            <li>
+              <a href={hasPage(w) ? wordUrl(w) : undefined} class="flex items-center gap-3 rounded-xl border border-slate-200 p-2.5 transition hover:border-blue-300">
+                <span class="w-6 text-right text-sm font-semibold tabular-nums text-slate-400">{i + 1}</span>
+                {w.img ? <img src={wordImg(w.id)} alt="" width="640" height="480" loading="lazy" decoding="async" class={`h-11 w-14 flex-none rounded-lg ${w.img === "sign" ? "object-contain" : "object-cover"}`} /> : <span class="h-11 w-14 flex-none rounded-lg bg-slate-100" />}
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate font-bold text-slate-900">{w.es}</span>
+                  <span class="block truncate text-sm text-slate-500">{w.ru}</span>
+                </span>
+                <span class="text-xs font-semibold tabular-nums text-amber-700">{w.q}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+      <a href={`/ispanskij-dlya-dgt/${WORD_SETS[0].slug}`} class="mt-5 inline-flex font-semibold text-blue-700 hover:text-blue-800">Все 100 самых частых слов →</a>
+    </section>
+
+    <section class="mt-16 grid gap-10 lg:grid-cols-[1fr_1.6fr]" aria-labelledby="faq">
+      <div>
+        <h2 id="faq" class="text-2xl font-bold text-slate-900">Частые вопросы</h2>
+        <p class="mt-3 text-slate-600">У нас {PAGE_WORDS.length} страниц слов с примерами из экзамена — ищите любое слово из билета.</p>
+        <div class="mt-6 rounded-2xl bg-inverse p-6 text-on-inverse">
+          <p class="text-lg font-bold">Слова выучили — пора к вопросам</p>
+          <p class="mt-2 text-sm opacity-80">Все вопросы DGT с переводом на русский, пробный экзамен и разбор ошибок — в Skilyapp. А если хотите сдать с первого раза с преподавателем — курс «Сдадим».</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <a href={skilyUrl("/ru", "words-hub")} target="_blank" rel="noopener" class="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-500">Тесты DGT →</a>
+            <a href="/#pricing" class="rounded-xl border border-slate-500 px-4 py-2.5 text-sm font-semibold">Курс с преподавателем</a>
+          </div>
+        </div>
+      </div>
+      <Faq items={WORDS_FAQ} />
+    </section>
+  </main>
+</Base>
