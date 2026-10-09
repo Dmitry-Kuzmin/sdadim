@@ -26,7 +26,7 @@ const IMG_DIR = r("../public/img/slova/");
 const Q_DIR = r("../public/img/voprosy/");
 
 /** Версия знака: поменял его вид — подними число, и все картинки перекачаются. */
-const WM = 2;
+const WM = 3;
 /** Ширина картинки на сайте: в тренажёре и списке она не бывает шире 640 px. */
 const W = 640;
 
@@ -54,7 +54,10 @@ function mark(width) {
       <defs><filter id="s" x="-20%" y="-50%" width="140%" height="200%"><feDropShadow dx="0" dy="${k}" stdDeviation="${(2.5 * k).toFixed(1)}" flood-color="#000" flood-opacity=".55"/></filter></defs>
       <g opacity=".6" filter="url(#s)">
         <rect x="${pad}" y="${(h - icon) / 2}" width="${icon}" height="${icon}" rx="${Math.round(icon * 0.24)}" fill="#2563eb"/>
-        <text x="${pad + icon / 2}" y="${h / 2}" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="${Math.round(icon * 0.62)}" fill="#fff">S</text>
+        <g transform="translate(${pad + icon / 2} ${h / 2 + icon * 0.02}) scale(${(icon * 0.66) / 24}) translate(-12 -12)" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" fill="#fff"/>
+          <path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>
+        </g>
         <text x="${pad + icon + gap}" y="${h / 2}" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="${fs}" fill="#fff">sdadim.eu</text>
       </g>
     </svg>`,
@@ -62,14 +65,18 @@ function mark(width) {
 }
 
 /**
- * У части картинок SkilyApp вокруг рисунка зашита серая рамка — обрезаем её (trim по цвету угла),
- * а затем приводим всё к одному кадру 4:3: на сайте картинка заполняет рамку целиком (object-cover).
- * Если «рамка» вышла больше трёх четвертей кадра — это не рамка, а однотонный фон рисунка: не трогаем.
+ * У части картинок SkilyApp рисунок лежит посреди серой рамки — её обрезаем. Рамка — это отступ со всех
+ * четырёх сторон и примерно одинаковый слева/справа и сверху/снизу. Однотонный белый фон иллюстрации
+ * (машины у верхнего края, пустота снизу) рамкой не считается — такую картинку не трогаем.
  */
 async function trimmed(buf) {
   const src = await sharp(buf).metadata();
   const { data, info } = await sharp(buf).trim({ threshold: 14 }).toBuffer({ resolveWithObject: true });
-  return info.width * info.height >= src.width * src.height * 0.25 ? data : buf;
+  const l = -(info.trimOffsetLeft ?? 0), t = -(info.trimOffsetTop ?? 0);
+  const r = src.width - l - info.width, b = src.height - t - info.height;
+  const framed = Math.min(l, r) >= src.width * 0.03 && Math.min(t, b) >= src.height * 0.03
+    && Math.abs(l - r) <= src.width * 0.05 && Math.abs(t - b) <= src.height * 0.05;
+  return framed ? data : buf;
 }
 
 /** Картинка слова — кадр 4:3 со знаком sdadim.eu по центру. */
@@ -214,7 +221,7 @@ let qFetched = 0;
 for (const q of all.filter((q) => q.src && qIds.includes(q.id))) {
   const file = new URL(`${q.id}.webp`, Q_DIR);
   const key = `q:${q.id}`;
-  if (prev[key]?.src === q.src && prev[key]?.wm === 0 && existsSync(file)) {
+  if (prev[key]?.src === q.src && prev[key]?.wm === 1 && existsSync(file)) {
     meta[key] = prev[key];
   } else {
     const res = await fetch(q.src);
@@ -225,7 +232,7 @@ for (const q of all.filter((q) => q.src && qIds.includes(q.id))) {
       .toBuffer({ resolveWithObject: true });
     const [w, h] = [info.width, info.height];
     writeFileSync(file, webp);
-    meta[key] = { src: q.src, wm: 0, w, h };
+    meta[key] = { src: q.src, wm: 1, w, h };
     qFetched++;
   }
   qImg.set(q.id, [meta[key].w, meta[key].h]);
