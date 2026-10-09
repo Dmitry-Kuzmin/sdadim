@@ -8,6 +8,7 @@ import Base from "@/layouts/Base.astro";
 import Sidebar from "@/components/blog/Sidebar.astro";
 import Prose from "@/components/blog/Prose.astro";
 import Accordion from "@/components/article/Accordion.astro";
+import SkilyHero from "@/components/skily/SkilyHero.astro";
 import { ARTICLE_ICONS } from "@/lib/article-icons";
 import { articleSeo } from "@/lib/seo";
 import { cardTitle, getPosts, postUrl, ruDate, type Post } from "@/lib/blog";
@@ -41,7 +42,8 @@ const related = [...all.filter((p) => p.data.category === d.category), ...all.fi
 <Base seo={articleSeo(post)}>
   <div data-reading-progress class="fixed left-0 top-0 z-[60] h-0.5 w-full origin-left scale-x-0 bg-blue-600" aria-hidden="true"></div>
   <div class="min-h-screen bg-white">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-14 pb-20">
+    <SkilyHero place="article-hero" />
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-20">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
         <main class="lg:col-span-8 min-w-0">
           <a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-8">

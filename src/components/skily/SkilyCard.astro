@@ -1,0 +1,29 @@
+---
+/** Карточка Skilyapp в сайдбаре статьи — сразу под содержанием. Тёмная в обеих темах, как баннер под шапкой. */
+import { ArrowRight } from "@lucide/astro";
+import { skilyUrl } from "@/lib/skily";
+
+const ITEMS = ["Все вопросы DGT на русском", "Дуэли и игры на знаки", "Словарь DGT — бесплатно", "Испанский под экзамен"];
+---
+
+<div class="overflow-hidden rounded-xl bg-[#070b16] text-white ring-1 ring-[#fff]/10">
+  <div class="relative h-20">
+    <img src="/assets/skily/duel-sm.webp" alt="" width="570" height="133" loading="lazy" decoding="async" class="h-full w-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-t from-[#070b16] to-transparent"></div>
+  </div>
+  <div class="px-5 pb-5 -mt-2 relative">
+    <p class="text-[11px] font-bold uppercase tracking-widest text-[#93c5fd] mb-1">Skilyapp</p>
+    <p class="font-bold text-[15px] leading-snug mb-3">Тренажёр теории DGT, который не надоедает</p>
+    <ul class="space-y-1.5 mb-4 text-xs text-[#fff]/75">
+      {ITEMS.map((t) => <li class="flex gap-2"><span class="text-[#34d399]">✓</span>{t}</li>)}
+    </ul>
+    <a
+      href={skilyUrl("/ru", "sidebar")}
+      target="_blank"
+      rel="noopener"
+      class="group flex items-center justify-center gap-1.5 rounded-lg bg-[#fff] py-2 text-xs font-bold text-[#0b1530] no-underline"
+    >
+      Попробовать бесплатно <ArrowRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+    </a>
+  </div>
+</div>

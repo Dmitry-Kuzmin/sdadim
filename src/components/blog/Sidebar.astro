@@ -3,6 +3,7 @@
 import type { Post } from "@/lib/blog";
 import { ARTICLE_ICONS } from "@/lib/article-icons";
 import Banner from "@/components/article/Banner.astro";
+import SkilyCard from "@/components/skily/SkilyCard.astro";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -18,21 +19,25 @@ const TONE = {
 };
 ---
 
-<div class="sticky top-24 space-y-5">
+<div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden space-y-5">
+  {!blocks.some((b) => b.type === "toc") && <SkilyCard />}
   {
     blocks.map((b) => {
       if (b.type === "toc")
         return (
-          <div class={cn("rounded-xl bg-slate-50 p-5", b.bordered && "border border-slate-200")}>
-            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Содержание</p>
-            <nav data-toc class="space-y-2 text-sm">
-              {b.items.map(([href, label]) => (
-                <a href={href} class="block text-slate-600 hover:text-slate-900 transition-colors leading-snug aria-[current=true]:text-slate-900 aria-[current=true]:font-medium">
-                  {label}
-                </a>
-              ))}
-            </nav>
-          </div>
+          <>
+            <div class={cn("rounded-xl bg-slate-50 p-5", b.bordered && "border border-slate-200")}>
+              <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Содержание</p>
+              <nav data-toc class="space-y-2 text-sm">
+                {b.items.map(([href, label]) => (
+                  <a href={href} class="block text-slate-600 hover:text-slate-900 transition-colors leading-snug aria-[current=true]:text-slate-900 aria-[current=true]:font-medium">
+                    {label}
+                  </a>
+                ))}
+              </nav>
+            </div>
+            <SkilyCard />
+          </>
         );
       if (b.type === "fact") {
         const Icon = ARTICLE_ICONS[b.icon];

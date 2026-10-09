@@ -1,0 +1,122 @@
+---
+/**
+ * Широкий баннер Skilyapp под шапкой сайта (как «брендирование» на Кинопоиске).
+ * Цвета фиксированные — баннер тёмный в обеих темах. Можно закрыть на 14 дней:
+ * скрытие ставится синхронно при разборе HTML, поэтому вёрстка не прыгает.
+ */
+import { ArrowRight, X } from "@lucide/astro";
+import { skilyUrl } from "@/lib/skily";
+
+interface Props {
+  /** utm_medium: из какого места пришёл переход */
+  place?: string;
+}
+
+const { place = "hero" } = Astro.props;
+const PILLS = ["⚔️ Дуэли", "🎮 Игры на знаки", "📖 Словарь — бесплатно", "🇪🇸 Испанский для DGT"];
+---
+
+<section data-skily-hero aria-label="Skilyapp — тренажёр DGT" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 md:pt-6">
+  <div class="skily-hero relative overflow-hidden rounded-3xl bg-[#070b16] text-white ring-1 ring-white/10 shadow-[0_20px_60px_-25px_rgba(37,99,235,0.55)]">
+    <img
+      src="/assets/skily/duel.webp"
+      srcset="/assets/skily/duel-sm.webp 570w, /assets/skily/duel.webp 1140w"
+      sizes="(min-width: 768px) 820px, 100vw"
+      alt=""
+      width="1140"
+      height="266"
+      decoding="async"
+      class="skily-hero__art absolute inset-y-0 right-0 h-full w-full md:w-[74%] object-cover object-[42%_center]"
+    />
+    <div class="skily-hero__shade absolute inset-0" aria-hidden="true"></div>
+
+    <div class="relative z-10 p-5 sm:p-7 md:px-9 md:py-8 md:max-w-[56%]">
+      <p class="inline-flex items-center gap-2 rounded-full bg-[#fff]/10 ring-1 ring-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#bfdbfe] mb-3 md:mb-4">
+        <span class="h-1.5 w-1.5 rounded-full bg-[#34d399] animate-pulse"></span> Skilyapp · тренажёр на русском
+      </p>
+      <p class="text-[22px] sm:text-3xl md:text-[34px] font-extrabold leading-[1.1] tracking-tight mb-2 md:mb-3">
+        Теория DGT — <span class="bg-gradient-to-r from-[#7dd3fc] to-[#fdba74] bg-clip-text text-transparent">как игра</span>
+      </p>
+      <p class="hidden sm:block text-sm md:text-[15px] text-white/70 leading-relaxed mb-4 md:mb-5 max-w-md">
+        Все вопросы экзамена с переводом, пробный экзамен, дуэли с друзьями и ИИ, который объясняет каждую ошибку по-русски.
+      </p>
+      <ul class="hidden md:flex flex-wrap gap-1.5 mb-6 max-w-xl">
+        {PILLS.map((p) => <li class="rounded-full bg-[#fff]/[0.07] ring-1 ring-white/10 px-2.5 py-1 text-xs text-white/85 backdrop-blur-sm">{p}</li>)}
+      </ul>
+      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+        <a
+          href={skilyUrl("/ru", place)}
+          target="_blank"
+          rel="noopener"
+          class="group inline-flex items-center gap-2 rounded-xl bg-[#fff] px-5 py-2.5 text-sm font-bold text-[#0b1530] transition-transform hover:-translate-y-0.5 no-underline"
+        >
+          Начать бесплатно <ArrowRight class="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+        </a>
+        <a
+          href={skilyUrl("/ru/dictionary", place)}
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-2 rounded-xl bg-[#fff]/10 ring-1 ring-white/20 px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#fff]/15 transition-colors no-underline"
+        >
+          Словарь DGT
+        </a>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      data-skily-close
+      aria-label="Скрыть баннер"
+      class="absolute right-3 top-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-black/40 text-white/70 ring-1 ring-white/15 backdrop-blur hover:text-white hover:bg-black/60 transition-colors"
+    >
+      <X class="w-4 h-4" />
+    </button>
+  </div>
+</section>
+
+<script is:inline>
+  // Закрыт меньше 14 дней назад — прячем сразу, до отрисовки
+  (function () {
+    try {
+      var t = +localStorage.getItem("skily-hero-hidden");
+      if (t && Date.now() - t < 12096e5) document.querySelectorAll("[data-skily-hero]").forEach(function (el) { el.hidden = true; });
+    } catch (e) {}
+  })();
+</script>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-skily-close]").forEach((b) =>
+    b.addEventListener("click", () => {
+      b.closest<HTMLElement>("[data-skily-hero]")!.hidden = true;
+      try {
+        localStorage.setItem("skily-hero-hidden", String(Date.now()));
+      } catch {}
+    })
+  );
+</script>
+
+<style>
+  .skily-hero__shade {
+    background:
+      linear-gradient(100deg, rgba(7, 11, 22, 0.92) 30%, rgba(7, 11, 22, 0.45) 100%),
+      radial-gradient(60% 80% at 0% 0%, rgba(37, 99, 235, 0.35), transparent 70%);
+  }
+  @media (min-width: 768px) {
+    .skily-hero__shade {
+      background:
+        linear-gradient(90deg, #070b16 26%, rgba(7, 11, 22, 0.85) 40%, rgba(7, 11, 22, 0.15) 70%, rgba(7, 11, 22, 0.4) 100%),
+        radial-gradient(50% 90% at 0% 0%, rgba(37, 99, 235, 0.35), transparent 70%);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .skily-hero__art {
+      animation: skily-drift 18s ease-in-out infinite alternate;
+      transform-origin: 70% 60%;
+    }
+  }
+  @keyframes skily-drift {
+    to {
+      transform: scale(1.07);
+    }
+  }
+</style>

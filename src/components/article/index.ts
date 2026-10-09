@@ -14,6 +14,7 @@ import LinkCard from "./LinkCard.astro";
 import List from "./List.astro";
 import Quiz from "./Quiz.astro";
 import Quote from "./Quote.astro";
+import Skily from "./Skily.astro";
 import Spoiler from "./Spoiler.astro";
 import Stats from "./Stats.astro";
 import TabPanel from "./TabPanel.astro";
@@ -23,4 +24,4 @@ import Tabs from "./Tabs.astro";
 import Video from "./Video.astro";
 import Year from "./Year.astro";
 
-export const ARTICLE_KIT = { Accordion, Banner, Callout, Checklist, CardGrid, Comparison, Divider, Fine, Figure, LinkCard, List, Quiz, Quote, Spoiler, Stats, TabPanel, Table, Tabs, Tasa, Video, Year };
+export const ARTICLE_KIT = { Accordion, Banner, Callout, Checklist, CardGrid, Comparison, Divider, Fine, Figure, LinkCard, List, Quiz, Quote, Skily, Spoiler, Stats, TabPanel, Table, Tabs, Tasa, Video, Year };
