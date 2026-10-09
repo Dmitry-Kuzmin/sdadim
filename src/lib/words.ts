@@ -38,17 +38,23 @@ export type ExamQuestion = {
   ru: string;
   a: { es: string; ru: string; ok?: boolean }[];
   x?: string;
-  /** Картинка вопроса [ширина, высота] — /img/voprosy/<id>.webp. */
-  img?: [number, number];
+  /** Картинка вопроса в хранилище SkilyApp и её размер. */
+  img?: { src: string; w: number; h: number };
 };
 
 export const BASE = "/ispanskij-dlya-dgt";
 /** С водяным знаком в русских полях (src/lib/watermark.ts) — и в HTML, и в данных для игр. */
 export const WORDS = (raw as Word[]).map(markWord);
 export const wordImg = (id: string) => `/img/slova/${id}.webp`;
-export const qImg = (id: string) => `/img/voprosy/${id}.webp`;
+/**
+ * Картинка вопроса — прямо из хранилища SkilyApp через оптимизатор Vercel (/_vercel/image: webp нужной ширины,
+ * кэш на CDN — images в vercel.json). Поменяли картинку в SkilyApp — сайт покажет новую без синхронизации.
+ * Ширины — только из images.sizes в vercel.json. В dev оптимизатора нет — оригинал.
+ */
+const viaVercel = (src: string, w: 640 | 1200) => (import.meta.env.PROD ? `/_vercel/image?url=${encodeURIComponent(src)}&w=${w}&q=75` : src);
+export const qImg = (src: string) => viaVercel(src, 640);
 /** srcset картинки вопроса: 640 — телефон, 1200 — крупный показ на ПК и ретина. */
-export const qSrcset = (id: string) => `/img/voprosy/${id}.webp 640w, /img/voprosy/${id}-1200.webp 1200w`;
+export const qSrcset = (src: string) => `${viaVercel(src, 640)} 640w, ${viaVercel(src, 1200)} 1200w`;
 export const setUrl = (s: WordSet) => `${BASE}/${s.slug}`;
 export const wordUrl = (w: Word) => `${BASE}/slovo/${w.id}`;
 /** «arcén» → «Arcén»: заголовки и подписи. */
@@ -73,14 +79,14 @@ const QS = rawQs as Record<string, ExamQuestion[]>;
 export const wordQuestions = (w: Word): ExamQuestion[] => QS[w.id] ?? [];
 
 /** Картинки других вопросов для витрины баннера Skilyapp: свои у каждой страницы, без случайности. */
-const ALL_PICS = [...new Set(Object.values(QS).flat().filter((q) => q.img).map((q) => q.id))];
+const ALL_PICS = [...new Map(Object.values(QS).flat().filter((q) => q.img).map((q) => [q.id, q.img!.src])).entries()];
 export function showcase(w: Word, n = 3): string[] {
   const own = new Set(wordQuestions(w).map((q) => q.id));
   const from = WORDS.indexOf(w) * 7;
   const out: string[] = [];
   for (let i = 0; out.length < n && i < ALL_PICS.length; i++) {
-    const id = ALL_PICS[(from + i * 37) % ALL_PICS.length];
-    if (!own.has(id) && !out.includes(id)) out.push(id);
+    const [id, src] = ALL_PICS[(from + i * 37) % ALL_PICS.length];
+    if (!own.has(id) && !out.includes(src)) out.push(src);
   }
   return out;
 }

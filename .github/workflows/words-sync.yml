@@ -1,0 +1,45 @@
+name: Words sync
+
+# Раз в месяц: словарь, вопросы и картинки слов из SkilyApp → коммит в main → Vercel деплоит сам.
+# Картинки вопросов не копируются (оптимизатор Vercel, кэш 30 дней) — здесь только их адреса и размеры.
+on:
+  schedule:
+    - cron: "0 5 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      # Знак sdadim.eu на картинках слов рисуется шрифтом Arial/Helvetica — Liberation Sans с теми же метриками
+      - name: Fonts for watermark
+        run: sudo apt-get install -y --no-install-recommends fonts-liberation
+
+      # npm install, как в seo-guard.yml: npm ci падает на lock-файле из macOS
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Sync words
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run words:sync
+
+      - name: Commit changes
+        run: |
+          git add src/data public/img/slova
+          if git diff --cached --quiet; then echo "Без изменений"; exit 0; fi
+          git config user.name "sdadim-bot"
+          git config user.email "sdadim-bot@users.noreply.github.com"
+          git commit -m "chore(slova): ежемесячная синхронизация словаря и вопросов из SkilyApp"
+          git push

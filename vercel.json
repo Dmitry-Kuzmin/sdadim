@@ -66,5 +66,22 @@
         }
       ]
     }
-  ]
+  ],
+  "images": {
+    "sizes": [
+      640,
+      1200
+    ],
+    "formats": [
+      "image/webp"
+    ],
+    "minimumCacheTTL": 2592000,
+    "remotePatterns": [
+      {
+        "protocol": "https",
+        "hostname": "yffjnqegeiorunyvcxkn.supabase.co",
+        "pathname": "/storage/v1/object/public/dgt-images/**"
+      }
+    ]
+  }
 }

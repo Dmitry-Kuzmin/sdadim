@@ -33,6 +33,8 @@ for (const file of files) {
   const page = "/" + relative(DIST, file).replace(/(index)?\.html$/, "");
   for (const [, attr, url] of html.matchAll(/\s(href|src)="([^"]+)"/g)) {
     if (/^(https?:|mailto:|tel:|data:|javascript:|\/\/)/.test(url)) continue;
+    // Оптимизатор картинок Vercel (images в vercel.json) — есть только на Vercel, не в dist
+    if (url.startsWith("/_vercel/image?")) continue;
     const [path, hash] = url.split("#");
     const target = path ? resolve(decodeURI(path.split("?")[0])) : file;
     if (!target) {

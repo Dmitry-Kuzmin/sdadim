@@ -113,7 +113,7 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
               return (
                 <div data-xq hidden={i > 0}>
                   <div class:list={["grid gap-4 sm:gap-5", q.img && "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-start"]}>
-                    {q.img && <img src={qImg(q.id)} srcset={qSrcset(q.id)} sizes="(min-width: 1024px) 640px, (min-width: 768px) 55vw, 100vw" alt="" width={q.img[0]} height={q.img[1]} loading={i ? "lazy" : "eager"} decoding="async" class="block w-full rounded-xl bg-slate-100 shadow-sm" />}
+                    {q.img && <img src={qImg(q.img.src)} srcset={qSrcset(q.img.src)} sizes="(min-width: 1024px) 640px, (min-width: 768px) 55vw, 100vw" alt="" width={q.img.w} height={q.img.h} loading={i ? "lazy" : "eager"} decoding="async" class="block w-full rounded-xl bg-slate-100 shadow-sm" />}
                     <div>
                       <p class="text-[17px] font-semibold leading-snug text-slate-900" lang="es">
                         {a}
@@ -175,7 +175,7 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
                   </span>
                   {pics.length === 3 && (
                     <span class="xq-stack" aria-hidden="true">
-                      {pics.map((id) => <img src={qImg(id)} alt="" width="640" height="357" loading="lazy" decoding="async" />)}
+                      {pics.map((src) => <img src={qImg(src)} alt="" width="640" height="357" loading="lazy" decoding="async" />)}
                     </span>
                   )}
                 </a>

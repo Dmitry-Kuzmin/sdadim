@@ -48,7 +48,8 @@ Frontmatter — единственный источник: страница, к�
 | Что | Где |
 |---|---|
 | Слова, примеры, картинки со знаком sdadim.eu | `npm run words:sync` → `src/data/words.json`, `public/img/slova/` (словарь SkilyApp `language_terms` + бесплатные вопросы; серая рамка картинок обрезается, кадр 4:3) |
-| Вопросы DGT на странице слова (ответы, объяснение, картинка) | тот же `words:sync` → `src/data/word-questions.json` (только сборка), `public/img/voprosy/` |
+| Вопросы DGT на странице слова (ответы, объяснение, картинка) | тот же `words:sync` → `src/data/word-questions.json` (только сборка); картинки — из хранилища SkilyApp через `/_vercel/image` (`images` в `vercel.json`, кэш 30 дней), не копируем |
+| Ежемесячное обновление словаря и вопросов | `.github/workflows/words-sync.yml` (1-го числа, коммит в main → деплой); вручную — Actions → Words sync → Run |
 | Темы (slug в адресе — не менять), FAQ хаба | `src/data/word-sets.ts` |
 | Данные для страниц, адреса | `src/lib/words.ts`; SEO — `wordsHubSeo/wordSetSeo/wordSeo` в `seo.ts` |
 | Игры: описание / упражнения / аркады | `src/components/words/modes.ts`, `trainer.ts`, `arcade.ts` |

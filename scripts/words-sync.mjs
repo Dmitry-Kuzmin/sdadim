@@ -10,8 +10,8 @@
  *   src/data/words-sync.json     дата последнего изменения словаря (lastmod в sitemap)
  *   src/data/word-questions.json { id: [вопрос с ответами, объяснением и картинкой] } — до 3 вопросов DGT
  *                                со словом для его страницы (только сборка, в браузер не уходит)
- *   public/img/voprosy/<id>.webp картинка вопроса целиком (без обрезки — на ней бывают знаки); знак Skily
- *                                на ней уже есть, свой не ставим
+ *   Картинки вопросов не копируем: страница берёт их из хранилища SkilyApp через оптимизатор Vercel
+ *   (src/lib/words.ts → qImg), поменяли картинку в SkilyApp — сайт подхватит сам. Здесь только размеры.
  *   public/img/slova/<id>.webp   картинка со знаком sdadim.eu (качается, только если её нет, она поменялась
  *                                в SkilyApp или поменялся знак — WM)
  * id строится из испанского написания: на нём держится прогресс учеников — не менять termId().
@@ -23,7 +23,6 @@ const r = (p) => new URL(p, import.meta.url);
 const OUT = r("../src/data/words.json");
 const META = r("../src/data/words-images.json");
 const IMG_DIR = r("../public/img/slova/");
-const Q_DIR = r("../public/img/voprosy/");
 
 /** Версия знака: поменял его вид — подними число, и все картинки перекачаются. */
 const WM = 3;
@@ -33,8 +32,9 @@ const W = 640;
 export const termId = (es) =>
   es.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ñ/g, "n").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
+// Локально — .env, в GitHub Actions (ежемесячный words-sync.yml) — секреты в process.env
 const env = Object.fromEntries(
-  readFileSync(r("../.env"), "utf8").split("\n").map((l) => l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/)).filter(Boolean).map((m) => [m[1], m[2].trim()])
+  (existsSync(r("../.env")) ? readFileSync(r("../.env"), "utf8") : "").split("\n").map((l) => l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/)).filter(Boolean).map((m) => [m[1], m[2].trim()])
 );
 const URL_ = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
 const KEY = process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
@@ -214,28 +214,22 @@ for (let i = 0; i < qIds.length; i += 150) {
     answers.get(a.question_id).push({ es: clean(a.text_es), ru: clean(a.text_ru), ok: a.is_correct || undefined });
   }
 }
-// Картинки вопросов: качаются один раз (или когда поменялись в SkilyApp), размер — для width/height на странице.
-// Две ширины: 640 (телефон, srcset 1x) и 1200 (крупный показ на ПК и ретина) — /img/voprosy/<id>[-1200].webp.
-mkdirSync(Q_DIR, { recursive: true });
+// Картинки вопросов: адрес из SkilyApp и размер (для width/height — без скачка вёрстки). Размер узнаём
+// один раз на адрес и помним в words-images.json: новый адрес — новая картинка, её и меряем.
 const qImg = new Map();
-let qFetched = 0;
+let qMeasured = 0;
 for (const q of all.filter((q) => q.src && qIds.includes(q.id))) {
-  const file = new URL(`${q.id}.webp`, Q_DIR);
-  const big = new URL(`${q.id}-1200.webp`, Q_DIR);
   const key = `q:${q.id}`;
-  if (prev[key]?.src === q.src && prev[key]?.wm === 2 && existsSync(file) && existsSync(big)) {
+  if (prev[key]?.src === q.src && prev[key]?.w) {
     meta[key] = prev[key];
   } else {
     const res = await fetch(q.src);
     if (!res.ok) { console.warn(`! вопрос ${q.id}: картинка ${res.status}`); continue; }
-    const body = await trimmed(Buffer.from(await res.arrayBuffer()));
-    const { data: webp, info } = await sharp(body).resize({ width: W, withoutEnlargement: true }).webp({ quality: 76 }).toBuffer({ resolveWithObject: true });
-    writeFileSync(file, webp);
-    writeFileSync(big, await sharp(body).resize({ width: 1200, withoutEnlargement: true }).webp({ quality: 72 }).toBuffer());
-    meta[key] = { src: q.src, wm: 2, w: info.width, h: info.height };
-    qFetched++;
+    const { width: w, height: h } = await sharp(Buffer.from(await res.arrayBuffer())).metadata();
+    meta[key] = { src: q.src, w, h };
+    qMeasured++;
   }
-  qImg.set(q.id, [meta[key].w, meta[key].h]);
+  qImg.set(q.id, { src: q.src, w: meta[key].w, h: meta[key].h });
 }
 const wq = {};
 for (const w of out) {
@@ -246,5 +240,5 @@ for (const w of out) {
 }
 writeFileSync(r("../src/data/word-questions.json"), JSON.stringify(wq) + "\n");
 writeFileSync(META, JSON.stringify(meta, null, 0).replace(/\},"/g, '},\n"') + "\n");
-console.log(`✓ ${out.length} слов → src/data/words.json, с картинкой ${out.filter((w) => w.img).length}, скачано ${fetched}, вопросов для страниц ${Object.values(wq).flat().length} у ${Object.keys(wq).length} слов (картинок скачано ${qFetched})`);
+console.log(`✓ ${out.length} слов → src/data/words.json, с картинкой ${out.filter((w) => w.img).length}, скачано ${fetched}, вопросов для страниц ${Object.values(wq).flat().length} у ${Object.keys(wq).length} слов (новых картинок вопросов ${qMeasured})`);
 console.log(`  примеры: ${out.filter((w) => w.ex).length} (из ${full.length} бесплатных вопросов экзамена)`);
