@@ -46,3 +46,12 @@ export const SKILY_FEATURES = {
 } as const;
 
 export type SkilyFeature = keyof typeof SKILY_FEATURES;
+
+/** Баннер после вопросов экзамена на странице слова (/ispanskij-dlya-dgt/slovo/…). Число — как в самом Skilyapp. */
+export const SKILY_EXAM = {
+  title: "Ещё 3000+ таких вопросов — в Skilyapp",
+  text: "На экзамене DGT — 30 вопросов, ошибиться можно не больше трёх раз. Тренируйтесь на всех вопросах с картинками, переводом и разбором.",
+  points: ["Все вопросы DGT с переводом на русский", "Пробный экзамен: 30 вопросов за 30 минут", "ИИ-наставник объясняет каждую ошибку", "Дуэли с друзьями и банк ошибок"],
+  cta: "Тренироваться в Skilyapp",
+  path: "/ru",
+} as const;

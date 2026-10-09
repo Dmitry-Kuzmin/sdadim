@@ -215,24 +215,24 @@ for (let i = 0; i < qIds.length; i += 150) {
   }
 }
 // Картинки вопросов: качаются один раз (или когда поменялись в SkilyApp), размер — для width/height на странице.
+// Две ширины: 640 (телефон, srcset 1x) и 1200 (крупный показ на ПК и ретина) — /img/voprosy/<id>[-1200].webp.
 mkdirSync(Q_DIR, { recursive: true });
 const qImg = new Map();
 let qFetched = 0;
 for (const q of all.filter((q) => q.src && qIds.includes(q.id))) {
   const file = new URL(`${q.id}.webp`, Q_DIR);
+  const big = new URL(`${q.id}-1200.webp`, Q_DIR);
   const key = `q:${q.id}`;
-  if (prev[key]?.src === q.src && prev[key]?.wm === 1 && existsSync(file)) {
+  if (prev[key]?.src === q.src && prev[key]?.wm === 2 && existsSync(file) && existsSync(big)) {
     meta[key] = prev[key];
   } else {
     const res = await fetch(q.src);
     if (!res.ok) { console.warn(`! вопрос ${q.id}: картинка ${res.status}`); continue; }
-    const { data: webp, info } = await sharp(await trimmed(Buffer.from(await res.arrayBuffer())))
-      .resize({ width: W, withoutEnlargement: true })
-      .webp({ quality: 76 })
-      .toBuffer({ resolveWithObject: true });
-    const [w, h] = [info.width, info.height];
+    const body = await trimmed(Buffer.from(await res.arrayBuffer()));
+    const { data: webp, info } = await sharp(body).resize({ width: W, withoutEnlargement: true }).webp({ quality: 76 }).toBuffer({ resolveWithObject: true });
     writeFileSync(file, webp);
-    meta[key] = { src: q.src, wm: 1, w, h };
+    writeFileSync(big, await sharp(body).resize({ width: 1200, withoutEnlargement: true }).webp({ quality: 72 }).toBuffer());
+    meta[key] = { src: q.src, wm: 2, w: info.width, h: info.height };
     qFetched++;
   }
   qImg.set(q.id, [meta[key].w, meta[key].h]);

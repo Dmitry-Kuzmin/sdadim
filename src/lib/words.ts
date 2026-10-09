@@ -47,6 +47,8 @@ export const BASE = "/ispanskij-dlya-dgt";
 export const WORDS = (raw as Word[]).map(markWord);
 export const wordImg = (id: string) => `/img/slova/${id}.webp`;
 export const qImg = (id: string) => `/img/voprosy/${id}.webp`;
+/** srcset картинки вопроса: 640 — телефон, 1200 — крупный показ на ПК и ретина. */
+export const qSrcset = (id: string) => `/img/voprosy/${id}.webp 640w, /img/voprosy/${id}-1200.webp 1200w`;
 export const setUrl = (s: WordSet) => `${BASE}/${s.slug}`;
 export const wordUrl = (w: Word) => `${BASE}/slovo/${w.id}`;
 /** «arcén» → «Arcén»: заголовки и подписи. */
@@ -69,6 +71,19 @@ export const PAGE_WORDS = WORDS.filter(hasPage);
 /** До 3 вопросов экзамена со словом — для его страницы; первый совпадает с примером ex. */
 const QS = rawQs as Record<string, ExamQuestion[]>;
 export const wordQuestions = (w: Word): ExamQuestion[] => QS[w.id] ?? [];
+
+/** Картинки других вопросов для витрины баннера Skilyapp: свои у каждой страницы, без случайности. */
+const ALL_PICS = [...new Set(Object.values(QS).flat().filter((q) => q.img).map((q) => q.id))];
+export function showcase(w: Word, n = 3): string[] {
+  const own = new Set(wordQuestions(w).map((q) => q.id));
+  const from = WORDS.indexOf(w) * 7;
+  const out: string[] = [];
+  for (let i = 0; out.length < n && i < ALL_PICS.length; i++) {
+    const id = ALL_PICS[(from + i * 37) % ALL_PICS.length];
+    if (!own.has(id) && !out.includes(id)) out.push(id);
+  }
+  return out;
+}
 
 /** Соседи по теме для «Похожих слов»: ближайшие по частоте, со своей страницей. */
 export function related(w: Word, n = 8): Word[] {
