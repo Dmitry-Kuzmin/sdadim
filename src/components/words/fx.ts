@@ -28,7 +28,30 @@ const SOUNDS = {
   combo: () => [660, 830, 990, 1320].forEach((f, i) => tone(f, i * 0.06, 0.14, "triangle", 0.08)),
   win: () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, i * 0.11, 0.22, "triangle", 0.09)),
   crash: () => (tone(120, 0, 0.35, "sawtooth", 0.07), tone(80, 0.05, 0.4, "square", 0.05)),
+  skid: () => noise(0.45, 1900, 0.09),
 };
+
+/** Шум через полосовой фильтр — визг шин. */
+function noise(dur: number, freq: number, vol: number) {
+  ctx ??= new AudioContext();
+  const len = Math.floor(ctx.sampleRate * dur);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  const f = ctx.createBiquadFilter();
+  const g = ctx.createGain();
+  src.buffer = buf;
+  f.type = "bandpass";
+  f.frequency.value = freq;
+  f.Q.value = 6;
+  const t = ctx.currentTime;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.03);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(f).connect(g).connect(ctx.destination);
+  src.start(t);
+}
 export function sfx(name: keyof typeof SOUNDS) {
   if (muted) return;
   try {
@@ -182,9 +205,12 @@ const dot = (c: string, size: number) => {
 };
 
 /**
- * Искры от ответа. С `to` — летят по дуге к цели (сегмент прогресса, счёт), без — разлетаются кольцом.
- * tone: ok — зелёные, bad — красные, gold — серия и рекорды.
+ * Искры от ответа — точный перенос ParticleBurst из migran/SkilyApp (там framer-motion).
+ * С `to` искры вылетают кольцом вокруг ответа, зависают у вершины дуги и срываются к цели
+ * (сегмент прогресса, счёт): плавность — на каждом отрезке пути отдельно, как keyframes во framer.
+ * Без `to` — разлетаются салютом. tone: ok — зелёные, bad — красные, gold — серия и рекорды.
  */
+const EASE = "cubic-bezier(.22,.7,.3,1)";
 export function burst(from: Element, ok: boolean | "gold", to?: Element | null, n = 20) {
   if (reduced() || !from.isConnected) return;
   const s = center(from);
@@ -192,26 +218,28 @@ export function burst(from: Element, ok: boolean | "gold", to?: Element | null, 
   const colors = ok === "gold" ? GOLD : ok ? OK : BAD;
   for (let i = 0; i < n; i++) {
     const a = Math.random() * Math.PI * 2;
-    const r0 = Math.min(s.w, s.h) * 0.25 + Math.random() * 20;
-    const x0 = s.x + Math.cos(a) * r0, y0 = s.y + Math.sin(a) * r0;
+    const r = 20 + Math.random() * 24;
+    const x0 = s.x + Math.cos(a) * r, y0 = s.y + Math.sin(a) * r;
     const size = 4 + Math.random() * 4;
     const d = dot(colors[i % colors.length], size);
-    const dur = 450 + Math.random() * 250;
-    const frames = t
-      ? [
-          { transform: `translate(${x0}px,${y0}px) scale(.4)`, opacity: 0 },
-          { transform: `translate(${(x0 + t.x) / 2 + (Math.random() - 0.5) * 90}px,${Math.min(y0, t.y) - 30 - Math.random() * 50}px) scale(1.1)`, opacity: 1, offset: 0.3 },
-          { transform: `translate(${t.x + (Math.random() - 0.5) * 14}px,${t.y}px) scale(.2)`, opacity: 0 },
-        ]
-      : [
-          { transform: `translate(${x0}px,${y0}px) scale(.4)`, opacity: 0 },
-          { transform: `translate(${x0 + Math.cos(a) * 40}px,${y0 + Math.sin(a) * 40}px) scale(1.1)`, opacity: 1, offset: 0.25 },
-          { transform: `translate(${x0 + Math.cos(a) * (90 + Math.random() * 70)}px,${y0 + Math.sin(a) * (90 + Math.random() * 70) + 30}px) scale(.2)`, opacity: 0 },
-        ];
-    d.animate(frames, { duration: dur, delay: i * 12, easing: "cubic-bezier(.22,.7,.3,1)", fill: "both" }).onfinish = () => d.remove();
+    const dur = 450 + Math.random() * 200;
+    const delay = i * 14 + Math.random() * 30;
+    const [x1, y1, x2, y2] = t
+      ? [(x0 + t.x) / 2 + (Math.random() - 0.5) * 80, Math.min(y0, t.y) - 30 - Math.random() * 50, t.x + (Math.random() - 0.5) * 16, t.y + (Math.random() - 0.5) * 4]
+      : [x0 + Math.cos(a) * 46, y0 + Math.sin(a) * 46 - 18, x0 + Math.cos(a) * (80 + Math.random() * 60), y0 + Math.sin(a) * (80 + Math.random() * 60) + 40];
+    const at = (x: number, y: number, k: number) => `translate(${x}px,${y}px) translate(-50%,-50%) scale(${k})`;
+    d.animate(
+      [
+        { transform: at(x0, y0, 0.4), easing: EASE },
+        { transform: at(x1, y1, 1.1), easing: EASE, offset: 0.25 },
+        { transform: at(x2, y2, 0.2) },
+      ],
+      { duration: dur, delay, fill: "both" },
+    ).onfinish = () => d.remove();
+    d.animate([{ opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.72 }, { opacity: 0 }], { duration: dur, delay, fill: "both" });
   }
   // Цель «вспыхивает», когда до неё долетели искры.
-  if (to && t) to.animate([{ filter: "brightness(1)" }, { filter: "brightness(1.6)" }, { filter: "brightness(1)" }], { duration: 400, delay: 380 });
+  if (to && t) to.animate([{ filter: "brightness(1)" }, { filter: "brightness(1.7) saturate(1.3)" }, { filter: "brightness(1)" }], { duration: 420, delay: 420 });
 }
 
 /** Расходящееся кольцо вокруг элемента — подтверждение ответа. */

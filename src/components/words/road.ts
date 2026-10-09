@@ -14,6 +14,7 @@ import { h } from "./dom";
 import { source } from "./arcade";
 import * as E from "./engine";
 import * as fx from "./fx";
+import { BIOMES, scenery } from "./scenery";
 
 const LANES = 3;
 const LIVES = 3;
@@ -30,14 +31,17 @@ const svgEl = (html: string, cls: string) => {
   return s;
 };
 
-/** Машина сверху, носом вверх. Поворотники .ind-l / .ind-r мигают при перестроении. */
+/** Машина сверху, носом вверх. Передние колёса .whl поворачиваются, поворотники .ind-l / .ind-r мигают при перестроении. */
 const CAR = `<svg viewBox="0 0 64 120" aria-hidden="true">
   <defs>
     <linearGradient id="r3b" x1="0" x2="1"><stop offset="0" stop-color="#1e40af"/><stop offset=".45" stop-color="#3b82f6"/><stop offset=".55" stop-color="#3b82f6"/><stop offset="1" stop-color="#1e40af"/></linearGradient>
     <linearGradient id="r3g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1220"/><stop offset="1" stop-color="#3b4a63"/></linearGradient>
     <radialGradient id="r3i"><stop offset="0" stop-color="#fff7cc"/><stop offset=".35" stop-color="#fbbf24"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></radialGradient>
   </defs>
-  <rect x="1" y="37" width="9" height="6" rx="3" fill="#1e3a8a"/><rect x="54" y="37" width="9" height="6" rx="3" fill="#1e3a8a"/>
+  <g class="whl"><rect x="2" y="15" width="9" height="19" rx="3.5" fill="#0f172a"/><path d="M4 18h5M4 22h5M4 26h5M4 30h5" stroke="#475569" stroke-width="1"/></g>
+  <g class="whl"><rect x="53" y="15" width="9" height="19" rx="3.5" fill="#0f172a"/><path d="M55 18h5M55 22h5M55 26h5M55 30h5" stroke="#475569" stroke-width="1"/></g>
+  <rect x="2" y="84" width="9" height="19" rx="3.5" fill="#0f172a"/><rect x="53" y="84" width="9" height="19" rx="3.5" fill="#0f172a"/>
+  <rect x="1" y="40" width="9" height="6" rx="3" fill="#1e3a8a"/><rect x="54" y="40" width="9" height="6" rx="3" fill="#1e3a8a"/>
   <path d="M15 5 Q32 -1 49 5 Q58 9 58 26 L58 100 Q58 115 45 117 L19 117 Q6 115 6 100 L6 26 Q6 9 15 5Z" fill="url(#r3b)"/>
   <path d="M17 9 Q32 4 47 9 L45 29 L19 29Z" fill="#fff" opacity=".14"/>
   <path d="M11 35 Q32 28 53 35 L49 51 Q32 46 15 51Z" fill="url(#r3g)"/>
@@ -55,7 +59,9 @@ const CAR = `<svg viewBox="0 0 64 120" aria-hidden="true">
 /** Светофор обратного отсчёта: красный → жёлтый → зелёный. */
 const LIGHT = `<div class="r3-light"><i></i><i></i><i></i></div>`;
 
-type Deco = { el: HTMLElement; y: number; h: number };
+type Mark = { el: HTMLElement; y: number };
+/** Смена пейзажа — каждые столько слов. */
+const PER_BIOME = 6;
 
 export function road(ctx: Ctx) {
   const short = (w: Word) => w.ru.length <= 26;
@@ -64,7 +70,9 @@ export function road(ctx: Ctx) {
 
   /* ─── Сцена ─── */
   const grass = h("div.r3-grass");
+  const ground = h("div.r3-ground");
   const decoLayer = h("div.r3-deco");
+  const sky = h("div.r3-sky");
   const tex = h("div.r3-tex");
   const marks = h("div.r3-marks");
   const row = h("div.r3-row");
@@ -81,10 +89,11 @@ export function road(ctx: Ctx) {
   const hud = h("div.r3-hud", {}, quit, h("div.r3-stats", {}, hearts, h("span.r3-box", {}, scoreEl, h("small", {}, "очков")), speedEl));
   const toast = h("div.r3-toast", { role: "status" });
   const banner = h("div.r3-banner");
+  const place = h("div.r3-place", { "aria-live": "polite" });
   const left = h("button.r3-pad.is-l", { type: "button", "aria-label": "Влево" }, "‹");
   const right = h("button.r3-pad.is-r", { type: "button", "aria-label": "Вправо" }, "›");
   const start = svgEl(LIGHT, "r3-start");
-  const scene = h("div.r3", { role: "application", "aria-label": "Трасса: выберите полосу с правильным переводом" }, grass, decoLayer, roadEl, flash, hud, sign, toast, banner, left, right, start);
+  const scene = h("div.r3", { role: "application", "aria-label": "Трасса: выберите полосу с правильным переводом" }, grass, ground, decoLayer, roadEl, sky, flash, hud, sign, toast, place, banner, left, right, start);
   ctx.layer(scene);
 
   /* ─── Состояние ─── */
@@ -94,9 +103,20 @@ export function road(ctx: Ctx) {
   let rowY = 0, rowH = 0, rowOn = false, resolved = false, right_ = 0, cur: Word | null = null;
   let gates: HTMLElement[] = [];
   const mistakes = new Map<string, Word>();
-  const decos: Deco[] = [];
-  const skids: Deco[] = [];
+  const skids: Mark[] = [];
   const motor = fx.engine();
+  const land = scenery(ground, decoLayer, sky);
+  const wheels = [...car.querySelectorAll<SVGGElement>(".whl")];
+  const body = car.querySelector("svg")!;
+
+  /* Физика машины: x — центр машины на дороге, vx — боковая скорость, yaw — поворот кузова,
+     steer — угол передних колёс. Перестроение — пружина с демпфером к центру полосы.
+     hold — пауза после нажатия: сначала поворотник, потом колёса, потом кузов.
+     drift — перестроились в последний момент: пружина жёстче, демпфер слабее, кузов
+     заносит с запаздыванием и перерулом, из-под задних колёс — дым и следы. */
+  let cx = 0, vx = 0, yaw = 0, steer = 0, hold = 0, dir = 0, drift = 0, trail = 0;
+  const laneX = (l: number) => 14 + laneW * (l + 0.5);
+  let carW = 0;
 
   const layout = () => {
     W = scene.clientWidth;
@@ -105,47 +125,30 @@ export function road(ctx: Ctx) {
     RW = Math.min(W - Math.max(16, W * 0.13), 620);
     laneW = (RW - 28) / LANES;
     scene.style.setProperty("--rw", `${RW}px`);
-    scene.style.setProperty("--car", `${Math.min(76, laneW * 0.52)}px`);
-    carTop = H - H * 0.17 - Math.min(76, laneW * 0.52) * 1.875;
-    placeCar();
-  };
-  const placeCar = () => (car.style.left = `${14 + laneW * (lane + 0.5)}px`);
-
-  /* ─── Деревья и кусты на траве: переиспользуем, когда уезжают за экран ─── */
-  /** Дерево, куст, камень или цветы — по размеру обочины: на узкой только мелочь. */
-  const dress = (d: Deco, yy: number) => {
-    const gap = (W - RW) / 2;
-    d.y = yy;
-    d.el.hidden = gap < 14;
-    if (d.el.hidden) return;
-    const r = Math.random();
-    const kind = gap >= 70 && r < 0.55 ? "r3-tree" : r < 0.7 ? "r3-bush" : r < 0.85 ? "r3-flowers" : "r3-rock";
-    const max = Math.max(10, gap - 10);
-    const s = Math.min(max, kind === "r3-tree" ? 48 + Math.random() * 46 : kind === "r3-flowers" ? 26 + Math.random() * 20 : 16 + Math.random() * 18);
-    const x = 4 + Math.random() * Math.max(0, gap - s - 8);
-    d.h = s;
-    d.el.className = kind;
-    d.el.style.cssText = `left:${Math.random() < 0.5 ? x : W - gap + x + 4}px;width:${s}px;height:${s}px;--hue:${Math.round(Math.random() * 24 - 12)}deg`;
-  };
-  const plant = () => {
-    for (let i = 0; i < 18; i++) {
-      const d: Deco = { el: h("i"), y: 0, h: 0 };
-      decoLayer.append(d.el);
-      decos.push(d);
-      dress(d, Math.random() * H);
-    }
+    carW = Math.min(76, laneW * 0.52);
+    scene.style.setProperty("--car", `${carW}px`);
+    carTop = H - H * 0.17 - carW * 1.875;
+    cx = laneX(lane);
+    vx = 0;
+    land.layout(W, H, RW);
   };
 
   /* ─── Управление ─── */
   const setLane = (l: number) => {
     const to = Math.max(0, Math.min(LANES - 1, l));
     if (to === lane || over) return;
-    const dir = to < lane ? "l" : "r";
+    dir = to < lane ? -1 : 1;
     lane = to;
-    placeCar();
+    hold = 0.09;
+    // Сколько секунд до мачты: меньше трети времени на ответ — перестроение «на нервах», с заносом.
+    const left = rowOn && !resolved && v > 1 ? (carTop - rowY - rowH) / v : 9;
+    if (left < Math.max(0.45, timeOf(n) * 0.3)) {
+      drift = 1;
+      fx.sfx("skid");
+    }
     car.classList.remove("is-l", "is-r");
     void car.offsetWidth;
-    car.classList.add(`is-${dir}`);
+    car.classList.add(dir < 0 ? "is-l" : "is-r");
     fx.sfx("tap");
   };
   left.onclick = () => setLane(lane - 1);
@@ -190,6 +193,15 @@ export function road(ctx: Ctx) {
     if (over) return;
     const w = words[n % words.length];
     cur = w;
+    if (n > 0 && n % PER_BIOME === 0) {
+      const next = BIOMES[(n / PER_BIOME) % BIOMES.length];
+      land.set(next.id);
+      // Зелёный указатель с названием места — как на испанских трассах.
+      place.textContent = next.name;
+      place.classList.remove("is-on");
+      void place.offsetWidth;
+      place.classList.add("is-on");
+    }
     const opts = E.shuffle([w, ...E.distractors(w, others, "ru", LANES - 1)]);
     right_ = opts.indexOf(w);
     gates = opts.map((o) => h("div.r3-gate", { lang: "ru" }, h("span", {}, o.ru)));
@@ -243,6 +255,9 @@ export function road(ctx: Ctx) {
       flash.classList.add("is-on");
       v *= 0.35;
       skid();
+      // Удар: кузов дёргает, короткий занос.
+      yaw += (Math.random() < 0.5 ? -1 : 1) * 16;
+      drift = 1;
       say(`${w.es} — ${w.ru}`, "is-bad");
     }
     paintHud();
@@ -258,9 +273,53 @@ export function road(ctx: Ctx) {
   /** Тормозной след под машиной — уезжает вместе с дорогой. */
   const skid = () => {
     const el = h("i.r3-skid");
-    el.style.left = `${laneW * (lane + 0.5)}px`;
+    el.style.left = `${cx - 14}px`;
     marks.append(el);
-    skids.push({ el, y: carTop - 10, h: 140 });
+    skids.push({ el, y: carTop - 10 });
+  };
+  /** Занос: дым и чёрные полосы из-под задних колёс (координаты колёс — с поворотом кузова). */
+  const rearWheels = () => {
+    const a = (yaw * Math.PI) / 180, cy = carTop + carW * 0.9375, dy = carW * 0.62, dx = carW * 0.4;
+    return [-1, 1].map((s) => ({ x: cx + s * dx * Math.cos(a) - dy * Math.sin(a), y: cy + s * dx * Math.sin(a) + dy * Math.cos(a) }));
+  };
+  const tire = () => {
+    for (const p of rearWheels()) {
+      const m = h("i.r3-tire");
+      m.style.cssText = `left:${p.x - 14}px;--a:${yaw}deg`;
+      marks.append(m);
+      skids.push({ el: m, y: p.y });
+      if (Math.random() < 0.5) {
+        const sm = h("i.r3-smoke");
+        sm.style.cssText = `left:${p.x}px;top:${p.y}px`;
+        roadEl.append(sm);
+        const drop = v * 0.7;
+        sm.animate([{ transform: "translate(-50%,-50%) scale(.4)", opacity: 0.55 }, { transform: `translate(${rnd(-24, 24)}px,${drop}px) scale(${rnd(2, 3)})`, opacity: 0 }], { duration: 700, easing: "ease-out" }).onfinish = () => sm.remove();
+      }
+    }
+  };
+  const rnd = (a: number, b: number) => a + Math.random() * (b - a);
+
+  /** Шаг физики машины. */
+  const drive = (dt: number) => {
+    const tx = laneX(lane);
+    if (hold > 0) hold -= dt;
+    else {
+      const K = drift ? 240 : 105, C = 2 * Math.sqrt(K) * (drift ? 0.42 : 0.85);
+      vx += (K * (tx - cx) - C * vx) * dt;
+      cx += vx * dt;
+    }
+    const fwd = Math.max(160, v);
+    const lim = drift ? 32 : 13;
+    const yawT = Math.max(-lim, Math.min(lim, ((Math.atan2(vx, fwd) * 180) / Math.PI) * (drift ? 1.7 : 0.9)));
+    yaw += (yawT - yaw) * Math.min(1, dt * (drift ? 5 : 14));
+    // Колёса: на паузе — уже вывернуты в сторону полосы, в заносе — контрруль против кузова.
+    const steerT = hold > 0 ? dir * 26 : Math.max(-32, Math.min(32, ((tx - cx) / laneW) * 34 - (drift ? yaw * 1.2 : 0)));
+    steer += (steerT - steer) * Math.min(1, dt * 20);
+    if (drift && Math.abs(yaw) > 5 && (trail -= dt) <= 0) (tire(), (trail = 0.03));
+    if (drift && Math.abs(tx - cx) < 1.5 && Math.abs(vx) < 12 && Math.abs(yaw) < 2) drift = 0;
+    car.style.transform = `translate3d(${cx}px,0,0) translateX(-50%)`;
+    body.style.transform = `rotate(${yaw.toFixed(2)}deg)`;
+    for (const w of wheels) w.style.transform = `rotate(${steer.toFixed(1)}deg)`;
   };
 
   /* ─── Главный цикл ─── */
@@ -273,15 +332,11 @@ export function road(ctx: Ctx) {
       v += (target * (over ? 0 : 1) - v) * Math.min(1, dt * (over ? 1.5 : 1.2));
       const dy = v * dt;
       y += dy;
-      for (const d of decos) {
-        d.y += dy;
-        if (d.y > H + 20) dress(d, -d.h - Math.random() * 200);
-        d.el.style.transform = `translate3d(0,${d.y}px,0)`;
-      }
+      land.step(dy);
       for (let i = skids.length - 1; i >= 0; i--) {
         const s = skids[i];
         s.y += dy;
-        s.el.style.transform = `translate3d(-50%,${s.y}px,0)`;
+        s.el.style.transform = `translate3d(-50%,${s.y}px,0) rotate(var(--a, 0deg))`;
         if (s.y > H) (s.el.remove(), skids.splice(i, 1));
       }
       if (rowOn) {
@@ -297,6 +352,7 @@ export function road(ctx: Ctx) {
       motor.set(Math.min(1, (kmh / 140) * k));
       speedEl.innerHTML = `<b>${Math.round(kmh * k)}</b><small>км/ч</small>`;
     }
+    drive(dt);
     // Фактуры травы и асфальта — повторяющиеся плитки: сдвиг по модулю размера плитки.
     grass.style.transform = `translate3d(0,${y % 256}px,0)`;
     tex.style.transform = `translate3d(0,${y % 96}px,0)`;
@@ -306,8 +362,14 @@ export function road(ctx: Ctx) {
   const onResize = () => layout();
   addEventListener("resize", onResize);
   layout();
-  plant();
+  land.plant(W > 900 ? 26 : 18);
   paintHud();
+  // Птицы: стая раз в 6–10 секунд, пока едем.
+  const birds = () => {
+    if (running) land.flock();
+    ctx.later(birds, 6000 + Math.random() * 4000);
+  };
+  ctx.later(birds, 2500);
   speedEl.innerHTML = `<b>0</b><small>км/ч</small>`;
   sign.replaceChildren(h("small", {}, "Приготовьтесь"), h("b", {}, "¡Vamos!"));
   requestAnimationFrame(frame);
