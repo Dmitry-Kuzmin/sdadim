@@ -1,0 +1,140 @@
+---
+/**
+ * Подсказка к испанским словам в статьях (ссылки a.wl ставит src/lib/word-links.ts при сборке).
+ * Мышь — наведение; телефон — первый тап открывает подсказку, второй — страницу слова; клавиатура — фокус.
+ * Данные — в data-атрибутах ссылки, без запросов к серверу. Без JS остаётся обычная ссылка.
+ */
+---
+
+<div class="wtip" id="wtip" role="tooltip" hidden>
+  <img class="wtip-img" alt="" width="640" height="480" decoding="async" hidden />
+  <div class="wtip-body">
+    <div class="wtip-head">
+      <b class="wtip-es" lang="es"></b>
+      <button type="button" class="wtip-say" aria-label="Произнести">🔊</button>
+    </div>
+    <p class="wtip-ru"></p>
+    <p class="wtip-d"></p>
+    <a class="wtip-more">Подробнее о слове <span aria-hidden="true">→</span></a>
+  </div>
+</div>
+
+<style is:global>
+  .wl {
+    color: inherit;
+    text-decoration: underline dashed rgb(var(--c-blue-500) / 0.7);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+    cursor: help;
+    transition: color 0.15s, background 0.15s;
+    border-radius: 4px;
+  }
+  .wl:hover, .wl[aria-expanded="true"] { color: rgb(var(--c-blue-700)); background: rgb(var(--c-blue-50)); }
+  .wtip {
+    position: absolute;
+    z-index: 60;
+    width: min(300px, calc(100vw - 24px));
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgb(var(--surface));
+    border: 1px solid rgb(var(--c-slate-200));
+    box-shadow: 0 18px 50px -12px rgb(15 23 42 / 0.35), 0 4px 12px rgb(15 23 42 / 0.08);
+    animation: wtip-in 0.16s ease-out;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  @keyframes wtip-in { from { opacity: 0; transform: translateY(var(--from, 6px)) scale(0.98); } }
+  .wtip-img { display: block; width: 100%; height: 132px; object-fit: cover; background: rgb(var(--c-slate-100)); }
+  .wtip-img.is-sign { height: 96px; object-fit: contain; padding: 10px; background: rgb(var(--c-slate-50)); }
+  .wtip-body { padding: 12px 14px 14px; }
+  .wtip-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .wtip-es { font-size: 18px; font-weight: 800; color: rgb(var(--c-slate-900)); }
+  .wtip-say { flex: none; width: 32px; height: 32px; border-radius: 10px; font-size: 15px; background: rgb(var(--c-blue-50)); }
+  .wtip-say:hover { background: rgb(var(--c-blue-100)); }
+  .wtip-ru { margin-top: 2px; font-weight: 600; color: rgb(var(--c-blue-700)); }
+  .wtip-d { margin-top: 6px; color: rgb(var(--c-slate-500)); font-size: 13px; }
+  .wtip-d:empty { display: none; }
+  .wtip-more { display: inline-flex; gap: 4px; margin-top: 10px; font-weight: 700; font-size: 13px; color: rgb(var(--c-blue-600)); }
+  .wtip-more:hover { color: rgb(var(--c-blue-800)); }
+  .wtip-more span { transition: transform 0.15s; }
+  .wtip-more:hover span { transform: translateX(3px); }
+</style>
+
+<script>
+  import { speak } from "./fx";
+
+  const tip = document.getElementById("wtip")!;
+  // В body: координаты считаются от документа, а не от ближайшего блока статьи с position: relative.
+  document.body.append(tip);
+  const img = tip.querySelector<HTMLImageElement>(".wtip-img")!;
+  const es = tip.querySelector<HTMLElement>(".wtip-es")!;
+  const ru = tip.querySelector<HTMLElement>(".wtip-ru")!;
+  const d = tip.querySelector<HTMLElement>(".wtip-d")!;
+  const more = tip.querySelector<HTMLAnchorElement>(".wtip-more")!;
+  const say = tip.querySelector<HTMLButtonElement>(".wtip-say")!;
+  const hover = matchMedia("(hover: hover)").matches;
+  let cur: HTMLAnchorElement | null = null;
+  let hideT = 0, showT = 0;
+
+  function show(a: HTMLAnchorElement) {
+    clearTimeout(hideT);
+    if (cur === a && !tip.hidden) return;
+    cur?.removeAttribute("aria-expanded");
+    cur = a;
+    a.setAttribute("aria-expanded", "true");
+    const id = a.pathname.split("/").pop()!;
+    es.textContent = a.textContent!.trim();
+    ru.textContent = a.dataset.ru ?? "";
+    d.textContent = a.dataset.d ?? "";
+    more.href = a.href;
+    img.hidden = !a.dataset.img;
+    img.classList.toggle("is-sign", a.dataset.img === "sign");
+    if (a.dataset.img) img.src = `/img/slova/${id}.webp`;
+    tip.hidden = false;
+    place(a);
+  }
+  function place(a: HTMLElement) {
+    const r = a.getBoundingClientRect();
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    const above = r.top > th + 16;
+    const left = Math.max(12, Math.min(innerWidth - tw - 12, r.left + r.width / 2 - tw / 2));
+    tip.style.left = `${left + scrollX}px`;
+    tip.style.top = `${(above ? r.top - th - 10 : r.bottom + 10) + scrollY}px`;
+    tip.style.setProperty("--from", above ? "6px" : "-6px");
+  }
+  function hide() {
+    tip.hidden = true;
+    cur?.removeAttribute("aria-expanded");
+    cur = null;
+  }
+  const hideSoon = () => (clearTimeout(showT), (hideT = window.setTimeout(hide, 160)));
+
+  if (hover) {
+    document.addEventListener("mouseover", (e) => {
+      const a = (e.target as Element).closest<HTMLAnchorElement>("a.wl");
+      if (a) (clearTimeout(hideT), clearTimeout(showT), (showT = window.setTimeout(() => show(a), 90)));
+    });
+    document.addEventListener("mouseout", (e) => {
+      if ((e.target as Element).closest("a.wl")) hideSoon();
+    });
+    tip.addEventListener("mouseenter", () => clearTimeout(hideT));
+    tip.addEventListener("mouseleave", hideSoon);
+  }
+  // Телефон: первый тап — подсказка, второй по той же ссылке — переход.
+  document.addEventListener("click", (e) => {
+    const a = (e.target as Element).closest<HTMLAnchorElement>("a.wl");
+    if (a && !hover && cur !== a) {
+      e.preventDefault();
+      show(a);
+    } else if (!a && !tip.contains(e.target as Node)) hide();
+  });
+  document.addEventListener("focusin", (e) => {
+    const a = (e.target as Element).closest?.<HTMLAnchorElement>("a.wl");
+    // Только клавиатура: тап тоже ставит фокус до click — иначе первый тап сразу открыл бы страницу.
+    if (a?.matches(":focus-visible")) show(a);
+    else if (!tip.contains(e.target as Node)) hide();
+  });
+  document.addEventListener("keydown", (e) => e.key === "Escape" && hide());
+  addEventListener("resize", hide);
+  say.addEventListener("click", () => speak(es.textContent ?? ""));
+</script>

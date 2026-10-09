@@ -11,7 +11,8 @@ import { skilyUrl } from "@/lib/skily";
 import { MODES, type ModeId } from "./modes";
 import * as E from "./engine";
 import * as fx from "./fx";
-import { road, radar, pairs } from "./arcade";
+import { radar, pairs } from "./arcade";
+import { road } from "./road";
 import { h, picture } from "./dom";
 
 export type Summary = {
@@ -39,6 +40,11 @@ export type Ctx = {
   onKey(fn: (e: KeyboardEvent) => void): void;
   later(fn: () => void, ms: number): void;
   alive(): boolean;
+  /** Полноэкранный слой поверх шапки тренажёра (Трасса); снимается при выходе из игры. */
+  layer(el: HTMLElement): void;
+  /** Закрыть тренажёр. */
+  exit(): void;
+  muted(): boolean;
 };
 
 /* ─── Данные ─────────────────────────────────────────────── */
@@ -142,6 +148,12 @@ export async function open(mode: ModeId, module?: string, only?: Word[]) {
       disposers.push(() => clearTimeout(t));
     },
     alive: () => live,
+    layer(el) {
+      root!.append(el);
+      disposers.push(() => el.remove());
+    },
+    exit: () => close(),
+    muted: () => !!p.mute,
   };
   ({ daily, build: exercises, phrase: exercises, gap: exercises, listen: exercises, road, radar, pairs })[mode](ctx, mode);
 }
@@ -150,6 +162,9 @@ export async function open(mode: ModeId, module?: string, only?: Word[]) {
 
 function results(mode: ModeId, module: string | undefined, s: Summary, p: E.Progress) {
   cleanup();
+  const esc = (e: KeyboardEvent) => e.key === "Escape" && close();
+  addEventListener("keydown", esc);
+  disposers.push(() => removeEventListener("keydown", esc));
   const stage = root?.querySelector<HTMLElement>(".wt-stage");
   if (!stage) return;
   root!.querySelector<HTMLElement>(".wt-bar i")!.style.width = "100%";

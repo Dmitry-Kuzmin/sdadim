@@ -1,10 +1,14 @@
 ---
 /**
  * Оформление Markdown внутри статьи — те же классы, что были у статей вручную.
+ * Испанские слова из тренажёра в тексте становятся ссылками на их страницы (src/lib/word-links.ts).
  */
+import { linkWords } from "@/lib/word-links";
+
+const html = linkWords(await Astro.slots.render("default"));
 ---
 
-<div class="article-prose"><slot /></div>
+<div class="article-prose" set:html={html} />
 
 <style is:global>
   .article-prose > h2:not([class]) {

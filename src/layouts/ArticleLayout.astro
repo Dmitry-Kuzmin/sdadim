@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Clock } from "@lucide/astro";
 import Base from "@/layouts/Base.astro";
 import Sidebar from "@/components/blog/Sidebar.astro";
 import Prose from "@/components/blog/Prose.astro";
+import WordTip from "@/components/words/WordTip.astro";
 import Accordion from "@/components/article/Accordion.astro";
 import SkilyHero from "@/components/skily/SkilyHero.astro";
 import { ARTICLE_ICONS } from "@/lib/article-icons";
@@ -72,6 +73,7 @@ const related = [...all.filter((p) => p.data.category === d.category), ...all.fi
             </header>
 
             <Prose><slot /></Prose>
+            <WordTip />
 
             {
               d.faq.length > 0 && (

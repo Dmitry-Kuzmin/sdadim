@@ -1,5 +1,5 @@
 /**
- * Аркады тренажёра слов: «Трасса», «Радар», «Пары». Пишут только опыт и рекорды —
+ * Аркады тренажёра слов: «Радар», «Пары» (Трасса — road.ts). Пишут только опыт и рекорды —
  * в интервальное повторение не попадают (см. trainer.ts).
  */
 import type { Word } from "@/lib/words";
@@ -8,112 +8,11 @@ import { h, picture } from "./dom";
 import * as E from "./engine";
 import * as fx from "./fx";
 
-const LANES = 3;
-const LIVES = 3;
-const hearts = (n: number) => "❤️".repeat(n) + "🖤".repeat(LIVES - n);
-
 /** Слова для аркады: из темы, если их хватает, иначе — частые слова экзамена. */
-function source(ctx: Ctx, ok: (w: Word) => boolean, min: number) {
+export function source(ctx: Ctx, ok: (w: Word) => boolean, min: number) {
   const own = ctx.pool.filter(ok);
   return own.length >= min ? own : ctx.all.filter((w) => w.q > 0 && ok(w));
 }
-
-/**
- * Трасса: испанское слово на знаке, три полосы с переводами едут навстречу.
- * Перестройтесь в полосу с правильным переводом: ←/→, A/D, тап по полосе или кнопки внизу.
- * Ошибка — минус жизнь, три ошибки — конец. Каждый верный ответ — быстрее.
- */
-export function road(ctx: Ctx) {
-  // Три перевода в ряд на телефоне: длинные не влезают в полосу.
-  const short = (w: Word) => w.ru.length <= 24;
-  const words = E.shuffle(source(ctx, short, 6));
-  const others = ctx.all.filter(short);
-  let lane = 1, n = 0, lives = LIVES, score = 0, combo = 0, correct = 0;
-  const mistakes = new Map<string, Word>();
-
-  const sign = h("div.rd-sign");
-  const row = h("div.rd-row");
-  const car = h("div.rd-car", { "aria-hidden": "true" }, carSvg());
-  const field = h("div.rd-road", {}, h("div.rd-lines"), row, car);
-  const toast = h("div.rd-toast", { role: "status" });
-  const left = h("button.rd-ctl", { type: "button", "aria-label": "Влево" }, "◀");
-  const right = h("button.rd-ctl", { type: "button", "aria-label": "Вправо" }, "▶");
-  ctx.stage.replaceChildren(h("div.rd", {}, sign, field, toast, h("div.rd-ctls", {}, left, h("span", {}, "← → или тап по полосе"), right)));
-
-  const setLane = (l: number) => {
-    lane = Math.max(0, Math.min(LANES - 1, l));
-    car.style.left = `${((lane + 0.5) / LANES) * 100}%`;
-  };
-  setLane(1);
-  left.onclick = () => setLane(lane - 1);
-  right.onclick = () => setLane(lane + 1);
-  field.addEventListener("pointerdown", (e) => {
-    const r = field.getBoundingClientRect();
-    setLane(Math.floor(((e.clientX - r.left) / r.width) * LANES));
-  });
-  ctx.onKey((e) => {
-    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") (e.preventDefault(), setLane(lane - 1));
-    if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") (e.preventDefault(), setLane(lane + 1));
-    if (["1", "2", "3"].includes(e.key)) setLane(Number(e.key) - 1);
-  });
-
-  const hud = () => ctx.setHud(`<span>${hearts(lives)}</span><span class="wt-score">${score}</span>`);
-  hud();
-  ctx.setBar(0);
-
-  const round = () => {
-    if (!ctx.alive()) return;
-    const w = words[n % words.length];
-    const opts = E.shuffle([w, ...E.distractors(w, others, "ru", LANES - 1)]);
-    const right = opts.indexOf(w);
-    sign.replaceChildren(h("small", {}, "Как переводится?"), h("b", {}, w.es));
-    const gates = opts.map((o) => h("div.rd-gate", { lang: "ru" }, o.ru));
-    row.replaceChildren(...gates);
-    const speed = Math.round(60 + n * 7);
-    ctx.setBar(Math.min(1, n / 40));
-    const dur = Math.max(1600, 5200 * 0.95 ** n);
-    const from = -row.offsetHeight, to = car.offsetTop - row.offsetHeight - 6;
-    const t0 = performance.now();
-    field.style.setProperty("--speed", `${Math.max(0.25, dur / 5200)}s`);
-    toast.textContent = `🚗 ${speed} км/ч`;
-    const frame = (t: number) => {
-      if (!ctx.alive()) return;
-      const k = Math.min(1, (t - t0) / dur);
-      row.style.transform = `translateY(${from + (to - from) * k}px)`;
-      if (k < 1) return requestAnimationFrame(frame);
-      const ok = lane === right;
-      gates[right].classList.add("is-ok");
-      n++;
-      if (ok) {
-        correct++;
-        combo++;
-        const add = 10 * (combo >= 8 ? 3 : combo >= 4 ? 2 : 1);
-        score += add;
-        fx.sfx(combo % 5 === 0 ? "combo" : "ok");
-        fx.floatText(field, `+${add}`, "is-ok");
-      } else {
-        combo = 0;
-        lives--;
-        mistakes.set(w.id, w);
-        gates[lane].classList.add("is-bad");
-        fx.sfx("crash");
-        fx.shake(car);
-        toast.textContent = `${w.es} — ${w.ru}`;
-      }
-      hud();
-      if (lives <= 0) return ctx.later(() => ctx.finish({ correct, total: n, mistakes: [...mistakes.values()], xp: Math.round(score / 5), score, scoreLabel: "очков" }), 1200);
-      ctx.later(round, ok ? 380 : 1500);
-    };
-    requestAnimationFrame(frame);
-  };
-  ctx.later(round, 400);
-}
-
-const carSvg = () => {
-  const s = document.createElement("span");
-  s.innerHTML = `<svg viewBox="0 0 40 64" width="40" height="64"><rect x="4" y="4" width="32" height="56" rx="10" fill="#2563eb"/><rect x="9" y="14" width="22" height="12" rx="3" fill="#bfdbfe"/><rect x="9" y="40" width="22" height="9" rx="3" fill="#93c5fd"/><rect x="0" y="12" width="5" height="10" rx="2" fill="#1e293b"/><rect x="35" y="12" width="5" height="10" rx="2" fill="#1e293b"/><rect x="0" y="44" width="5" height="10" rx="2" fill="#1e293b"/><rect x="35" y="44" width="5" height="10" rx="2" fill="#1e293b"/><rect x="8" y="3" width="7" height="3" rx="1.5" fill="#fde68a"/><rect x="25" y="3" width="7" height="3" rx="1.5" fill="#fde68a"/></svg>`;
-  return s;
-};
 
 /**
  * Радар: 60 секунд, «перевод верный?» — да или нет. Серия умножает очки (×2 с 3, ×3 с 6, ×4 с 10),

@@ -128,3 +128,30 @@ export function floatText(host: Element, text: string, cls = "") {
   host.append(s);
   setTimeout(() => s.remove(), 900);
 }
+
+/** Гул мотора для «Трассы»: тихая пила через фильтр, высота тона — от скорости (0…1). */
+export function engine() {
+  const none = { set(_k: number) {}, stop() {} };
+  if (muted) return none;
+  try {
+    ctx ??= new AudioContext();
+    const a = ctx;
+    const o = a.createOscillator(), f = a.createBiquadFilter(), g = a.createGain();
+    o.type = "sawtooth";
+    f.type = "lowpass";
+    f.frequency.value = 380;
+    g.gain.value = 0;
+    g.gain.setTargetAtTime(0.022, a.currentTime, 0.4);
+    o.connect(f).connect(g).connect(a.destination);
+    o.start();
+    return {
+      set: (k: number) => o.frequency.setTargetAtTime(48 + k * 80, a.currentTime, 0.25),
+      stop() {
+        g.gain.setTargetAtTime(0, a.currentTime, 0.08);
+        setTimeout(() => o.stop(), 400);
+      },
+    };
+  } catch {
+    return none;
+  }
+}
