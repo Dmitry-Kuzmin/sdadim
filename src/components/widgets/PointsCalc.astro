@@ -2,18 +2,21 @@
 /**
  * «Сколько баллов у вас останется»: нарушения и превышение скорости → списанные баллы и штрафы.
  * Суммы и баллы — из traffic_fines (BOE, общая со SkilyApp), см. @/lib/fines.
+ * Лимит 8 баллов за день не действует, если есть очень серьёзное нарушение (ст. 77): алкоголь, наркотики,
+ * опасное вождение, встречка, превышение верхних ступеней (штраф от 500 €).
  */
-import { Calculator } from "@lucide/astro";
-import { FINES, fineEur, pointsWord } from "@/lib/fines";
+import { Calculator, Gauge, RotateCcw } from "@lucide/astro";
+import { FINES, fineEur } from "@/lib/fines";
+import Shell from "./Shell.astro";
 
 const PICK = ["a76.g", "a76.g.2", "a76.f", "a76.h", "a76.k", "a76.l", "a76.ñ", "a76.c.3", "a76.c.5", "a77.c", "a77.c.2", "a77.c.3", "a77.e", "a77.f"];
 const SHORT: Record<string, string> = {
-  "a76.g": "Телефон в руке за рулём",
-  "a76.g.2": "Телефон, навигатор без рук — отвлечение",
-  "a76.f": "Наушники за рулём",
+  "a76.g": "Телефон в руке",
+  "a76.g.2": "Телефон или навигатор руками",
+  "a76.f": "Наушники",
   "a76.h": "Без ремня или детского кресла",
   "a76.k": "Проезд на красный",
-  "a76.l": "Не остановился на STOP / не уступил",
+  "a76.l": "Не остановился на STOP",
   "a76.ñ": "Не соблюдал дистанцию",
   "a76.c.3": "Опасный обгон велосипедиста",
   "a76.c.5": "Запрещённый разворот",
@@ -25,149 +28,310 @@ const SHORT: Record<string, string> = {
 };
 const rows = PICK.map((id) => FINES.rows.find((r) => r.id === id)!).filter(Boolean);
 const speed = FINES.rows.filter((r) => r.kind === "speed").map((r) => ({ l: r.speed_limit, f: r.speed_from, t: r.speed_to, e: r.fine_eur, p: r.points }));
-const limits = [...new Set(speed.map((s) => s.l))].sort((a, b) => a! - b!);
+const limits = [...new Set(speed.map((s) => s.l))].sort((a, b) => a! - b!) as number[];
+const STARTS = [
+  { v: 8, t: "Новичок" },
+  { v: 12, t: "Обычный" },
+  { v: 15, t: "Максимум" },
+];
+const boe = new Date(FINES.boeUpdated).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }).replace(/\s*г\.$/, "");
 ---
 
-<div data-points-calc data-speed={JSON.stringify(speed)} class="not-prose my-10 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.18)]">
-  <div class="flex items-center gap-3 border-b border-slate-200 p-6 md:px-8">
-    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white"><Calculator class="h-5 w-5" /></span>
-    <div>
-      <h3 class="text-xl font-bold text-slate-900">Сколько баллов у вас останется</h3>
-      <p class="text-sm text-slate-500">Штрафы и баллы — из закона о движении (BOE), сверено {new Date(FINES.boeUpdated).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }).replace(/\s*г\.$/, "")}</p>
-    </div>
-  </div>
+<Shell icon={Calculator} title="Сколько баллов у вас останется" sub={`Штрафы и баллы — из закона о движении (BOE), сверено ${boe}`} flush data-points-calc data-speed={JSON.stringify(speed)}>
+  <button slot="aside" type="button" data-reset hidden class="pc-reset inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"><RotateCcw class="h-3.5 w-3.5" /> Сбросить</button>
 
-  <div class="grid lg:grid-cols-[1.3fr_1fr]">
-    <div class="space-y-6 p-6 md:p-8">
+  <div class="pc-grid">
+    <div class="space-y-6 p-5 md:p-6">
+      <!-- Баллы на старте -->
       <div>
-        <p class="text-sm font-semibold text-slate-700">Сколько баллов на счету</p>
-        <div class="mt-2 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Баллы на счету">
+        <p class="wx-label">Баллов на счету <span class="wx-tip" tabindex="0" data-side="start" data-tip="8 — первые 2 года после экзамена или после потери всех баллов. 12 — у остальных. За годы без нарушений растёт до 15."></span></p>
+        <div class="wx-seg mt-2" role="radiogroup" aria-label="Баллов на счету" data-starts>
+          {STARTS.map((o) => <button type="button" role="radio" data-start={o.v} aria-checked={o.v === 12 ? "true" : "false"}><span class="text-base font-bold tabular-nums">{o.v}</span><small>{o.t}</small></button>)}
+        </div>
+      </div>
+
+      <!-- Скорость -->
+      <div>
+        <p class="wx-label">Превышение скорости <span class="wx-tip" tabindex="0" data-side="start" data-tip="Выберите знак, а потом скорость, которую показал радар, — полную, не разницу. Штраф считают по ступеням: чем дальше от знака, тем дороже."></span></p>
+        <div class="mt-2.5 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Ограничение скорости" data-limits>
+          <button type="button" role="radio" data-limit="" aria-checked="true" class="pc-sign pc-sign--none" aria-label="Без превышения">нет</button>
+          {limits.map((l) => <button type="button" role="radio" data-limit={l} aria-checked="false" class="pc-sign" aria-label={`Ограничение ${l} км/ч`}>{l}</button>)}
+        </div>
+
+        <div data-speed-box hidden class="mt-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+          <div class="flex items-center gap-3">
+            <Gauge class="h-5 w-5 flex-none text-slate-400" />
+            <label class="flex items-baseline gap-1.5">
+              <span class="sr-only">Скорость по радару, км/ч</span>
+              <input data-speed-val type="number" inputmode="numeric" min="0" max="400" class="pc-speed w-[3.2ch] bg-transparent text-3xl font-bold tabular-nums text-slate-900 focus:outline-none" />
+              <span class="text-xs font-medium leading-tight text-slate-500">км/ч<br />по радару</span>
+            </label>
+            <span data-delta class="ml-auto whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold tabular-nums"></span>
+          </div>
+          <input data-speed-range type="range" class="wx-range mt-4" step="1" aria-label="Скорость по радару" />
+          <div data-bands class="pc-bands mt-3" aria-hidden="true"></div>
+          <p data-speed-note hidden class="wx-in mt-3 text-[13px] leading-snug text-slate-600"></p>
+          <p data-fix hidden class="wx-in mt-3 flex flex-wrap items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800"></p>
+        </div>
+      </div>
+
+      <!-- Нарушения -->
+      <div>
+        <p class="wx-label">Нарушения <span class="wx-tip" tabindex="0" data-side="start" data-tip="Отметьте всё, что было. Баллы снимают только за серьёзные и очень серьёзные нарушения — и только водителю."></span></p>
+        <div class="pc-list mt-2.5 grid gap-1.5">
           {
-            [
-              { v: 8, t: "Новичок" },
-              { v: 12, t: "Обычный" },
-              { v: 15, t: "Максимум" },
-            ].map((o, i) => (
-              <button type="button" role="radio" data-start={o.v} aria-checked={i === 1 ? "true" : "false"} class="rounded-xl border px-3 py-2.5 text-left transition-colors aria-checked:border-blue-600 aria-checked:bg-blue-50 aria-[checked=false]:border-slate-200 aria-[checked=false]:hover:border-slate-300">
-                <span class="block text-lg font-bold text-slate-900">{o.v}</span>
-                <span class="text-xs text-slate-500">{o.t}</span>
+            rows.map((r) => (
+              <button type="button" aria-pressed="false" data-fine={r.fine_eur} data-pts={r.points} data-severe={r.id.startsWith("a77") ? "" : undefined} class="pc-v group flex items-center gap-2.5 rounded-xl border border-slate-200 px-3 py-2.5 text-left">
+                <span class="pc-check" aria-hidden="true" />
+                <span class="min-w-0 flex-1 text-[13px] font-medium leading-snug text-slate-700">{SHORT[r.id]}</span>
+                <span class="flex flex-none flex-col items-end leading-tight">
+                  <span class:list={["text-xs font-bold tabular-nums", r.points >= 6 ? "text-red-600" : "text-amber-600"]}>−{r.points}</span>
+                  <span class="text-[11px] tabular-nums text-slate-500">{fineEur(r.fine_eur)}</span>
+                </span>
               </button>
             ))
           }
         </div>
-      </div>
-
-      <div>
-        <p class="text-sm font-semibold text-slate-700">Превышение скорости</p>
-        <div class="mt-2 grid grid-cols-2 gap-2">
-          <label class="block">
-            <span class="text-xs text-slate-500">Ограничение, км/ч</span>
-            <select data-limit class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-900 focus:border-blue-500/50 focus:outline-none">
-              <option value="">— нет —</option>
-              {limits.map((l) => <option value={l}>{l}</option>)}
-            </select>
-          </label>
-          <label class="block">
-            <span class="text-xs text-slate-500">Скорость по радару</span>
-            <input data-speed-val type="number" inputmode="numeric" min="0" placeholder="км/ч" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-900 focus:border-blue-500/50 focus:outline-none" />
-          </label>
-        </div>
-      </div>
-
-      <div>
-        <p class="text-sm font-semibold text-slate-700">Нарушения</p>
-        <ul class="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-200">
-          {
-            rows.map((r) => (
-              <li>
-                <label class="flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50">
-                  <input type="checkbox" data-fine={r.fine_eur} data-pts={r.points} class="h-4 w-4 shrink-0 accent-blue-600" />
-                  <span class="flex-1 text-sm text-slate-700">{SHORT[r.id]}</span>
-                  <span class="whitespace-nowrap text-xs tabular-nums text-slate-500">{fineEur(r.fine_eur)} · −{r.points}</span>
-                </label>
-              </li>
-            ))
-          }
-        </ul>
+        <p data-cap hidden class="wx-in mt-3 rounded-xl bg-blue-50 px-3 py-2.5 text-[13px] leading-snug text-blue-800">Больше 8 баллов за день не снимут: среди нарушений нет очень серьёзных.</p>
+        <p class="mt-3 text-[11px] leading-relaxed text-slate-500">За один день — не больше 8 баллов, если нет алкоголя, наркотиков, опасного вождения, встречки или очень большого превышения.</p>
       </div>
     </div>
 
-    <div class="border-t border-slate-100 bg-slate-50/70 p-6 md:p-8 lg:border-l lg:border-t-0">
-      <div class="lg:sticky lg:top-24">
-        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Итог</p>
-        <p class="mt-4 text-sm text-slate-500">Останется баллов</p>
-        <p data-left class="text-6xl font-bold tracking-tight tabular-nums text-slate-900">12</p>
-        <div class="mt-3 h-2 overflow-hidden rounded-full bg-slate-200"><div data-bar class="h-full w-full rounded-full bg-emerald-500 transition-all duration-300"></div></div>
-        <p data-status class="mt-3 text-sm font-semibold text-emerald-600">Права в порядке</p>
-
-        <div class="mt-6 grid grid-cols-2 gap-3">
-          <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-            <p class="text-xs text-slate-500">Штрафы</p>
-            <p data-sum class="text-xl font-bold tabular-nums text-slate-900">0 €</p>
+    <!-- Итог: в узкой колонке — липкая плашка сверху, в широкой — правая колонка -->
+    <aside class="pc-aside">
+      <div class="pc-sum">
+        <div class="min-w-0">
+          <p class="text-xs font-medium text-slate-500">Останется баллов</p>
+          <p class="flex items-baseline gap-1.5">
+            <span data-left class="wx-num pc-left font-extrabold tracking-tight text-slate-900">12</span>
+            <span class="text-base font-semibold text-slate-400">/ <span data-start-out>12</span></span>
+          </p>
+          <div data-pips class="pc-pips mt-2" aria-hidden="true"></div>
+          <p data-status class="mt-2.5 flex items-start gap-1.5 text-[13px] font-semibold leading-snug text-emerald-600"><span class="pc-dot"></span><span data-status-text>Права в порядке</span></p>
+        </div>
+        <div class="pc-money">
+          <div class="rounded-xl bg-white px-3 py-2.5 ring-1 ring-slate-200">
+            <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Штрафы</p>
+            <p data-sum class="wx-num text-lg font-bold text-slate-900">0 €</p>
           </div>
-          <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-            <p class="text-xs text-slate-500">Со скидкой 50%</p>
-            <p data-half class="text-xl font-bold tabular-nums text-emerald-600">0 €</p>
+          <div class="rounded-xl bg-white px-3 py-2.5 ring-1 ring-slate-200">
+            <p class="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-slate-500">Со скидкой <span class="wx-tip" tabindex="0" data-side="end" data-tip="−50%, если оплатить в течение 20 дней. Обжаловать после этого нельзя, баллы снимут всё равно."></span></p>
+            <p data-half class="wx-num text-lg font-bold text-emerald-600">0 €</p>
           </div>
         </div>
-        <p data-speed-note hidden class="mt-3 rounded-xl bg-white p-3 text-sm text-slate-600 ring-1 ring-slate-200"></p>
-        <p class="mt-4 text-xs leading-relaxed text-slate-500">Скидка 50% — при оплате в течение 20 дней, баллы при этом всё равно снимают. За один день нельзя потерять больше 8 баллов, если среди нарушений нет алкоголя, наркотиков, опасного вождения и других очень серьёзных.</p>
       </div>
-    </div>
+    </aside>
   </div>
-</div>
+</Shell>
+
+<style>
+  .pc-sign {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 4px solid rgb(var(--c-red-500) / 0.35);
+    background: rgb(var(--surface));
+    font-size: 0.8125rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: rgb(var(--c-slate-500));
+    transition: transform 0.18s cubic-bezier(0.3, 1.5, 0.5, 1), border-color 0.15s, color 0.15s, box-shadow 0.2s;
+  }
+  .pc-sign:hover { border-color: rgb(var(--c-red-500) / 0.7); color: rgb(var(--c-slate-900)); transform: translateY(-1px); }
+  .pc-sign[aria-checked="true"] { border-color: rgb(var(--c-red-600)); color: rgb(var(--c-slate-900)); transform: scale(1.1); box-shadow: 0 4px 12px -2px rgb(var(--c-red-600) / 0.35); }
+  .pc-sign--none { border-color: rgb(var(--c-slate-200)); font-weight: 600; font-size: 0.75rem; }
+  .pc-sign--none:hover { border-color: rgb(var(--c-slate-300)); }
+  .pc-sign--none[aria-checked="true"] { border-color: rgb(var(--c-slate-400)); box-shadow: none; }
+  .pc-speed::-webkit-inner-spin-button, .pc-speed::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .pc-speed { -moz-appearance: textfield; appearance: textfield; }
+
+  /* Раскладка по ширине самого виджета, не окна: в колонке статьи он узкий */
+  .pc-grid { display: grid; }
+  .pc-aside { order: -1; position: sticky; top: 64px; z-index: 5; border-bottom: 1px solid rgb(var(--c-slate-200)); background: rgb(var(--c-slate-50) / 0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 0.875rem 1.25rem; }
+  .pc-sum { display: grid; grid-template-columns: minmax(0, 1fr) 9.5rem; gap: 1rem; align-items: center; }
+  .pc-money { display: grid; gap: 0.375rem; }
+  .pc-left { font-size: 2.75rem; line-height: 1; }
+  .pc-list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); }
+  @container (min-width: 820px) {
+    .pc-grid { grid-template-columns: minmax(0, 1fr) 290px; }
+    .pc-aside { order: 0; position: static; border-bottom: 0; border-left: 1px solid rgb(var(--c-slate-100)); background: rgb(var(--c-slate-50) / 0.8); backdrop-filter: none; padding: 1.5rem; }
+    .pc-sum { position: sticky; top: 88px; display: block; }
+    .pc-money { grid-template-columns: 1fr 1fr; margin-top: 1.25rem; }
+    .pc-left { font-size: 3.75rem; }
+  }
+  @container (max-width: 420px) {
+    .pc-sum { grid-template-columns: minmax(0, 1fr) 8rem; gap: 0.75rem; }
+    .pc-left { font-size: 2.25rem; }
+  }
+
+  /* Ступени штрафа под ползунком */
+  .pc-bands { position: relative; display: flex; height: 26px; gap: 2px; }
+  .pc-bands :global(.b) { position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 5px; font-size: 10px; font-weight: 700; white-space: nowrap; transition: opacity 0.2s, transform 0.2s; opacity: 0.45; }
+  .pc-bands :global(.b.on) { opacity: 1; transform: scaleY(1.12); }
+  .pc-bands :global(.b0) { background: rgb(var(--c-emerald-100)); color: rgb(var(--c-emerald-800)); }
+  .pc-bands :global(.b1) { background: rgb(var(--c-amber-100)); color: rgb(var(--c-amber-800)); }
+  .pc-bands :global(.b2) { background: rgb(var(--c-amber-300)); color: rgb(var(--c-amber-900)); }
+  .pc-bands :global(.b4) { background: rgb(var(--c-orange-400)); color: #fff; }
+  .pc-bands :global(.b6) { background: rgb(var(--c-red-500)); color: #fff; }
+  .pc-bands :global(.bx) { background: repeating-linear-gradient(135deg, rgb(var(--c-red-800)) 0 6px, rgb(var(--c-red-900)) 6px 12px); color: #fff; }
+
+  /* Карточки нарушений */
+  .pc-v { transition: border-color 0.15s, background 0.15s, transform 0.12s; -webkit-tap-highlight-color: transparent; }
+  .pc-v:hover { border-color: rgb(var(--c-slate-300)); background: rgb(var(--c-slate-50)); }
+  .pc-v:active { transform: scale(0.985); }
+  .pc-v[aria-pressed="true"] { border-color: rgb(var(--c-red-500) / 0.5); background: rgb(var(--c-red-50)); }
+  .pc-check { position: relative; width: 18px; height: 18px; flex: none; border-radius: 6px; border: 1.5px solid rgb(var(--c-slate-300)); transition: background 0.15s, border-color 0.15s; }
+  .pc-check::after { content: ""; position: absolute; left: 5px; top: 1.5px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg) scale(0); transition: transform 0.2s cubic-bezier(0.3, 1.6, 0.5, 1); }
+  .pc-v[aria-pressed="true"] .pc-check { background: rgb(var(--c-red-600)); border-color: rgb(var(--c-red-600)); }
+  .pc-v[aria-pressed="true"] .pc-check::after { transform: rotate(45deg) scale(1); }
+
+  /* Баллы-таблетки */
+  .pc-pips { display: grid; grid-template-columns: repeat(var(--n, 12), minmax(0, 1fr)); gap: 3px; }
+  .pc-pips :global(i) { height: 10px; border-radius: 3px; background: var(--pip, rgb(var(--c-emerald-500))); transition: background 0.3s, transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1), opacity 0.3s; transition-delay: calc(var(--d, 0) * 25ms); }
+  .pc-pips :global(i.lost) { background: rgb(var(--c-slate-200)); transform: scaleY(0.5); }
+  .pc-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 0 currentColor; animation: pc-pulse 2s infinite; }
+  @keyframes pc-pulse { 70% { box-shadow: 0 0 0 6px transparent; } }
+  @media (prefers-reduced-motion: reduce) { .pc-dot { animation: none; } }
+</style>
 
 <script>
+  import { euro, plural, radios, rangeFill, replay, setText, tween } from "@/lib/widget-fx";
+
+  type S = { l: number; f: number; t: number | null; e: number; p: number };
+
   document.querySelectorAll<HTMLElement>("[data-points-calc]").forEach((root) => {
-    type S = { l: number; f: number; t: number | null; e: number; p: number };
     const speed = JSON.parse(root.dataset.speed!) as S[];
-    let start = 12;
     const $ = <T extends Element = HTMLElement>(s: string) => root.querySelector<T>(s)!;
-    const word = (n: number) => (n % 10 === 1 && n % 100 !== 11 ? "балл" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "балла" : "баллов");
-    const eur = (n: number) => `${String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €`;
+    const box = $("[data-speed-box]"), num = $<HTMLInputElement>("[data-speed-val]"), range = $<HTMLInputElement>("[data-speed-range]");
+    const bandsEl = $("[data-bands]"), fix = $("[data-fix]"), delta = $("[data-delta]");
+    const viol = [...root.querySelectorAll<HTMLButtonElement>("[data-fine]")];
+    let start = 12, lim = 0, v = 0;
+
+    // Порог уголовного дела (УК, ст. 379): +60 км/ч в городе, +80 за городом
+    const crimeOver = (l: number) => (l <= 50 ? 60 : 80);
+    const bandClass = (r: S) => (r.p === 0 ? (r.e <= 100 ? "b0" : "b1") : `b${r.p}`);
+
+    const drawBands = () => {
+      const max = lim + 100, rowsL = speed.filter((s) => s.l === lim).sort((a, b) => a.f - b.f);
+      const crimeAt = lim + crimeOver(lim) + 1;
+      const parts: string[] = [];
+      for (const r of rowsL) {
+        const to = Math.min(r.t ?? max, crimeAt - 1, max);
+        if (to >= r.f) parts.push(`<span class="b ${bandClass(r)}" data-from="${r.f}" data-to="${to}" style="flex:${to - r.f + 1}" title="${r.f}–${to} км/ч: ${r.e} €${r.p ? `, −${r.p}` : ""}">${(to - r.f + 1) / 100 >= 0.11 ? r.e : ""}</span>`);
+      }
+      if (crimeAt <= max) parts.push(`<span class="b bx" data-from="${crimeAt}" data-to="${max}" style="flex:${max - crimeAt + 1}">УК</span>`);
+      bandsEl.innerHTML = parts.join("");
+    };
 
     const render = () => {
-      let pts = 0,
-        sum = 0;
-      root.querySelectorAll<HTMLInputElement>("[data-fine]:checked").forEach((c) => {
-        pts += Number(c.dataset.pts);
-        sum += Number(c.dataset.fine);
+      let pts = 0, sum = 0, severe = false;
+      viol.forEach((b) => {
+        if (b.getAttribute("aria-pressed") !== "true") return;
+        pts += Number(b.dataset.pts);
+        sum += Number(b.dataset.fine);
+        if (b.dataset.severe !== undefined) severe = true;
       });
-      const lim = Number($<HTMLSelectElement>("[data-limit]").value);
-      const v = Number($<HTMLInputElement>("[data-speed-val]").value);
+
       const note = $("[data-speed-note]");
       note.hidden = true;
+      fix.hidden = true;
       if (lim && v) {
+        const over = v - lim;
         const row = speed.find((s) => s.l === lim && v >= s.f && (s.t === null || v <= s.t));
-        note.hidden = false;
+        const crime = over > crimeOver(lim);
+        delta.textContent = over > 0 ? `+${over} км/ч` : over === 0 ? "ровно" : `−${-over} км/ч`;
+        delta.className = `ml-auto whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold tabular-nums ${over <= 0 ? "bg-emerald-100 text-emerald-700" : crime ? "bg-red-600 text-white" : row && row.p ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-800"}`;
+        bandsEl.querySelectorAll<HTMLElement>(".b").forEach((b) => b.classList.toggle("on", v >= Number(b.dataset.from) && v <= Number(b.dataset.to)));
         if (row) {
           pts += row.p;
           sum += row.e;
-          // УК, ст. 379: больше +60 км/ч в городе или +80 км/ч за городом — уже преступление
-          const crime = v - lim > (lim <= 50 ? 60 : 80);
-          note.textContent = `${v} км/ч при ограничении ${lim}: ${eur(row.e)}${row.p ? `, −${row.p} ${word(row.p)}` : ", без баллов"}.${crime ? " И это уже уголовное дело (ст. 379 УК): лишение прав и суд." : ""}`;
-        } else note.textContent = v > lim ? "Такое превышение — уже не штраф, а уголовное дело (ст. 379 УК)." : "Превышения нет.";
+          if (row.e >= 500) severe = true;
+          note.hidden = false;
+          note.innerHTML = `<strong class="text-slate-900">${v} км/ч при знаке ${lim}:</strong> ${euro(row.e)}${row.p ? `, −${row.p} ${plural(row.p, "балл", "балла", "баллов")}` : ", без баллов"}.${crime ? ` <span class="font-semibold text-red-700">Это уже уголовное дело (ст. 379 УК): лишение прав и суд.</span>` : ""}`;
+        } else if (over <= 0) {
+          // Похоже, ввели разницу, а не скорость: 40 при знаке 110 → предложим 150
+          fix.hidden = false;
+          fix.innerHTML = `Это не превышение. Введите полную скорость по радару${v < lim ? ` <button type="button" data-fix-to="${lim + v}" class="rounded-md bg-amber-200/70 px-2 py-0.5 font-semibold text-amber-900 transition-colors hover:bg-amber-300">${lim + v} км/ч?</button>` : ""}`;
+        }
       }
+
+      // Не больше 8 за день, если нет очень серьёзных нарушений
+      const capped = !severe && pts > 8;
+      if (capped) pts = 8;
+      $("[data-cap]").hidden = !capped;
+
       const left = Math.max(0, start - pts);
-      $("[data-left]").textContent = String(left);
-      const bar = $("[data-bar]");
-      bar.style.width = `${(left / start) * 100}%`;
-      bar.className = `h-full rounded-full transition-all duration-300 ${left === 0 ? "bg-red-500" : left <= 4 ? "bg-amber-500" : "bg-emerald-500"}`;
+      tween($("[data-left]"), left);
+      setText($("[data-start-out]"), String(start), false);
+      const pips = $("[data-pips]");
+      if (pips.children.length !== start) {
+        pips.style.setProperty("--n", String(start));
+        pips.innerHTML = Array.from({ length: start }, () => "<i></i>").join("");
+      }
+      const tone = left === 0 ? "red" : left <= 4 ? "amber" : "emerald";
+      [...pips.children].forEach((p, i) => {
+        const el = p as HTMLElement;
+        el.classList.toggle("lost", i >= left);
+        el.style.setProperty("--d", String(Math.abs(i - left)));
+        el.style.setProperty("--pip", `rgb(var(--c-${tone}-500))`);
+      });
       const st = $("[data-status]");
-      st.textContent = left === 0 ? "Права теряют силу: курс и новый экзамен" : left <= 4 ? "Опасная зона — ещё одно нарушение может стоить прав" : "Права в порядке";
-      st.className = `mt-3 text-sm font-semibold ${left === 0 ? "text-red-600" : left <= 4 ? "text-amber-600" : "text-emerald-600"}`;
-      $("[data-sum]").textContent = eur(sum);
-      $("[data-half]").textContent = eur(sum / 2);
+      st.className = `mt-2.5 flex items-start gap-1.5 text-[13px] font-semibold leading-snug text-${tone}-600`;
+      setText($("[data-status-text]"), left === 0 ? "Права теряют силу: курс и новый экзамен" : left <= 4 ? "Опасная зона — одно нарушение до потери прав" : "Права в порядке");
+      tween($("[data-sum]"), sum, euro);
+      tween($("[data-half]"), sum / 2, euro);
+      $("[data-reset]").hidden = !(pts || lim);
     };
 
-    root.querySelectorAll<HTMLButtonElement>("[data-start]").forEach((b, _, all) =>
+    const setSpeed = (n: number, from: "num" | "range" | "code") => {
+      v = n;
+      if (from !== "num") num.value = n ? String(n) : "";
+      num.style.width = `${Math.max(2, num.value.length) + 0.3}ch`;
+      if (from !== "range") range.value = String(Math.min(Math.max(n, Number(range.min)), Number(range.max)));
+      rangeFill(range);
+      render();
+    };
+
+    const pickLimit = radios($("[data-limits]"), (b) => {
+      lim = Number(b.dataset.limit) || 0;
+      box.hidden = !lim;
+      if (lim) {
+        range.min = String(lim);
+        range.max = String(lim + 100);
+        drawBands();
+        replay(box, "wx-in");
+        setSpeed(v > lim ? v : lim + 30, "code");
+      } else render();
+    });
+
+    radios($("[data-starts]"), (b) => {
+      start = Number(b.dataset.start);
+      render();
+    });
+    num.addEventListener("input", () => setSpeed(Number(num.value) || 0, "num"));
+    range.addEventListener("input", () => setSpeed(Number(range.value), "range"));
+    fix.addEventListener("click", (e) => {
+      const t = (e.target as HTMLElement).closest<HTMLElement>("[data-fix-to]");
+      if (t) setSpeed(Number(t.dataset.fixTo), "code");
+    });
+    viol.forEach((b) =>
       b.addEventListener("click", () => {
-        start = Number(b.dataset.start);
-        all.forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+        b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true"));
         render();
       })
     );
-    root.querySelectorAll("input, select").forEach((el) => el.addEventListener("input", render));
+    $("[data-reset]").addEventListener("click", () => {
+      viol.forEach((b) => b.setAttribute("aria-pressed", "false"));
+      v = 0;
+      num.value = "";
+      lim = 0;
+      box.hidden = true;
+      pickLimit(root.querySelector<HTMLButtonElement>('[data-limit=""]')!);
+      render();
+    });
     render();
   });
 </script>

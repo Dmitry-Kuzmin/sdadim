@@ -4,137 +4,119 @@
  * Начальный расчёт — в HTML, скрипт пересчитывает по той же формуле budget() из @/lib/license-costs
  * (общей с квизом на главной и migran.es).
  */
-import { Euro } from "@lucide/astro";
+import { AlertTriangle, Euro } from "@lucide/astro";
 import { YEAR } from "@/lib/facts";
 import { getPlans } from "@/lib/plans";
 import { budget, eur, MARKET, TASA_DGT } from "@/lib/license-costs";
-import { cn } from "@/lib/utils";
+import Shell from "./Shell.astro";
 
 const OPTIONS = [
   ...getPlans().map((p) => ({ id: p.id, label: p.name, price: p.price, theoryLabel: `Курс Сдадим, «${p.name}»`, approx: false })),
   { id: "school", label: "Автошкола", price: MARKET.schoolTheory, theoryLabel: "Пакет теории в автошколе", approx: true },
 ];
 const init = budget({ theory: { label: OPTIONS[0].theoryLabel, price: OPTIONS[0].price }, lessons: 20, theoryTry: 1, drivingTry: 1 });
-const STEPPERS = [
-  { key: "theoryTry", label: "С какой попытки теория", hint: "Экзамен DGT, 30 вопросов" },
-  { key: "drivingTry", label: "С какой попытки вождение", hint: "Экзамен в городе" },
+const TRIES = [
+  { key: "theoryTry", label: "Теория — с какой попытки", tip: "Экзамен DGT: 30 вопросов, можно ошибиться 3 раза. Одна пошлина покрывает две попытки." },
+  { key: "drivingTry", label: "Вождение — с какой попытки", tip: "Экзамен в городе. Каждая попытка — новое выставление машины автошколы, а каждые две неудачи — новая пошлина." },
 ];
+// Цвет доли в полосе — по порядку строк budget(): теория, пошлина, медкомиссия, запись, уроки, выставление
+const COLORS = ["--c-blue-500", "--c-violet-500", "--c-sky-400", "--c-slate-400", "--c-emerald-500", "--c-amber-500"];
 ---
 
-<div data-costs-calc data-options={JSON.stringify(OPTIONS)} class="not-prose bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 my-10 shadow-2xl relative overflow-hidden">
-  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-blue-500"></div>
-
-  <div class="text-center mb-8">
-    <h3 class="text-2xl font-bold text-slate-900 flex items-center justify-center gap-2">
-      <Euro class="w-6 h-6 text-emerald-600" /> Калькулятор стоимости прав {YEAR}
-    </h3>
-    <p class="text-sm text-slate-600 mt-2">Полный бюджет с пересдачами и повторной пошлиной DGT</p>
+<Shell icon={Euro} tone="emerald" title={`Сколько стоят права в ${YEAR}`} sub="Полный бюджет: курс, уроки, пересдачи и повторная пошлина DGT" flush data-costs-calc data-options={JSON.stringify(OPTIONS)} data-colors={JSON.stringify(COLORS)}>
+  <!-- Итог -->
+  <div class="border-b border-slate-200 px-5 py-4 md:px-6">
+    <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+      <div>
+        <p class="text-xs font-medium text-slate-500">Итого</p>
+        <p data-total class="wx-num text-4xl font-extrabold tracking-tight text-slate-900">{eur(init.total)}</p>
+      </div>
+      <p class="pb-1 text-right text-xs leading-snug text-slate-500">
+        <span data-retakes-box hidden class="mb-1 inline-block rounded-full bg-red-100 px-2.5 py-0.5 text-[13px] font-bold text-red-700">пересдачи <span data-retakes>+0 €</span></span><br />
+        всё с первого раза — <strong data-first class="font-semibold text-slate-700">{eur(init.total)}</strong>
+      </p>
+    </div>
+    <div data-bar class="mt-3 flex h-3 gap-0.5" aria-hidden="true">
+      {init.rows.map((r, i) => <span class="cc-seg h-full" style={`flex:${r.value} 1 0;background:rgb(var(${COLORS[i]}))`} />)}
+    </div>
   </div>
 
-  <div class="grid lg:grid-cols-2 gap-10">
-    <div class="space-y-4 bg-white p-5 rounded-xl border border-slate-200 self-start">
-      <div>
-        <p class="text-sm font-semibold text-slate-700 mb-2">Как готовитесь к теории</p>
-        <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Как готовитесь к теории">
-          {
-            OPTIONS.map((o, i) => (
-              <button
-                type="button"
-                role="radio"
-                data-theory={o.id}
-                aria-checked={i === 0 ? "true" : "false"}
-                class="rounded-lg border px-3 py-2 text-left text-sm transition-colors aria-checked:border-emerald-500 aria-checked:bg-emerald-500/10 aria-checked:text-slate-900 aria-[checked=false]:border-slate-200 aria-[checked=false]:text-slate-600 aria-[checked=false]:hover:border-slate-300"
-              >
-                <span class="block font-semibold">{o.label}</span>
-                <span class="text-xs text-slate-500">{o.approx ? "≈ " : ""}{o.price} €</span>
-              </button>
-            ))
-          }
-        </div>
+  <div class="space-y-5 p-5 md:p-6">
+    <div>
+      <p class="wx-label">Как готовитесь к теории</p>
+      <div class="wx-seg mt-2" role="radiogroup" aria-label="Как готовитесь к теории" data-theory-group>
+        {OPTIONS.map((o, i) => <button type="button" role="radio" data-theory={o.id} aria-checked={i === 0 ? "true" : "false"}>{o.label}<small>{o.approx ? "≈ " : ""}{o.price} €</small></button>)}
       </div>
+    </div>
 
-      <div class="pt-4 border-t border-slate-200">
-        <div class="flex justify-between mb-2">
-          <label for="calc-lessons" class="text-sm font-semibold text-slate-700">Уроки вождения (по 45 мин)</label>
-          <span data-lessons-out class="text-sm font-bold text-emerald-600 tabular-nums">20</span>
-        </div>
-        <input id="calc-lessons" type="range" min="0" max="60" value="20" class="w-full accent-emerald-500 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
-        <p class="text-xs text-slate-500 mt-2">Опытному водителю — 2–5 уроков, новичку — от 20.</p>
+    <div>
+      <div class="flex items-center justify-between">
+        <label for="calc-lessons" class="wx-label">Уроки вождения <span class="wx-tip" tabindex="0" data-side="start" data-tip={`Урок — 45 минут, в среднем ${MARKET.lesson} €. Опытному водителю обычно хватает 2–5, новичку — от 20.`}></span></label>
+        <span class="text-sm font-bold tabular-nums text-slate-900"><span data-lessons-out>20</span> <span class="font-medium text-slate-500">× {MARKET.lesson} €</span></span>
       </div>
+      <input id="calc-lessons" type="range" min="0" max="60" value="20" class="wx-range mt-3" style="--accent:var(--c-emerald-600);--p:33.3%" />
+      <div class="mt-2.5 flex flex-wrap gap-1.5">
+        {[
+          { n: 4, t: "Опыт есть" },
+          { n: 20, t: "Средне" },
+          { n: 35, t: "С нуля" },
+        ].map((x) => <button type="button" data-lessons-preset={x.n} aria-pressed={x.n === 20 ? "true" : "false"} class="wx-chip !py-1 !text-xs">{x.t} · {x.n}</button>)}
+      </div>
+    </div>
 
+    <div class="grid gap-4 sm:grid-cols-2">
       {
-        STEPPERS.map((s) => (
-          <div class="pt-4 border-t border-slate-200 flex items-center justify-between gap-4">
-            <div>
-              <p class="text-sm font-semibold text-slate-700">{s.label}</p>
-              <p class="text-xs text-slate-500">{s.hint}</p>
-            </div>
-            <div class="flex gap-2" role="radiogroup" aria-label={s.label}>
-              {[1, 2, 3, 4].map((n) => (
-                <button
-                  type="button"
-                  role="radio"
-                  data-step={s.key}
-                  data-value={n}
-                  aria-checked={n === 1 ? "true" : "false"}
-                  class="w-10 h-10 rounded-lg text-sm font-bold transition-all aria-checked:bg-amber-500 aria-checked:text-black aria-[checked=false]:bg-slate-100 aria-[checked=false]:text-slate-900 aria-[checked=false]:hover:bg-slate-200"
-                >
-                  {n}
-                </button>
-              ))}
+        TRIES.map((s) => (
+          <div>
+            <p class="wx-label">{s.label} <span class="wx-tip" tabindex="0" data-side="start" data-tip={s.tip} /></p>
+            <div class="wx-seg mt-2" role="radiogroup" aria-label={s.label} data-try={s.key}>
+              {[1, 2, 3, 4].map((n) => <button type="button" role="radio" data-value={n} aria-checked={n === 1 ? "true" : "false"}>{n}</button>)}
             </div>
           </div>
         ))
       }
-
-      <div data-tasa-warn hidden class="text-xs text-red-600 bg-red-400/10 p-3 rounded-lg border border-red-400/20"></div>
     </div>
 
-    <div class="space-y-4">
-      <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-5">
-        <p class="text-sm text-slate-600 mb-1">Итого</p>
-        <p data-total class="text-4xl font-bold text-slate-900 tabular-nums">{eur(init.total)}</p>
-        <div data-rows class="mt-4 space-y-2 text-xs text-slate-600">
-          {
-            init.rows.map((r) => (
-              <div class="flex justify-between gap-4">
-                <span>
-                  {r.label}
-                  {r.note && <span class="text-slate-400"> · {r.note}</span>}
-                </span>
-                <span class="tabular-nums whitespace-nowrap">{eur(r.value)}</span>
-              </div>
-            ))
-          }
-        </div>
-      </div>
+    <p data-tasa-warn hidden class="flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-[13px] leading-snug text-amber-800"><AlertTriangle class="mt-0.5 h-4 w-4 flex-none" /><span data-tasa-text></span></p>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div class="bg-white border border-slate-200 rounded-xl p-4">
-          <p class="text-xs text-slate-500">Всё с первого раза</p>
-          <p data-first class="text-xl font-bold text-emerald-600 tabular-nums">{eur(init.total)}</p>
-        </div>
-        <div class="bg-white border border-slate-200 rounded-xl p-4">
-          <p class="text-xs text-slate-500">Пересдачи стоят</p>
-          <p data-retakes class={cn("text-xl font-bold tabular-nums", "text-slate-400")}>0 €</p>
-        </div>
-      </div>
+    <ul data-rows class="divide-y divide-slate-100 rounded-xl border border-slate-200 text-[13px]">
+      {
+        init.rows.map((r, i) => (
+          <li class="flex items-center gap-2.5 px-3 py-2">
+            <span class="h-2.5 w-2.5 flex-none rounded-full" style={`background:rgb(var(${COLORS[i]}))`} />
+            <span class="min-w-0 flex-1 text-slate-700">
+              {r.label}
+              {r.note && <span class="text-slate-400"> · {r.note}</span>}
+            </span>
+            <span class="whitespace-nowrap font-semibold tabular-nums text-slate-900">{eur(r.value)}</span>
+          </li>
+        ))
+      }
+    </ul>
 
-      <p class="text-xs text-slate-500 leading-relaxed">
-        Цены автошколы — средние по Испании: запись {MARKET.matricula} €, урок {MARKET.lesson} €, выставление на экзамен {MARKET.examPresentation} €. Пошлина DGT {eur(TASA_DGT)} — официальная.
-      </p>
-    </div>
+    <p class="text-[11px] leading-relaxed text-slate-500">
+      Цены автошколы — средние по Испании: запись {MARKET.matricula} €, урок {MARKET.lesson} €, выставление на экзамен {MARKET.examPresentation} €. Пошлина DGT {eur(TASA_DGT)} — официальная.
+    </p>
   </div>
-</div>
+</Shell>
+
+<style>
+  .cc-seg { min-width: 3px; transition: flex-grow 0.5s cubic-bezier(0.3, 1.2, 0.5, 1); }
+  .cc-seg:first-child { border-radius: 999px 0 0 999px; }
+  .cc-seg:last-child { border-radius: 0 999px 999px 0; }
+</style>
 
 <script>
   import { budget, eur, round, TASA_DGT } from "@/lib/license-costs";
+  import { radios, rangeFill, replay, setText, tween } from "@/lib/widget-fx";
 
   document.querySelectorAll<HTMLElement>("[data-costs-calc]").forEach((root) => {
     const options = JSON.parse(root.dataset.options!) as { id: string; price: number; theoryLabel: string }[];
+    const colors = JSON.parse(root.dataset.colors!) as string[];
     const state = { theory: options[0].id, lessons: 20, theoryTry: 1, drivingTry: 1 };
     const $ = <T extends Element = HTMLElement>(s: string) => root.querySelector<T>(s)!;
     const esc = (s: string) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+    const range = $<HTMLInputElement>("#calc-lessons");
 
     const render = () => {
       const o = options.find((x) => x.id === state.theory)!;
@@ -143,41 +125,58 @@ const STEPPERS = [
       const first = budget({ theory, lessons: state.lessons, theoryTry: 1, drivingTry: 1 });
       const retakes = round(cur.total - first.total);
 
-      $("[data-total]").textContent = eur(cur.total);
-      $("[data-first]").textContent = eur(first.total);
-      const r = $("[data-retakes]");
-      r.textContent = retakes > 0 ? `+${eur(retakes)}` : "0 €";
-      r.className = `text-xl font-bold tabular-nums ${retakes > 0 ? "text-red-600" : "text-slate-400"}`;
+      tween($("[data-total]"), cur.total, eur);
+      setText($("[data-first]"), eur(first.total), false);
+      const rb = $("[data-retakes-box]");
+      if (rb.hidden !== retakes <= 0) {
+        rb.hidden = retakes <= 0;
+        if (!rb.hidden) replay(rb, "wx-in");
+      }
+      tween($("[data-retakes]"), retakes, (n) => `+${eur(n)}`);
+
+      // Полоса: доли меняют ширину плавно, сами сегменты не пересоздаём
+      const segs = $("[data-bar]").children;
+      cur.rows.forEach((r, i) => ((segs[i] as HTMLElement).style.flexGrow = String(r.value)));
       $("[data-rows]").innerHTML = cur.rows
         .map(
-          (row) =>
-            `<div class="flex justify-between gap-4"><span>${esc(row.label)}${row.note ? `<span class="text-slate-400"> · ${esc(row.note)}</span>` : ""}</span><span class="tabular-nums whitespace-nowrap">${eur(row.value)}</span></div>`
+          (r, i) =>
+            `<li class="flex items-center gap-2.5 px-3 py-2"><span class="h-2.5 w-2.5 flex-none rounded-full" style="background:rgb(var(${colors[i]}))"></span><span class="min-w-0 flex-1 text-slate-700">${esc(r.label)}${r.note ? `<span class="text-slate-400"> · ${esc(r.note)}</span>` : ""}</span><span class="whitespace-nowrap font-semibold tabular-nums text-slate-900">${eur(r.value)}</span></li>`
         )
         .join("");
+
       const warn = $("[data-tasa-warn]");
-      warn.hidden = cur.nTasas <= 1;
-      warn.textContent = `⚠️ Одна пошлина покрывает два провала. У вас их ${state.theoryTry - 1 + state.drivingTry - 1} — пошлин понадобится ${cur.nTasas} (+${eur(TASA_DGT * (cur.nTasas - 1))}).`;
-      $("[data-lessons-out]").textContent = String(state.lessons);
+      const show = cur.nTasas > 1;
+      if (warn.hidden === show) {
+        warn.hidden = !show;
+        if (show) replay(warn, "wx-in");
+      }
+      $("[data-tasa-text]").textContent = `Одна пошлина покрывает два провала. У вас их ${state.theoryTry - 1 + state.drivingTry - 1} — пошлин понадобится ${cur.nTasas} (+${eur(TASA_DGT * (cur.nTasas - 1))}).`;
+      setText($("[data-lessons-out]"), String(state.lessons), false);
+      rangeFill(range);
+      root.querySelectorAll<HTMLElement>("[data-lessons-preset]").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.lessonsPreset) === state.lessons)));
     };
 
-    root.querySelectorAll<HTMLButtonElement>("[data-theory]").forEach((b, _, all) =>
-      b.addEventListener("click", () => {
-        state.theory = b.dataset.theory!;
-        all.forEach((x) => x.setAttribute("aria-checked", String(x === b)));
-        render();
-      })
-    );
-    root.querySelectorAll<HTMLButtonElement>("[data-step]").forEach((b) =>
-      b.addEventListener("click", () => {
-        const key = b.dataset.step as "theoryTry" | "drivingTry";
-        state[key] = Number(b.dataset.value);
-        root.querySelectorAll(`[data-step="${key}"]`).forEach((x) => x.setAttribute("aria-checked", String(x === b)));
-        render();
-      })
-    );
-    $<HTMLInputElement>("#calc-lessons").addEventListener("input", (e) => {
-      state.lessons = Number((e.target as HTMLInputElement).value);
+    radios($("[data-theory-group]"), (b) => {
+      state.theory = b.dataset.theory!;
       render();
     });
+    root.querySelectorAll<HTMLElement>("[data-try]").forEach((g) =>
+      radios(g, (b) => {
+        state[g.dataset.try as "theoryTry" | "drivingTry"] = Number(b.dataset.value);
+        render();
+      })
+    );
+    range.addEventListener("input", () => {
+      state.lessons = Number(range.value);
+      render();
+    });
+    root.querySelectorAll<HTMLButtonElement>("[data-lessons-preset]").forEach((b) =>
+      b.addEventListener("click", () => {
+        state.lessons = Number(b.dataset.lessonsPreset);
+        range.value = String(state.lessons);
+        render();
+      })
+    );
+    render();
   });
 </script>

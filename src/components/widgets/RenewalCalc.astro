@@ -6,65 +6,84 @@
  */
 import { CalendarClock } from "@lucide/astro";
 import { T } from "@/lib/facts";
+import Shell from "./Shell.astro";
 ---
 
-<div data-renewal data-tasa={T.renewal} class="not-prose my-10 rounded-3xl border border-slate-200 bg-slate-50 p-6 md:p-8">
-  <div class="flex items-center gap-3">
-    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white"><CalendarClock class="h-5 w-5" /></span>
-    <div>
-      <h3 class="text-xl font-bold text-slate-900">Когда продлевать ваши права</h3>
-      <p class="text-sm text-slate-500">Испанские права категории B</p>
-    </div>
-  </div>
-  <div class="mt-6 grid gap-4 sm:grid-cols-[1fr_1.3fr]">
+<Shell icon={CalendarClock} title="Когда продлевать ваши права" sub="Испанские права категории B" data-renewal data-tasa={T.renewal}>
+  <div class="wx-2col">
     <div class="space-y-4">
       <label class="block">
-        <span class="text-sm font-semibold text-slate-700">Срок действия прав</span>
-        <input data-exp type="date" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-blue-500/50 focus:outline-none" />
-        <span class="mt-1.5 block text-xs text-slate-500">Поле 4b на лицевой стороне карточки</span>
+        <span class="wx-label">Срок действия <span class="wx-tip" tabindex="0" data-side="start" data-tip="Поле 4b на лицевой стороне карточки прав."></span></span>
+        <input data-exp type="date" class="wx-field mt-2" />
       </label>
       <label class="block">
-        <span class="text-sm font-semibold text-slate-700">Дата рождения</span>
-        <input data-birth type="date" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-blue-500/50 focus:outline-none" />
+        <span class="wx-label">Дата рождения <span class="wx-tip" tabindex="0" data-side="start" data-tip="Нужна, чтобы посчитать новый срок: после 65 лет права выдают на 5 лет, после 70 продление бесплатное."></span></span>
+        <input data-birth type="date" class="wx-field mt-2" />
       </label>
     </div>
-    <div data-out class="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-      <p class="text-sm text-slate-500">Укажите обе даты — посчитаем, когда можно продлевать и сколько это стоит.</p>
+    <div data-out aria-live="polite">
+      <div class="wx-empty"><CalendarClock class="h-5 w-5 text-slate-300" />Укажите обе даты — посчитаем, когда продлевать и сколько это стоит</div>
     </div>
   </div>
-</div>
+</Shell>
 
 <script>
+  import { addMonths, daysBetween, fmtDate, parseDate, plural, today, tween } from "@/lib/widget-fx";
+
+  // Классы из tone — для Tailwind: text-red-600 text-amber-600 text-emerald-600 text-blue-600
   document.querySelectorAll<HTMLElement>("[data-renewal]").forEach((root) => {
     const exp = root.querySelector<HTMLInputElement>("[data-exp]")!;
     const birth = root.querySelector<HTMLInputElement>("[data-birth]")!;
     const out = root.querySelector<HTMLElement>("[data-out]")!;
-    const fmt = (d: Date) => d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }).replace(/\s*г\.$/, "");
     const age = (b: Date, at: Date) => at.getFullYear() - b.getFullYear() - (at < new Date(at.getFullYear(), b.getMonth(), b.getDate()) ? 1 : 0);
+
     const render = () => {
-      if (!exp.value || !birth.value) return;
-      const e = new Date(exp.value + "T00:00:00");
-      const b = new Date(birth.value + "T00:00:00");
-      const open = new Date(e);
-      open.setMonth(open.getMonth() - 3);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const e = parseDate(exp.value), b = parseDate(birth.value);
+      if (!e || !b) return;
+      const open = addMonths(e, -3), now = today();
       const ageAtExp = age(b, e);
       const years = ageAtExp >= 65 ? 5 : 10;
       const free = ageAtExp >= 70;
-      const daysToOpen = Math.round((open.getTime() - today.getTime()) / 86400000);
-      const expired = e < today;
-      const status = expired
-        ? `<p class="text-sm font-semibold text-red-600">Срок истёк ${fmt(e)} — за руль нельзя. Продлить можно и сейчас, экзамены не нужны.</p>`
-        : daysToOpen > 0
-          ? `<p class="text-sm font-semibold text-slate-900">Продлевать можно с ${fmt(open)}</p><p class="text-sm text-slate-500">через ${daysToOpen} дн.</p>`
-          : `<p class="text-sm font-semibold text-emerald-600">Можно продлевать уже сейчас — до ${fmt(e)}</p><p class="text-sm text-slate-500">Дни не потеряете: новый срок начнётся от ${fmt(e)}.</p>`;
-      out.innerHTML =
-        status +
-        `<ul class="mt-4 space-y-2 text-sm text-slate-700">` +
-        `<li class="flex justify-between gap-4"><span>Новый срок</span><strong class="text-slate-900">${years} лет</strong></li>` +
-        `<li class="flex justify-between gap-4"><span>Пошлина DGT</span><strong class="text-slate-900">${free ? "бесплатно (70+)" : root.dataset.tasa}</strong></li>` +
-        `<li class="flex justify-between gap-4"><span>Плюс медкомиссия</span><strong class="text-slate-900">цена центра</strong></li></ul>`;
+      const toOpen = daysBetween(now, open), toExp = daysBetween(now, e);
+      const expired = toExp < 0, isOpen = !expired && toOpen <= 0;
+      const tone = expired ? "red" : isOpen ? "emerald" : "blue";
+
+      const head = expired
+        ? `<p class="text-xs font-medium text-red-600">Срок истёк ${fmtDate(e)}</p><p class="text-xl font-bold text-slate-900">За руль нельзя</p><p class="text-[13px] text-slate-600">Продлить можно и сейчас — экзамены не нужны.</p>`
+        : isOpen
+          ? `<p class="text-xs font-medium text-emerald-600">Окно открыто</p><p class="text-xl font-bold text-slate-900">Продлевайте сейчас</p><p class="text-[13px] text-slate-600">Осталось <strong data-days class="wx-num text-emerald-600">0</strong> ${plural(toExp, "день", "дня", "дней")}. Дни не потеряете: новый срок начнётся от ${fmtDate(e)}.</p>`
+          : `<p class="text-xs font-medium text-slate-500">Продлевать можно с</p><p class="text-xl font-bold text-slate-900">${fmtDate(open)}</p><p class="text-[13px] text-slate-600">через <strong data-days class="wx-num text-blue-600">0</strong> ${plural(toOpen, "день", "дня", "дней")}</p>`;
+
+      // Шкала: от «за 3 месяца до окна» до конца срока; заливка — до сегодня
+      const from = addMonths(open, -3), total = daysBetween(from, e);
+      const pct = (d: Date) => `${Math.min(100, Math.max(0, (daysBetween(from, d) / total) * 100))}%`;
+
+      out.innerHTML = `<div class="wx-in rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200">
+        ${head}
+        <div class="relative mt-5">
+          <div class="wx-track" style="--fill:rgb(var(--c-${tone}-500))">
+            <span class="absolute inset-y-0 rounded-full bg-emerald-200" style="left:50%;right:0" title="Окно продления"></span>
+            <span class="wx-track-fill" data-fill style="width:0;opacity:.35"></span>
+            <span class="wx-track-mark" data-mark style="left:0"></span>
+          </div>
+          <div class="mt-1.5 grid grid-cols-2 text-[11px] text-slate-500"><span class="pl-[calc(100%-0.5rem)] whitespace-nowrap">↑ окно с ${fmtDate(open, { day: "numeric", month: "short" })}</span><span class="text-right">до ${fmtDate(e, { day: "numeric", month: "short", year: "numeric" })}</span></div>
+        </div>
+        <dl class="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div class="rounded-lg bg-white px-2 py-2 ring-1 ring-slate-200"><dt class="text-[11px] text-slate-500">Новый срок</dt><dd class="text-sm font-bold text-slate-900">${years} лет</dd></div>
+          <div class="rounded-lg bg-white px-2 py-2 ring-1 ring-slate-200"><dt class="text-[11px] text-slate-500">Пошлина</dt><dd class="text-sm font-bold ${free ? "text-emerald-600" : "text-slate-900"}">${free ? "0 € (70+)" : root.dataset.tasa}</dd></div>
+          <div class="rounded-lg bg-white px-2 py-2 ring-1 ring-slate-200"><dt class="text-[11px] text-slate-500">Медкомиссия</dt><dd class="text-sm font-bold text-slate-900">цена центра</dd></div>
+        </dl>
+      </div>`;
+      const fill = out.querySelector<HTMLElement>("[data-fill]")!, mark = out.querySelector<HTMLElement>("[data-mark]")!;
+      const d = out.querySelector<HTMLElement>("[data-days]");
+      if (d) {
+        d.dataset.v = "0";
+        tween(d, isOpen ? toExp : toOpen);
+      }
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        fill.style.width = pct(now);
+        mark.style.left = pct(now);
+      }));
     };
     exp.addEventListener("input", render);
     birth.addEventListener("input", render);

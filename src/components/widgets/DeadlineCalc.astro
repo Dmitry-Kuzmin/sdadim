@@ -4,50 +4,74 @@
  * (RD 818/2009, ст. 21.2.c). Без резиденции — 6 месяцев с законного въезда.
  */
 import { CalendarClock } from "@lucide/astro";
+import Shell from "./Shell.astro";
 ---
 
-<div data-deadline class="not-prose my-10 rounded-3xl border border-slate-200 bg-slate-50 p-6 md:p-8">
-  <div class="flex items-center gap-3">
-    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white"><CalendarClock class="h-5 w-5" /></span>
-    <div>
-      <h3 class="text-xl font-bold text-slate-900">Сколько ещё можно ездить на своих правах</h3>
-      <p class="text-sm text-slate-500">Для прав не из ЕС: 6 месяцев с начала резиденции</p>
-    </div>
-  </div>
-
-  <div class="mt-6 grid gap-4 sm:grid-cols-2">
+<Shell icon={CalendarClock} title="Сколько ещё можно ездить на своих правах" sub="Права не из ЕС: 6 месяцев с начала резиденции" data-deadline>
+  <div class="wx-2col">
     <label class="block">
-      <span class="text-sm font-semibold text-slate-700">Дата начала резиденции</span>
-      <input data-date type="date" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-blue-500/50 focus:outline-none" />
-      <span class="mt-1.5 block text-xs text-slate-500">На практике — дата одобрения ВНЖ (resolución). Сомневаетесь — берите более раннюю дату</span>
+      <span class="wx-label">Начало резиденции <span class="wx-tip" tabindex="0" data-side="start" data-tip="На практике — дата одобрения ВНЖ (resolución). Сомневаетесь — берите более раннюю дату: так безопаснее."></span></span>
+      <input data-date type="date" class="wx-field mt-2" />
+      <span class="mt-1.5 block text-xs text-slate-500">Обычно — дата resolución на ВНЖ</span>
     </label>
-    <div data-out class="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-      <p class="text-sm text-slate-500">Укажите дату — посчитаем последний день.</p>
+    <div data-out aria-live="polite">
+      <div class="wx-empty"><CalendarClock class="h-5 w-5 text-slate-300" />Укажите дату — посчитаем последний день</div>
     </div>
   </div>
-</div>
+</Shell>
 
 <script>
+  import { addMonths, daysBetween, fmtDate, parseDate, plural, replay, today, tween } from "@/lib/widget-fx";
+
   document.querySelectorAll<HTMLElement>("[data-deadline]").forEach((root) => {
     const input = root.querySelector<HTMLInputElement>("[data-date]")!;
     const out = root.querySelector<HTMLElement>("[data-out]")!;
-    const fmt = (d: Date) => d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }).replace(/\s*г\.$/, "");
+    let built = false;
+
     input.addEventListener("input", () => {
-      if (!input.value) return;
-      const start = new Date(input.value + "T00:00:00");
-      const end = new Date(start);
-      end.setMonth(end.getMonth() + 6);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const days = Math.round((end.getTime() - today.getTime()) / 86400000);
-      const tone = days < 0 ? "text-red-600" : days <= 60 ? "text-amber-600" : "text-emerald-600";
+      const start = parseDate(input.value);
+      if (!start) return;
+      const end = addMonths(start, 6), now = today();
+      const days = daysBetween(now, end);
+      const total = daysBetween(start, end);
+      const pct = Math.min(100, Math.max(0, ((total - days) / total) * 100));
+      const tone = days < 0 ? "red" : days <= 60 ? "amber" : "emerald";
       const status =
         days < 0
           ? "Срок прошёл: за руль по этим правам уже нельзя. Обменяйте их или сдайте экзамен."
           : days <= 60
             ? "Времени мало: запись в DGT и экзамены занимают недели. Начинайте сейчас."
-            : "Время есть — но экзамен с подготовкой занимает 1–3 месяца, планируйте заранее.";
-      out.innerHTML = `<p class="text-sm text-slate-500">Ездить можно до</p><p class="mt-1 text-2xl font-bold text-slate-900">${fmt(end)}</p><p class="mt-1 text-sm font-semibold ${tone}">${days < 0 ? `просрочено на ${-days} дн.` : `осталось ${days} дн.`}</p><p class="mt-3 text-sm leading-relaxed text-slate-600">${status}</p>`;
+            : "Время есть, но экзамен с подготовкой занимает 1–3 месяца — планируйте заранее.";
+
+      if (!built) {
+        out.innerHTML = `<div class="wx-in rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200">
+          <p class="text-xs font-medium text-slate-500">Ездить можно до</p>
+          <p data-end class="mt-0.5 text-2xl font-bold text-slate-900"></p>
+          <p class="mt-1 flex items-baseline gap-1.5"><span data-days class="wx-num text-3xl font-extrabold"></span><span data-days-word class="text-sm font-semibold"></span></p>
+          <div class="wx-track mt-4"><span data-fill class="wx-track-fill" style="width:0"></span><span data-mark class="wx-track-mark" style="left:0"></span></div>
+          <div class="mt-1.5 flex justify-between text-[11px] text-slate-500"><span data-from></span><span>сегодня — точка</span><span data-to></span></div>
+          <p data-status class="mt-3 text-[13px] leading-snug text-slate-600"></p>
+        </div>`;
+        built = true;
+      }
+      const q = (s: string) => out.querySelector<HTMLElement>(s)!;
+      q("[data-end]").textContent = fmtDate(end);
+      const d = q("[data-days]");
+      d.className = `wx-num text-3xl font-extrabold text-${tone}-600`;
+      tween(d, Math.abs(days));
+      const w = q("[data-days-word]");
+      w.className = `text-sm font-semibold text-${tone}-600`;
+      w.textContent = days < 0 ? `${plural(-days, "день", "дня", "дней")} просрочено` : `${plural(days, "день", "дня", "дней")} осталось`;
+      const fill = q("[data-fill]"), mark = q("[data-mark]");
+      for (const el of [fill, mark]) el.style.setProperty("--fill", `rgb(var(--c-${tone}-500))`);
+      requestAnimationFrame(() => {
+        fill.style.width = `${pct}%`;
+        mark.style.left = `${pct}%`;
+      });
+      q("[data-from]").textContent = fmtDate(start, { day: "numeric", month: "short", year: "numeric" });
+      q("[data-to]").textContent = fmtDate(end, { day: "numeric", month: "short", year: "numeric" });
+      q("[data-status]").textContent = status;
+      if (days < 0) replay(d, "wx-shake");
     });
   });
 </script>

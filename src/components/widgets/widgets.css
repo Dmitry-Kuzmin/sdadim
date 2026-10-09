@@ -1,0 +1,181 @@
+/*
+ * Общий стиль интерактивных виджетов статей (src/components/widgets).
+ * Цвета — переменные темы (--c-*), поэтому тёмная тема работает без dark:-вариантов.
+ * Классы с префиксом wx-, логика — src/lib/widget-fx.ts.
+ */
+
+/* ── Сегмент-переключатель с бегунком ───────────────── */
+.wx-seg {
+  position: relative;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 12px;
+  background: rgb(var(--c-slate-100));
+}
+.wx-seg > button {
+  position: relative;
+  z-index: 1;
+  border-radius: 9px;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: rgb(var(--c-slate-500));
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.wx-seg > button:hover { color: rgb(var(--c-slate-800)); }
+.wx-seg > button[aria-checked="true"] { color: rgb(var(--c-slate-900)); }
+.wx-seg > button small { display: block; font-size: 0.6875rem; font-weight: 500; color: rgb(var(--c-slate-500)); }
+.wx-seg-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  width: 0;
+  border-radius: 9px;
+  background: rgb(var(--surface));
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.08), 0 2px 8px -2px rgb(15 23 42 / 0.12);
+  transition: transform 0.32s cubic-bezier(0.3, 1.3, 0.5, 1), width 0.32s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+/* До запуска скрипта бегунка нет — выбранная кнопка подсвечена сама */
+.wx-seg:not([data-ready]) > button[aria-checked="true"] { background: rgb(var(--surface)); }
+
+/* ── Поля ───────────────────────────────────────────── */
+.wx-label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 600; color: rgb(var(--c-slate-500)); text-transform: uppercase; letter-spacing: 0.06em; }
+.wx-field {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgb(var(--c-slate-200));
+  background: rgb(var(--c-slate-50));
+  padding: 0.6rem 0.85rem;
+  font-size: 1rem;
+  color: rgb(var(--c-slate-900));
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.wx-field:hover { border-color: rgb(var(--c-slate-300)); }
+.wx-field:focus { outline: none; background: rgb(var(--surface)); border-color: rgb(var(--c-blue-500)); box-shadow: 0 0 0 4px rgb(var(--c-blue-500) / 0.15); }
+.wx-field::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; }
+html.dark .wx-field::-webkit-calendar-picker-indicator { filter: invert(1); }
+
+/* ── Слайдер с заливкой (--p — процент, ставит widget-fx) ── */
+.wx-range {
+  --p: 50%;
+  --accent: var(--c-blue-600);
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgb(var(--accent)) var(--p), rgb(var(--c-slate-200)) var(--p));
+  cursor: pointer;
+}
+.wx-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgb(var(--surface));
+  border: 2px solid rgb(var(--accent));
+  box-shadow: 0 2px 6px rgb(15 23 42 / 0.2);
+  transition: transform 0.15s;
+}
+.wx-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: rgb(var(--surface)); border: 2px solid rgb(var(--accent)); box-shadow: 0 2px 6px rgb(15 23 42 / 0.2); }
+.wx-range:active::-webkit-slider-thumb { transform: scale(1.18); }
+.wx-range:focus-visible { outline: 2px solid rgb(var(--accent) / 0.4); outline-offset: 4px; }
+
+/* ── Чипы-переключатели ─────────────────────────────── */
+.wx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--c-slate-200));
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgb(var(--c-slate-600));
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.15s;
+}
+.wx-chip:hover { border-color: rgb(var(--c-slate-300)); color: rgb(var(--c-slate-900)); }
+.wx-chip:active { transform: scale(0.96); }
+.wx-chip[aria-pressed="true"], .wx-chip[aria-checked="true"] { border-color: rgb(var(--c-blue-500)); background: rgb(var(--c-blue-50)); color: rgb(var(--c-blue-700)); }
+
+/* ── Подсказка (i): наведение, фокус или тап ────────── */
+.wx-tip {
+  position: relative;
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgb(var(--c-slate-200));
+  color: rgb(var(--c-slate-600));
+  font: 700 10px/1 ui-sans-serif, system-ui, sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: help;
+  transition: background 0.15s, color 0.15s;
+}
+.wx-tip::before { content: "i"; font-style: italic; font-family: Georgia, serif; font-size: 11px; }
+.wx-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: 30;
+  width: max-content;
+  max-width: min(260px, 70vw);
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  background: rgb(var(--inverse));
+  color: rgb(var(--on-inverse));
+  font: 500 12.5px/1.45 "Inter Variable", Inter, system-ui, sans-serif;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 10px 30px -8px rgb(15 23 42 / 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px) scale(0.97);
+  transform-origin: bottom center;
+  transition: opacity 0.15s, transform 0.18s;
+}
+.wx-tip[data-side="end"]::after { left: auto; right: -8px; transform: translate(0, 4px) scale(0.97); }
+.wx-tip[data-side="start"]::after { left: -8px; transform: translate(0, 4px) scale(0.97); }
+.wx-tip:hover, .wx-tip:focus-visible, .wx-tip:focus { background: rgb(var(--c-blue-600)); color: #fff; outline: none; }
+.wx-tip:hover::after, .wx-tip:focus::after { opacity: 1; transform: translate(-50%, 0) scale(1); }
+.wx-tip[data-side]:hover::after, .wx-tip[data-side]:focus::after { transform: translate(0, 0) scale(1); }
+
+/* ── Анимации ───────────────────────────────────────── */
+.wx-bump { animation: wx-bump 0.38s cubic-bezier(0.3, 1.5, 0.5, 1); }
+@keyframes wx-bump { 40% { transform: scale(1.06); } }
+.wx-in { animation: wx-in 0.32s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+@keyframes wx-in { from { opacity: 0; transform: translateY(6px); } }
+.wx-shake { animation: wx-shake 0.4s; }
+@keyframes wx-shake { 20%, 60% { transform: translateX(-3px); } 40%, 80% { transform: translateX(3px); } }
+.wx-num { display: inline-block; font-variant-numeric: tabular-nums; transform-origin: left center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wx-bump, .wx-in, .wx-shake { animation: none !important; }
+  .wx-seg-thumb, .wx-range::-webkit-slider-thumb { transition: none !important; }
+}
+
+/* Раскладку виджеты считают от своей ширины (@container), а не от окна: колонка статьи узкая */
+.wx { container-type: inline-size; }
+.wx-2col { display: grid; gap: 1.25rem; }
+@container (min-width: 560px) { .wx-2col { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: start; } }
+
+/* Пустой результат: пунктирная рамка с подсказкой */
+.wx-empty { display: flex; min-height: 8rem; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 14px; border: 1.5px dashed rgb(var(--c-slate-200)); padding: 1rem; text-align: center; font-size: 0.8125rem; color: rgb(var(--c-slate-500)); }
+
+/* Шкала времени: дорожка, заливка до «сегодня», метки */
+.wx-track { position: relative; height: 8px; border-radius: 999px; background: rgb(var(--c-slate-100)); }
+.wx-track-fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--fill, rgb(var(--c-blue-500))); transition: width 0.7s cubic-bezier(0.3, 1.1, 0.5, 1); }
+.wx-track-mark { position: absolute; top: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: rgb(var(--surface)); border: 3px solid var(--fill, rgb(var(--c-blue-500))); transform: translateY(-50%); transition: left 0.7s cubic-bezier(0.3, 1.1, 0.5, 1); box-shadow: 0 0 0 4px rgb(var(--surface)); }
+.wx-track-dot { position: absolute; top: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; transform: translateY(-50%); background: rgb(var(--c-slate-300)); }
+@media (prefers-reduced-motion: reduce) { .wx-track-fill, .wx-track-mark { transition: none; } }

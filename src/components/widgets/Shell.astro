@@ -1,0 +1,41 @@
+---
+/**
+ * Каркас интерактивного виджета статьи: карточка, компактная шапка (иконка, заголовок, подпись)
+ * и общий стиль контролов (widgets.css). Тело — слот; справа в шапке — slot="aside".
+ *   <Shell icon={Calculator} title="…" sub="…" data-points-calc>…</Shell>
+ * Любые data-* атрибуты уходят на корневой элемент — по ним скрипт виджета находит себя.
+ */
+import "./widgets.css";
+
+interface Props {
+  icon: any;
+  title: string;
+  sub?: string;
+  /** Цвет плашки иконки */
+  tone?: "blue" | "emerald" | "amber" | "violet";
+  /** Без отступов в теле — виджет сам раскладывает колонки */
+  flush?: boolean;
+  class?: string;
+  [key: `data-${string}`]: unknown;
+}
+
+const { icon: Icon, title, sub, tone = "blue", flush = false, class: cls = "", ...rest } = Astro.props;
+const TONES = {
+  blue: "from-blue-500 to-blue-700 shadow-blue-600/30",
+  emerald: "from-emerald-500 to-emerald-700 shadow-emerald-600/30",
+  amber: "from-amber-400 to-orange-500 shadow-amber-500/30",
+  violet: "from-violet-500 to-indigo-600 shadow-violet-600/30",
+};
+---
+
+<section {...rest} class:list={["wx not-prose my-10 overflow-clip rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_18px_40px_-24px_rgba(15,23,42,0.22)]", cls]}>
+  <header class="flex items-center gap-3 border-b border-slate-100 px-5 py-4 md:px-6">
+    <span class:list={["flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-md", TONES[tone]]}><Icon class="h-[18px] w-[18px]" /></span>
+    <div class="min-w-0 flex-1">
+      <h3 class="text-base font-bold leading-tight text-slate-900 md:text-lg">{title}</h3>
+      {sub && <p class="mt-0.5 text-xs leading-snug text-slate-500">{sub}</p>}
+    </div>
+    <slot name="aside" />
+  </header>
+  <div class:list={[!flush && "p-5 md:p-6"]}><slot /></div>
+</section>
