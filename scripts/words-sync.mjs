@@ -8,8 +8,10 @@
  * поэтому сайт не зависит от базы ни при сборке, ни в браузере:
  *   src/data/words.json          [{ id, es, ru, d, m, q, ex?, h?, img? }] — от частых в вопросах DGT к редким
  *   src/data/words-sync.json     дата последнего изменения словаря (lastmod в sitemap)
- *   src/data/word-questions.json { id: [вопрос с ответами и объяснением] } — до 3 вопросов DGT со словом
- *                                для его страницы (только сборка, в браузер не уходит)
+ *   src/data/word-questions.json { id: [вопрос с ответами, объяснением и картинкой] } — до 3 вопросов DGT
+ *                                со словом для его страницы (только сборка, в браузер не уходит)
+ *   public/img/voprosy/<id>.webp картинка вопроса целиком (без обрезки — на ней бывают знаки); знак Skily
+ *                                на ней уже есть, свой не ставим
  *   public/img/slova/<id>.webp   картинка со знаком sdadim.eu (качается, только если её нет, она поменялась
  *                                в SkilyApp или поменялся знак — WM)
  * id строится из испанского написания: на нём держится прогресс учеников — не менять termId().
@@ -21,6 +23,7 @@ const r = (p) => new URL(p, import.meta.url);
 const OUT = r("../src/data/words.json");
 const META = r("../src/data/words-images.json");
 const IMG_DIR = r("../public/img/slova/");
+const Q_DIR = r("../public/img/voprosy/");
 
 /** Версия знака: поменял его вид — подними число, и все картинки перекачаются. */
 const WM = 2;
@@ -63,15 +66,15 @@ function mark(width) {
  * а затем приводим всё к одному кадру 4:3: на сайте картинка заполняет рамку целиком (object-cover).
  * Если «рамка» вышла больше трёх четвертей кадра — это не рамка, а однотонный фон рисунка: не трогаем.
  */
-async function frame(buf) {
+async function trimmed(buf) {
   const src = await sharp(buf).metadata();
   const { data, info } = await sharp(buf).trim({ threshold: 14 }).toBuffer({ resolveWithObject: true });
-  const body = info.width * info.height >= src.width * src.height * 0.25 ? data : buf;
-  return sharp(body).resize({ width: W, height: Math.round((W * 3) / 4), fit: "cover" }).toBuffer();
+  return info.width * info.height >= src.width * src.height * 0.25 ? data : buf;
 }
 
+/** Картинка слова — кадр 4:3 со знаком sdadim.eu по центру. */
 async function watermark(buf) {
-  const img = sharp(await frame(buf));
+  const img = sharp(await trimmed(buf)).resize({ width: W, height: Math.round((W * 3) / 4), fit: "cover" });
   const { data, info } = await img.toBuffer({ resolveWithObject: true });
   const m = mark(info.width);
   return sharp(data)
@@ -96,7 +99,7 @@ for (let from = 0; ; from += 1000) {
  */
 const questions = [];
 for (let from = 0; ; from += 1000) {
-  const res = await fetch(`${URL_}/rest/v1/questions_new?select=id,question_es,question_ru,explanation_ru,is_premium&country=eq.es&is_premium=eq.false&question_es=not.is.null&order=id`, {
+  const res = await fetch(`${URL_}/rest/v1/questions_new?select=id,question_es,question_ru,explanation_ru,image_url,is_premium&country=eq.es&is_premium=eq.false&question_es=not.is.null&order=id`, {
     headers: { ...headers, Range: `${from}-${from + 999}` },
   });
   if (!res.ok) throw new Error(`questions_new: ${res.status} ${await res.text()}`);
@@ -105,10 +108,11 @@ for (let from = 0; ; from += 1000) {
   if (page.length < 1000) break;
 }
 const flat = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-const full = questions
-  .map((q) => ({ id: q.id, es: q.question_es.replace(/\s+/g, " ").trim(), ru: q.question_ru.replace(/\s+/g, " ").trim(), x: q.explanation_ru }))
+const all = questions
+  .map((q) => ({ id: q.id, es: q.question_es.replace(/\s+/g, " ").trim(), ru: q.question_ru.replace(/\s+/g, " ").trim(), x: q.explanation_ru, src: q.image_url }))
+  .map((q) => ({ ...q, n: q.es.split(" ").length, low: flat(q.es) }));
+const full = all
   .filter((q) => /[?.]$/.test(q.es) && !/…|\.\.\./.test(q.es) && !/[:]$/.test(q.es))
-  .map((q) => ({ ...q, n: q.es.split(" ").length, low: flat(q.es) }))
   .filter((q) => q.n >= 5 && q.n <= 24);
 /** Как stem() в engine.ts: короткое слово — только с окончанием множественного числа, длинное — любое окончание. */
 const stem = (w) => {
@@ -120,17 +124,25 @@ const pattern = (es) =>
   new RegExp(`(^|[^a-z])${flat(es).replace(/[¿?¡!.,]/g, "").split(/\s+/).map(stem).join("\\s+")}(?![a-z])`);
 /** Лучший пример: длина ближе к 12 словам, и один вопрос не повторяется у многих слов. */
 const used = new Map();
-/** Вопросы для страницы слова: первый — тот же, что в примере, без отсылок к картинке («esta señal»). */
+/**
+ * Вопросы для страницы слова — из всех бесплатных (с картинкой, как на экзамене, поэтому годятся и
+ * «¿Qué indica esta señal?»): первый — тот же, что в примере, дальше — ближе к 12 словам.
+ */
 const pageQs = new Map();
-const NEEDS_PIC = /\b(est[ea]s?|imagen|figura|foto)\b/;
-function example(es, id) {
+function pageQuestions(w) {
+  if (w.es.length <= 2) return [];
+  const re = pattern(w.es);
+  const first = w.ex && all.find((q) => q.es === w.ex.es);
+  const rest = all.filter((q) => q !== first && re.test(q.low)).sort((a, b) => Math.abs(a.n - 12) - Math.abs(b.n - 12));
+  return [first, ...rest].filter(Boolean).slice(0, 3);
+}
+function example(es) {
   const re = pattern(es);
   const hits = full.filter((q) => re.test(q.low));
   if (!hits.length) return undefined;
   hits.sort((a, b) => Math.abs(a.n - 12) + 4 * (used.get(a.es) ?? 0) - (Math.abs(b.n - 12) + 4 * (used.get(b.es) ?? 0)));
   const best = hits[0];
   used.set(best.es, (used.get(best.es) ?? 0) + 1);
-  pageQs.set(id, [best, ...hits.slice(1).filter((q) => !NEEDS_PIC.test(q.low))].slice(0, 3));
   return { es: best.es, ru: best.ru };
 }
 
@@ -149,7 +161,7 @@ for (const s of rows) {
   seen.add(id);
   const w = { id, es: clean(s.term_es), ru: clean(s.term_ru), d: clean(s.description_ru), m: s.module, q: s.q_count ?? 0 };
   const own = s.example_es && s.example_ru && !/…|\.\.\.|:$/.test(s.example_es.trim()) ? { es: clean(s.example_es), ru: clean(s.example_ru) } : undefined;
-  const ex = (w.es.length > 2 && example(w.es, id)) || own;
+  const ex = (w.es.length > 2 && example(w.es)) || own;
   if (ex) w.ex = ex;
   if (s.hint_ru) w.h = clean(s.hint_ru);
   if (s.image_url) {
@@ -170,6 +182,8 @@ for (const s of rows) {
       meta[id] = { src: s.image_url, wm };
     }
   }
+  const qs = pageQuestions(w);
+  if (qs.length) pageQs.set(id, qs);
   out.push(w);
 }
 
@@ -193,14 +207,37 @@ for (let i = 0; i < qIds.length; i += 150) {
     answers.get(a.question_id).push({ es: clean(a.text_es), ru: clean(a.text_ru), ok: a.is_correct || undefined });
   }
 }
+// Картинки вопросов: качаются один раз (или когда поменялись в SkilyApp), размер — для width/height на странице.
+mkdirSync(Q_DIR, { recursive: true });
+const qImg = new Map();
+let qFetched = 0;
+for (const q of all.filter((q) => q.src && qIds.includes(q.id))) {
+  const file = new URL(`${q.id}.webp`, Q_DIR);
+  const key = `q:${q.id}`;
+  if (prev[key]?.src === q.src && prev[key]?.wm === 0 && existsSync(file)) {
+    meta[key] = prev[key];
+  } else {
+    const res = await fetch(q.src);
+    if (!res.ok) { console.warn(`! вопрос ${q.id}: картинка ${res.status}`); continue; }
+    const { data: webp, info } = await sharp(await trimmed(Buffer.from(await res.arrayBuffer())))
+      .resize({ width: W, withoutEnlargement: true })
+      .webp({ quality: 76 })
+      .toBuffer({ resolveWithObject: true });
+    const [w, h] = [info.width, info.height];
+    writeFileSync(file, webp);
+    meta[key] = { src: q.src, wm: 0, w, h };
+    qFetched++;
+  }
+  qImg.set(q.id, [meta[key].w, meta[key].h]);
+}
 const wq = {};
 for (const w of out) {
   const qs = (pageQs.get(w.id) ?? [])
-    .map((q) => ({ es: q.es, ru: q.ru, a: answers.get(q.id) ?? [], x: clean(q.x) }))
+    .map((q) => ({ id: q.id, es: q.es, ru: q.ru, a: answers.get(q.id) ?? [], x: clean(q.x), img: qImg.get(q.id) }))
     .filter((q) => q.a.length >= 2 && q.a.filter((a) => a.ok).length === 1 && q.a.every((a) => a.es && a.ru));
   if (qs.length) wq[w.id] = qs;
 }
 writeFileSync(r("../src/data/word-questions.json"), JSON.stringify(wq) + "\n");
 writeFileSync(META, JSON.stringify(meta, null, 0).replace(/\},"/g, '},\n"') + "\n");
-console.log(`✓ ${out.length} слов → src/data/words.json, с картинкой ${out.filter((w) => w.img).length}, скачано ${fetched}, вопросов для страниц ${Object.values(wq).flat().length}`);
+console.log(`✓ ${out.length} слов → src/data/words.json, с картинкой ${out.filter((w) => w.img).length}, скачано ${fetched}, вопросов для страниц ${Object.values(wq).flat().length} у ${Object.keys(wq).length} слов (картинок скачано ${qFetched})`);
 console.log(`  примеры: ${out.filter((w) => w.ex).length} (из ${full.length} бесплатных вопросов экзамена)`);

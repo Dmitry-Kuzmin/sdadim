@@ -31,11 +31,20 @@ export type Word = {
 };
 
 /** Настоящий бесплатный вопрос DGT: ответы в порядке экзамена, ровно один верный, объяснение по-русски. */
-export type ExamQuestion = { es: string; ru: string; a: { es: string; ru: string; ok?: boolean }[]; x?: string };
+export type ExamQuestion = {
+  id: string;
+  es: string;
+  ru: string;
+  a: { es: string; ru: string; ok?: boolean }[];
+  x?: string;
+  /** Картинка вопроса [ширина, высота] — /img/voprosy/<id>.webp. */
+  img?: [number, number];
+};
 
 export const BASE = "/ispanskij-dlya-dgt";
 export const WORDS = raw as Word[];
 export const wordImg = (id: string) => `/img/slova/${id}.webp`;
+export const qImg = (id: string) => `/img/voprosy/${id}.webp`;
 export const setUrl = (s: WordSet) => `${BASE}/${s.slug}`;
 export const wordUrl = (w: Word) => `${BASE}/slovo/${w.id}`;
 /** «arcén» → «Arcén»: заголовки и подписи. */
