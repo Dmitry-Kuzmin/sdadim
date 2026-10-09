@@ -1,0 +1,83 @@
+---
+/**
+ * План получения прав по дате резиденции: медкомиссия → теория → вождение, против дедлайна 6 месяцев
+ * (RD 818/2009, ст. 21.2.c). Сроки подготовки — ориентиры: теория 4–8 недель, вождение — от опыта.
+ */
+import { Route } from "@lucide/astro";
+---
+
+<div data-planner class="not-prose my-10 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.18)]">
+  <div class="border-b border-slate-200 p-6 md:p-8">
+    <div class="flex items-center gap-3">
+      <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white"><Route class="h-5 w-5" /></span>
+      <div>
+        <h3 class="text-xl font-bold text-slate-900">Ваш план до испанских прав</h3>
+        <p class="text-sm text-slate-500">Успеваете ли до конца 6 месяцев на своих правах</p>
+      </div>
+    </div>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      <label class="block">
+        <span class="text-sm font-semibold text-slate-700">Дата начала резиденции</span>
+        <input data-date type="date" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900 focus:border-blue-500/50 focus:outline-none" />
+      </label>
+      <div>
+        <span class="text-sm font-semibold text-slate-700">Водили раньше?</span>
+        <div class="mt-2 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Опыт вождения">
+          <button type="button" role="radio" data-exp="yes" aria-checked="true" class="rounded-xl border px-3 py-3 text-sm font-semibold transition-colors aria-checked:border-blue-600 aria-checked:bg-blue-50 aria-checked:text-slate-900 aria-[checked=false]:border-slate-200 aria-[checked=false]:text-slate-600">Да, есть опыт</button>
+          <button type="button" role="radio" data-exp="no" aria-checked="false" class="rounded-xl border px-3 py-3 text-sm font-semibold transition-colors aria-checked:border-blue-600 aria-checked:bg-blue-50 aria-checked:text-slate-900 aria-[checked=false]:border-slate-200 aria-[checked=false]:text-slate-600">Нет, с нуля</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ol data-steps class="divide-y divide-slate-100">
+    <li class="px-6 py-5 text-sm text-slate-500 md:px-8">Укажите дату — составим план по неделям.</li>
+  </ol>
+  <p data-verdict hidden class="border-t border-slate-200 px-6 py-4 text-sm md:px-8"></p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-planner]").forEach((root) => {
+    let experienced = true;
+    const input = root.querySelector<HTMLInputElement>("[data-date]")!;
+    const fmt = (d: Date) => d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+    const add = (d: Date, days: number) => new Date(d.getTime() + days * 86400000);
+    const render = () => {
+      if (!input.value) return;
+      const start = new Date(input.value + "T00:00:00");
+      const deadline = new Date(start);
+      deadline.setMonth(deadline.getMonth() + 6);
+      // Ориентиры: теория 6 недель, запись на теорию ~2 недели, вождение: опытным 3 недели уроков, новичкам 10
+      const plan = [
+        { at: add(start, 0), t: "Старт подготовки к теории", d: "Курс или тренажёр — по 20–30 минут каждый день" },
+        { at: add(start, 28), t: "Медкомиссия в центре CRC", d: "Справка действует 90 дней — не раньше, чем за месяц до подачи" },
+        { at: add(start, 35), t: "Пошлина DGT и запись на теорию", d: "Сами на sede.dgt.gob.es или через автошколу" },
+        { at: add(start, 49), t: "Экзамен по теории", d: "30 вопросов, не больше 3 ошибок" },
+        { at: add(start, 49 + (experienced ? 21 : 70)), t: "Экзамен по вождению", d: experienced ? "Обычно хватает нескольких уроков, чтобы привыкнуть к испанскому стилю" : "Новичку — от 20 уроков; срок сильно зависит от очереди на экзамен" },
+      ];
+      const last = plan[plan.length - 1].at;
+      root.querySelector("[data-steps]")!.innerHTML = plan
+        .map(
+          (p, i) =>
+            `<li class="flex gap-4 px-6 py-4 md:px-8"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${i === plan.length - 1 ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"} text-xs font-bold">${i + 1}</span><div class="flex-1"><p class="flex flex-wrap items-baseline justify-between gap-x-3"><span class="font-semibold text-slate-900">${p.t}</span><span class="text-sm tabular-nums text-slate-500">≈ ${fmt(p.at)}</span></p><p class="mt-0.5 text-sm text-slate-600">${p.d}</p></div></li>`
+        )
+        .join("") +
+        `<li class="flex gap-4 bg-slate-50 px-6 py-4 md:px-8"><span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">!</span><div><p class="font-semibold text-slate-900">Последний день на своих правах — ${fmt(deadline)}</p><p class="mt-0.5 text-sm text-slate-600">Для прав из стран без соглашения об обмене</p></div></li>`;
+      const v = root.querySelector<HTMLElement>("[data-verdict]")!;
+      const slack = Math.round((deadline.getTime() - last.getTime()) / 86400000);
+      v.hidden = false;
+      v.className = `border-t border-slate-200 px-6 py-4 text-sm md:px-8 ${slack >= 14 ? "text-emerald-700" : "text-amber-700"}`;
+      v.textContent =
+        slack >= 14
+          ? `Успеваете с запасом ${slack} дн. Главный риск — очередь на вождение в вашей провинции: записывайтесь сразу после теории.`
+          : `Впритык или не успеваете (${slack} дн. запаса). Начинайте теорию сейчас и заранее найдите автошколу с ближайшими датами экзамена.`;
+    };
+    root.querySelectorAll<HTMLButtonElement>("[data-exp]").forEach((b, _, all) =>
+      b.addEventListener("click", () => {
+        experienced = b.dataset.exp === "yes";
+        all.forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+        render();
+      })
+    );
+    input.addEventListener("input", render);
+  });
+</script>

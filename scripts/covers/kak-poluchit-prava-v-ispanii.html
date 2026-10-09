@@ -1,0 +1,23 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #dbeafe; }
+  .road { position: absolute; left: 150px; top: 470px; width: 1300px; height: 8px; background: repeating-linear-gradient(90deg, #cbd5e1 0 40px, transparent 40px 70px); border-radius: 4px; }
+  .st { position: absolute; top: 300px; width: 230px; padding: 22px; text-align: center; }
+  .st .dot { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; background: var(--blue); }
+  .st b { display: block; font-size: 22px; }
+  .st span { font-size: 16px; color: var(--muted); }
+  .st.done .dot { background: var(--green); }
+  .flag { position: absolute; left: 1270px; top: 170px; transform: rotate(6deg); }
+  .note { position: absolute; left: 520px; top: 680px; font-size: 44px; transform: rotate(-2deg); }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="road"></div>
+  <div class="card st done" style="left:120px"><div class="dot">✓</div><b>ВНЖ</b><span>TIE</span></div>
+  <div class="card st done" style="left:420px"><div class="dot">✓</div><b>Медкомиссия</b><span>CRC</span></div>
+  <div class="card st" style="left:720px"><div class="dot">3</div><b>Теория</b><span>30 вопросов</span></div>
+  <div class="card st" style="left:1020px"><div class="dot">4</div><b>Вождение</b><span>25+ минут</span></div>
+  <div class="chip flag"><div class="n">🏁</div><div class="t"><b>Permiso B</b></div></div>
+  <div class="note hand">2–6 месяцев от ВНЖ до прав</div>
+</body></html>
