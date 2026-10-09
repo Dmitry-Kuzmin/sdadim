@@ -266,3 +266,13 @@ export function countUp(el: HTMLElement, to: number, ms = 900, fmt = (n: number)
   };
   requestAnimationFrame(step);
 }
+
+/** Бейдж серии с огоньком (с 2 подряд): уровни seed → mild → warm → hot, «пульс» при росте. */
+export function streak(el: HTMLElement, n: number) {
+  const prev = Number(el.dataset.n || 0);
+  el.dataset.n = String(n);
+  el.dataset.tier = n >= 10 ? "hot" : n >= 6 ? "warm" : n >= 3 ? "mild" : n >= 2 ? "seed" : "";
+  el.innerHTML = n >= 2 ? `<b aria-hidden="true">🔥</b><span>${n}</span>` : "";
+  el.setAttribute("aria-label", n >= 2 ? `Серия: ${n} подряд` : "");
+  if (n > prev && n >= 2) pop(el);
+}

@@ -148,14 +148,7 @@ export async function open(mode: ModeId, module?: string, only?: Word[], again =
     p,
     setBar: (f) => (bar.style.width = `${Math.round(Math.min(1, f) * 100)}%`),
     setHud: (html) => (hud.innerHTML = html),
-    setStreak(n) {
-      const prev = Number(streakEl.dataset.n || 0);
-      streakEl.dataset.n = String(n);
-      streakEl.dataset.tier = n >= 10 ? "hot" : n >= 6 ? "warm" : n >= 3 ? "mild" : n >= 2 ? "seed" : "";
-      streakEl.innerHTML = n >= 2 ? `<b aria-hidden="true">🔥</b><span>${n}</span>` : "";
-      streakEl.setAttribute("aria-label", n >= 2 ? `Серия: ${n} подряд` : "");
-      if (n > prev && n >= 2) fx.pop(streakEl);
-    },
+    setStreak: (n) => fx.streak(streakEl, n),
     segments(n) {
       barBox.classList.add("is-seg");
       barBox.replaceChildren(...Array.from({ length: n }, () => h("span")));

@@ -513,6 +513,7 @@
 .r3-hud > *, .r3-stats > * { pointer-events: auto; }
 .r3-btn { width: 44px; height: 44px; border-radius: 14px; background: rgb(15 23 42 / 0.55); backdrop-filter: blur(8px); color: #fff; font-size: 18px; }
 .r3-stats { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.r3-streak { pointer-events: none; }
 .r3-hearts { display: flex; gap: 2px; padding: 6px 10px; border-radius: 12px; background: rgb(15 23 42 / 0.55); backdrop-filter: blur(8px); font-size: 18px; line-height: 1; }
 .r3-hearts i { font-style: normal; color: #f43f5e; text-shadow: 0 0 8px rgb(244 63 94 / 0.6); }
 .r3-hearts i.is-off { color: rgb(255 255 255 / 0.25); text-shadow: none; }

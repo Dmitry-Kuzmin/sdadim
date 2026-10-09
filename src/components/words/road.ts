@@ -11,7 +11,7 @@
 import type { Word } from "@/lib/words";
 import type { Ctx } from "./trainer";
 import { h } from "./dom";
-import { source } from "./arcade";
+import { intro, source } from "./arcade";
 import * as E from "./engine";
 import * as fx from "./fx";
 import { BIOMES, scenery } from "./scenery";
@@ -19,10 +19,13 @@ import { BIOMES, scenery } from "./scenery";
 const LANES = 3;
 const LIVES = 3;
 const PER_LEVEL = 8;
-/** Сколько секунд у игрока на ответ: от 3,6 с на старте до 1,4 с. Скорость дороги считается из этого
- *  и из расстояния «указатель → машина», поэтому на телефоне и на мониторе игра одинаково честная. */
-const timeOf = (n: number) => Math.max(1.4, 3.6 * 0.95 ** n);
-const kmhOf = (n: number) => Math.round(40 + ((3.6 - timeOf(n)) / 2.2) * 100);
+/** Сколько секунд у игрока на ответ: 5,6 с на старте — успеть прочитать слово и три перевода, —
+ *  потом на 3,5 % меньше за каждое слово, не меньше 2,4 с (к 24-му слову). Скорость дороги считается
+ *  из этого и из расстояния «указатель → машина», поэтому на телефоне и на мониторе игра одинаково честная. */
+const timeOf = (n: number) => Math.max(2.4, 5.6 * 0.965 ** n);
+/** Длинные переводы читать дольше: +0,03 с на каждый знак сверх 40 (слово + три ответа), до +1,5 с. */
+const readOf = (chars: number) => Math.min(1.5, Math.max(0, chars - 40) * 0.03);
+const kmhOf = (n: number) => Math.round(40 + ((5.6 - timeOf(n)) / 3.2) * 100);
 
 const svgEl = (html: string, cls: string) => {
   const s = document.createElement("div");
@@ -64,6 +67,14 @@ type Mark = { el: HTMLElement; y: number };
 const PER_BIOME = 6;
 
 export function road(ctx: Ctx) {
+  intro(ctx, "road", [
+    ["🪧", "Испанское слово — на синем указателе, переводы — на табличках над тремя полосами."],
+    ["🚗", "Перестройтесь в полосу с <b>правильным переводом</b>: ← → на клавиатуре, свайп или тап по полосе."],
+    ["❤️", "Три жизни. Сначала времени много, с каждым словом дорога <b>быстрее</b>."],
+  ], () => play(ctx));
+}
+
+function play(ctx: Ctx) {
   const short = (w: Word) => w.ru.length <= 26;
   const words = E.shuffle(source(ctx, short, 6));
   const others = ctx.all.filter(short);
@@ -84,9 +95,11 @@ export function road(ctx: Ctx) {
   const sign = h("div.r3-sign", { "aria-live": "polite" });
   const hearts = h("span.r3-hearts");
   const scoreEl = h("b.r3-score", {}, "0");
+  const scoreBox = h("span.r3-box", {}, scoreEl, h("small", {}, "очков"));
+  const streakEl = h("span.wt-streak.r3-streak", { "aria-live": "polite" });
   const speedEl = h("span.r3-speed");
   const quit = h("button.r3-btn", { type: "button", "aria-label": "Закрыть", onclick: () => ctx.exit() }, "✕");
-  const hud = h("div.r3-hud", {}, quit, h("div.r3-stats", {}, hearts, h("span.r3-box", {}, scoreEl, h("small", {}, "очков")), speedEl));
+  const hud = h("div.r3-hud", {}, quit, h("div.r3-stats", {}, hearts, streakEl, scoreBox, speedEl));
   const toast = h("div.r3-toast", { role: "status" });
   const banner = h("div.r3-banner");
   const place = h("div.r3-place", { "aria-live": "polite" });
@@ -98,8 +111,8 @@ export function road(ctx: Ctx) {
 
   /* ─── Состояние ─── */
   let W = 0, H = 0, RW = 0, laneW = 0, carTop = 0;
-  let lane = 1, n = 0, lives = LIVES, score = 0, combo = 0, correct = 0, level = 1;
-  let y = 0, v = 0, target = 0, kmh = 0, running = false, over = false;
+  let lane = 1, n = 0, lives = LIVES, score = 0, combo = 0, best = 0, correct = 0, level = 1;
+  let y = 0, v = 0, target = 0, kmh = 0, limit = timeOf(0), running = false, over = false;
   let rowY = 0, rowH = 0, rowOn = false, resolved = false, right_ = 0, cur: Word | null = null;
   let gates: HTMLElement[] = [];
   const mistakes = new Map<string, Word>();
@@ -142,7 +155,7 @@ export function road(ctx: Ctx) {
     hold = 0.09;
     // Сколько секунд до мачты: меньше трети времени на ответ — перестроение «на нервах», с заносом.
     const left = rowOn && !resolved && v > 1 ? (carTop - rowY - rowH) / v : 9;
-    if (left < Math.max(0.45, timeOf(n) * 0.3)) {
+    if (left < Math.max(0.45, Math.min(1, limit * 0.22))) {
       drift = 1;
       fx.sfx("skid");
     }
@@ -218,7 +231,8 @@ export function road(ctx: Ctx) {
     row.classList.remove("is-in");
     void row.offsetWidth;
     row.classList.add("is-in");
-    target = Math.max(40, carTop - rowH - signBottom) / timeOf(n);
+    limit = timeOf(n) + readOf(w.es.length + opts.reduce((t, o) => t + o.ru.length, 0));
+    target = Math.max(40, carTop - rowH - signBottom) / limit;
     kmh = kmhOf(n);
     rowOn = true;
     resolved = false;
@@ -232,11 +246,14 @@ export function road(ctx: Ctx) {
     if (lane === right_) {
       correct++;
       combo++;
+      best = Math.max(best, combo);
       const mult = combo >= 10 ? 3 : combo >= 5 ? 2 : 1;
       const add = 10 * mult;
       score += add;
       fx.sfx(combo % 5 === 0 ? "combo" : "ok");
       fx.floatText(roadEl, `+${add}${mult > 1 ? ` ×${mult}` : ""}`, "is-ok r3-plus");
+      fx.burst(gates[right_], true, scoreBox, 18);
+      if (combo % 5 === 0) fx.burst(car, "gold", streakEl, 24);
       if (combo % 5 === 0) say(`🔥 Серия ${combo}!`, "is-good");
       if (correct % PER_LEVEL === 0) {
         level++;
@@ -248,6 +265,7 @@ export function road(ctx: Ctx) {
       lives--;
       mistakes.set(w.id, w);
       gates[lane].classList.add("is-bad");
+      fx.ring(gates[lane], false);
       fx.sfx("crash");
       fx.shake(scene);
       flash.classList.remove("is-on");
@@ -261,12 +279,13 @@ export function road(ctx: Ctx) {
       say(`${w.es} — ${w.ru}`, "is-bad");
     }
     paintHud();
+    fx.streak(streakEl, combo);
     if (lives <= 0) {
       over = true;
       running = false;
       motor.stop();
       shout("Fin del trayecto");
-      ctx.later(() => ctx.finish({ correct, total: n, mistakes: [...mistakes.values()], xp: Math.round(score / 5), score, scoreLabel: "очков" }), 1600);
+      ctx.later(() => ctx.finish({ correct, total: n, mistakes: [...mistakes.values()], xp: Math.round(score / 5), score, scoreLabel: "очков", combo: best }), 1600);
     }
   };
 
