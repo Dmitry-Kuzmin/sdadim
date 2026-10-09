@@ -1,0 +1,10 @@
+---
+/** Пошлина DGT из единого источника: <Tasa k="exam" /> → «94,05 €» */
+import { tasaText, type TasaKey } from "@/lib/facts";
+
+interface Props {
+  k: TasaKey;
+}
+---
+
+{tasaText(Astro.props.k)}

@@ -5,6 +5,7 @@
  * (общей с квизом на главной и migran.es).
  */
 import { Euro } from "@lucide/astro";
+import { YEAR } from "@/lib/facts";
 import { getPlans } from "@/lib/plans";
 import { budget, eur, MARKET, TASA_DGT } from "@/lib/license-costs";
 import { cn } from "@/lib/utils";
@@ -25,7 +26,7 @@ const STEPPERS = [
 
   <div class="text-center mb-8">
     <h3 class="text-2xl font-bold text-slate-900 flex items-center justify-center gap-2">
-      <Euro class="w-6 h-6 text-emerald-600" /> Калькулятор стоимости прав 2026
+      <Euro class="w-6 h-6 text-emerald-600" /> Калькулятор стоимости прав {YEAR}
     </h3>
     <p class="text-sm text-slate-600 mt-2">Полный бюджет с пересдачами и повторной пошлиной DGT</p>
   </div>

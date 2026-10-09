@@ -1,0 +1,19 @@
+---
+/**
+ * Штраф из таблицы traffic_fines (BOE, общая со SkilyApp):
+ *   <Fine id="a76.g" />               → «200 € и −6 баллов»
+ *   <Fine id="a76.g" show="fine" />   → «200 €»
+ *   <Fine id="a76.g" show="points" /> → «6 баллов»
+ * В строках пропсов — `${fine("a76.g")}` из @/lib/fines.
+ */
+import { fine } from "@/lib/fines";
+
+interface Props {
+  id: string;
+  show?: "both" | "fine" | "points";
+}
+
+const { id, show = "both" } = Astro.props;
+---
+
+{fine(id, show)}

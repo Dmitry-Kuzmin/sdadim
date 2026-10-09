@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #fee2e2; }
+  .meter { left: 170px; top: 150px; width: 560px; padding: 44px 48px; transform: rotate(-3deg); }
+  .meter .big { font-size: 170px; font-weight: 900; letter-spacing: -.05em; line-height: 1; }
+  .meter .big small { font-size: 48px; color: var(--soft); font-weight: 700; letter-spacing: -.02em; }
+  .dots { display: flex; gap: 12px; margin-top: 28px; }
+  .dots i { width: 30px; height: 30px; border-radius: 50%; background: var(--green); }
+  .dots i.off { background: #e2e8f0; }
+  .ticket { left: 880px; top: 160px; width: 440px; padding: 34px 38px; transform: rotate(5deg); border-top: 10px solid var(--red); }
+  .ticket .row { display: flex; justify-content: space-between; font-size: 22px; padding: 14px 0; border-bottom: 1px solid #f1f5f9; color: #334155; }
+  .ticket .row b { color: var(--red); }
+  .note { position: absolute; left: 940px; top: 700px; font-size: 42px; transform: rotate(-4deg); color: var(--red); }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="card meter">
+    <div class="eyebrow">Saldo de puntos</div>
+    <div class="big tabular">6<small> / 12</small></div>
+    <div class="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i></div>
+  </div>
+  <div class="card ticket">
+    <div class="eyebrow" style="margin-bottom:10px">Denuncia · DGT</div>
+    <div class="row"><span>Móvil en la mano</span><b>−6</b></div>
+    <div class="row"><span>Multa</span><span class="tabular">200 €</span></div>
+    <div class="row" style="border:0"><span>Pronto pago −50%</span><span class="tabular">100 €</span></div>
+  </div>
+  <div class="note hand">ещё одно — и без прав</div>
+  <div class="chip" style="left:180px; top:690px; width:330px"><div class="n tabular">8</div><div class="t">баллов у новичка — первые 2 года</div></div>
+</body></html>

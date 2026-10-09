@@ -6,6 +6,7 @@
  */
 import { ArrowRight, BrainCircuit, CheckCircle2, ChevronRight, RotateCcw, XCircle, Zap } from "@lucide/astro";
 import type { QuizQuestion } from "@/data/quizzes";
+import { YEAR } from "@/lib/facts";
 
 interface Props {
   questions: QuizQuestion[];
@@ -141,7 +142,7 @@ const C = 2 * Math.PI * 42;
   </div>
 
   <div class="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
-    <span class="text-[10px] text-slate-400">Официальные вопросы DGT · База 2025</span>
+    <span class="text-[10px] text-slate-400">Официальные вопросы DGT · База {YEAR}</span>
     <a href="https://t.me/skilyapp_bot?start=course" target="_blank" rel="noopener noreferrer" class="text-[10px] text-slate-400 hover:text-slate-700 transition-colors font-medium">Sdadim.eu →</a>
   </div>
 </div>

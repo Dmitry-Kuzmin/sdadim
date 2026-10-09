@@ -22,6 +22,23 @@ Frontmatter — единственный источник: страница, к�
 - Сайдбар — блоки `sidebar:` во frontmatter (toc, fact, card, stat, banner).
 - Обложка: HTML-шаблон `scripts/covers/<slug>.html` → `npm run covers -- <slug>` → `public/assets/blog/<slug>.jpg`.
 
+## Годы, пошлины и штрафы — только из единого источника
+
+Цифры руками в статьях не пишем — они устаревают.
+
+| Что | В тексте MDX | В строках пропсов MDX | Во frontmatter | Источник |
+|---|---|---|---|---|
+| Текущий год | `<Year />` | `` `${YEAR}` `` | `{YEAR}` | `src/lib/facts.ts` (год сборки) |
+| Пошлины DGT | `<Tasa k="exam" />` | `` `${T.exam}` `` | `{TASA.exam}` | `src/lib/license-costs.ts` |
+| Штрафы и баллы | `<Fine id="a76.g" />` | `` `${fine("a76.g")}` `` | — | таблица `traffic_fines` (BOE, общая со SkilyApp) |
+
+- Импорт для пропсов: `import { T, YEAR } from "@/lib/facts";`, `import { fine } from "@/lib/fines";`.
+- Штрафы: сборка берёт живую таблицу из Supabase (её раз в неделю сверяет с BOE функция `traffic-fines-sync` в репо skilyapp);
+  без сети — снимок `src/data/traffic-fines.json`, обновить: `npm run fines:snapshot`. id штрафов — в снимке.
+- Каждый январь (новый PGE) сверить каталог тасс DGT и обновить `license-costs.ts` + `TASAS_CHECKED_YEAR` в `facts.ts` —
+  до этого сборка печатает предупреждение. Исторические годы («в апреле 2025 сдала») — обычным текстом.
+- FAQ статьи — поле `faq:` во frontmatter: блок «Частые вопросы» и FAQPage-схема строятся сами.
+
 ## Главная и данные
 
 | Что | Где |

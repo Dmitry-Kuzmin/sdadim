@@ -1,0 +1,173 @@
+---
+/**
+ * «Сколько баллов у вас останется»: нарушения и превышение скорости → списанные баллы и штрафы.
+ * Суммы и баллы — из traffic_fines (BOE, общая со SkilyApp), см. @/lib/fines.
+ */
+import { Calculator } from "@lucide/astro";
+import { FINES, fineEur, pointsWord } from "@/lib/fines";
+
+const PICK = ["a76.g", "a76.g.2", "a76.f", "a76.h", "a76.k", "a76.l", "a76.ñ", "a76.c.3", "a76.c.5", "a77.c", "a77.c.2", "a77.c.3", "a77.e", "a77.f"];
+const SHORT: Record<string, string> = {
+  "a76.g": "Телефон в руке за рулём",
+  "a76.g.2": "Телефон, навигатор без рук — отвлечение",
+  "a76.f": "Наушники за рулём",
+  "a76.h": "Без ремня или детского кресла",
+  "a76.k": "Проезд на красный",
+  "a76.l": "Не остановился на STOP / не уступил",
+  "a76.ñ": "Не соблюдал дистанцию",
+  "a76.c.3": "Опасный обгон велосипедиста",
+  "a76.c.5": "Запрещённый разворот",
+  "a77.c": "Алкоголь выше нормы",
+  "a77.c.2": "Алкоголь вдвое выше нормы",
+  "a77.c.3": "Наркотики в организме",
+  "a77.e": "Опасное вождение",
+  "a77.f": "Езда по встречной",
+};
+const rows = PICK.map((id) => FINES.rows.find((r) => r.id === id)!).filter(Boolean);
+const speed = FINES.rows.filter((r) => r.kind === "speed").map((r) => ({ l: r.speed_limit, f: r.speed_from, t: r.speed_to, e: r.fine_eur, p: r.points }));
+const limits = [...new Set(speed.map((s) => s.l))].sort((a, b) => a! - b!);
+---
+
+<div data-points-calc data-speed={JSON.stringify(speed)} class="not-prose my-10 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.18)]">
+  <div class="flex items-center gap-3 border-b border-slate-200 p-6 md:px-8">
+    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white"><Calculator class="h-5 w-5" /></span>
+    <div>
+      <h3 class="text-xl font-bold text-slate-900">Сколько баллов у вас останется</h3>
+      <p class="text-sm text-slate-500">Штрафы и баллы — из закона о движении (BOE), сверено {new Date(FINES.boeUpdated).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }).replace(/\s*г\.$/, "")}</p>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-[1.3fr_1fr]">
+    <div class="space-y-6 p-6 md:p-8">
+      <div>
+        <p class="text-sm font-semibold text-slate-700">Сколько баллов на счету</p>
+        <div class="mt-2 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Баллы на счету">
+          {
+            [
+              { v: 8, t: "Новичок" },
+              { v: 12, t: "Обычный" },
+              { v: 15, t: "Максимум" },
+            ].map((o, i) => (
+              <button type="button" role="radio" data-start={o.v} aria-checked={i === 1 ? "true" : "false"} class="rounded-xl border px-3 py-2.5 text-left transition-colors aria-checked:border-blue-600 aria-checked:bg-blue-50 aria-[checked=false]:border-slate-200 aria-[checked=false]:hover:border-slate-300">
+                <span class="block text-lg font-bold text-slate-900">{o.v}</span>
+                <span class="text-xs text-slate-500">{o.t}</span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
+      <div>
+        <p class="text-sm font-semibold text-slate-700">Превышение скорости</p>
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <label class="block">
+            <span class="text-xs text-slate-500">Ограничение, км/ч</span>
+            <select data-limit class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-900 focus:border-blue-500/50 focus:outline-none">
+              <option value="">— нет —</option>
+              {limits.map((l) => <option value={l}>{l}</option>)}
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-xs text-slate-500">Скорость по радару</span>
+            <input data-speed-val type="number" inputmode="numeric" min="0" placeholder="км/ч" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-900 focus:border-blue-500/50 focus:outline-none" />
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-sm font-semibold text-slate-700">Нарушения</p>
+        <ul class="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-200">
+          {
+            rows.map((r) => (
+              <li>
+                <label class="flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50">
+                  <input type="checkbox" data-fine={r.fine_eur} data-pts={r.points} class="h-4 w-4 shrink-0 accent-blue-600" />
+                  <span class="flex-1 text-sm text-slate-700">{SHORT[r.id]}</span>
+                  <span class="whitespace-nowrap text-xs tabular-nums text-slate-500">{fineEur(r.fine_eur)} · −{r.points}</span>
+                </label>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-slate-100 bg-slate-50/70 p-6 md:p-8 lg:border-l lg:border-t-0">
+      <div class="lg:sticky lg:top-24">
+        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Итог</p>
+        <p class="mt-4 text-sm text-slate-500">Останется баллов</p>
+        <p data-left class="text-6xl font-bold tracking-tight tabular-nums text-slate-900">12</p>
+        <div class="mt-3 h-2 overflow-hidden rounded-full bg-slate-200"><div data-bar class="h-full w-full rounded-full bg-emerald-500 transition-all duration-300"></div></div>
+        <p data-status class="mt-3 text-sm font-semibold text-emerald-600">Права в порядке</p>
+
+        <div class="mt-6 grid grid-cols-2 gap-3">
+          <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+            <p class="text-xs text-slate-500">Штрафы</p>
+            <p data-sum class="text-xl font-bold tabular-nums text-slate-900">0 €</p>
+          </div>
+          <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+            <p class="text-xs text-slate-500">Со скидкой 50%</p>
+            <p data-half class="text-xl font-bold tabular-nums text-emerald-600">0 €</p>
+          </div>
+        </div>
+        <p data-speed-note hidden class="mt-3 rounded-xl bg-white p-3 text-sm text-slate-600 ring-1 ring-slate-200"></p>
+        <p class="mt-4 text-xs leading-relaxed text-slate-500">Скидка 50% — при оплате в течение 20 дней, баллы при этом всё равно снимают. За один день нельзя потерять больше 8 баллов, если среди нарушений нет алкоголя, наркотиков, опасного вождения и других очень серьёзных.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-points-calc]").forEach((root) => {
+    type S = { l: number; f: number; t: number | null; e: number; p: number };
+    const speed = JSON.parse(root.dataset.speed!) as S[];
+    let start = 12;
+    const $ = <T extends Element = HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const word = (n: number) => (n % 10 === 1 && n % 100 !== 11 ? "балл" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "балла" : "баллов");
+    const eur = (n: number) => `${String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €`;
+
+    const render = () => {
+      let pts = 0,
+        sum = 0;
+      root.querySelectorAll<HTMLInputElement>("[data-fine]:checked").forEach((c) => {
+        pts += Number(c.dataset.pts);
+        sum += Number(c.dataset.fine);
+      });
+      const lim = Number($<HTMLSelectElement>("[data-limit]").value);
+      const v = Number($<HTMLInputElement>("[data-speed-val]").value);
+      const note = $("[data-speed-note]");
+      note.hidden = true;
+      if (lim && v) {
+        const row = speed.find((s) => s.l === lim && v >= s.f && (s.t === null || v <= s.t));
+        note.hidden = false;
+        if (row) {
+          pts += row.p;
+          sum += row.e;
+          // УК, ст. 379: больше +60 км/ч в городе или +80 км/ч за городом — уже преступление
+          const crime = v - lim > (lim <= 50 ? 60 : 80);
+          note.textContent = `${v} км/ч при ограничении ${lim}: ${eur(row.e)}${row.p ? `, −${row.p} ${word(row.p)}` : ", без баллов"}.${crime ? " И это уже уголовное дело (ст. 379 УК): лишение прав и суд." : ""}`;
+        } else note.textContent = v > lim ? "Такое превышение — уже не штраф, а уголовное дело (ст. 379 УК)." : "Превышения нет.";
+      }
+      const left = Math.max(0, start - pts);
+      $("[data-left]").textContent = String(left);
+      const bar = $("[data-bar]");
+      bar.style.width = `${(left / start) * 100}%`;
+      bar.className = `h-full rounded-full transition-all duration-300 ${left === 0 ? "bg-red-500" : left <= 4 ? "bg-amber-500" : "bg-emerald-500"}`;
+      const st = $("[data-status]");
+      st.textContent = left === 0 ? "Права теряют силу: курс и новый экзамен" : left <= 4 ? "Опасная зона — ещё одно нарушение может стоить прав" : "Права в порядке";
+      st.className = `mt-3 text-sm font-semibold ${left === 0 ? "text-red-600" : left <= 4 ? "text-amber-600" : "text-emerald-600"}`;
+      $("[data-sum]").textContent = eur(sum);
+      $("[data-half]").textContent = eur(sum / 2);
+    };
+
+    root.querySelectorAll<HTMLButtonElement>("[data-start]").forEach((b, _, all) =>
+      b.addEventListener("click", () => {
+        start = Number(b.dataset.start);
+        all.forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+        render();
+      })
+    );
+    root.querySelectorAll("input, select").forEach((el) => el.addEventListener("input", render));
+    render();
+  });
+</script>

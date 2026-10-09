@@ -6,6 +6,7 @@
 import {
   ArrowUpRight, BadgeEuro, Ban, BookOpen, CarFront, Eye, FileText, Fingerprint, Gauge, MapPin, MoveRight, Scale, Siren, StopCircle, TrafficCone,
 } from "@lucide/astro";
+import { T } from "@/lib/facts";
 
 interface Term {
   es: string;
@@ -22,7 +23,7 @@ const SETS: Record<"common" | "actions", Term[]> = {
     { es: "Examen Práctico", ru: "Практический экзамен", desc: "Экзамен по вождению на дорогах общего пользования в Испании.", icon: CarFront, iconClass: "text-amber-600" },
     { es: "NIE / TIE", ru: "Номер / Карта Иностранца", desc: "Обязательный идентификатор для записи в автошколу и DGT.", icon: Fingerprint, iconClass: "text-indigo-600" },
     { es: "Empadronamiento", ru: "Прописка", desc: "Регистрация по месту жительства. Можно прописаться даже в арендованной квартире.", icon: MapPin, iconClass: "text-rose-600" },
-    { es: "Tasa", ru: "Госпошлина", desc: "Государственный сбор, оплачиваемый за процедуры в DGT (около 94 евро).", icon: BadgeEuro, iconClass: "text-yellow-600" },
+    { es: "Tasa", ru: "Госпошлина", desc: `Государственный сбор за процедуры в DGT: экзамен на права — ${T.exam}.`, icon: BadgeEuro, iconClass: "text-yellow-600" },
     { es: "DGT", ru: "Dirección General de Tráfico", desc: "Генеральная дирекция движения — государственный орган, выдающий вам права.", icon: Scale, iconClass: "text-blue-500" },
     { es: "Señales de Tráfico", ru: "Дорожные знаки", desc: "Указатели и символы. Основа испанского Código de Circulación.", icon: TrafficCone, iconClass: "text-orange-600" },
     { es: "Multa", ru: "Штраф", desc: "Денежное наказание за нарушение. Возможна оплата со скидкой 50% в первые 20 дней.", icon: Siren, iconClass: "text-red-500" },
