@@ -92,7 +92,7 @@ async function watermark(buf) {
 
 const rows = [];
 for (let from = 0; ; from += 1000) {
-  const res = await fetch(`${URL_}/rest/v1/language_terms?select=*&order=term_es`, { headers: { ...headers, Range: `${from}-${from + 999}` } });
+  const res = await fetch(`${URL_}/rest/v1/language_terms?select=id,term_es,term_ru,term_en,description_es,description_ru,description_en,hint_ru,hint_en,example_es,example_ru,example_en,difficulty,category,image_url,audio_url,module,q_count,aliases,topic_id,created_at,updated_at&order=term_es`, { headers: { ...headers, Range: `${from}-${from + 999}` } });
   if (!res.ok) throw new Error(`language_terms: ${res.status} ${await res.text()}`);
   const page = await res.json();
   rows.push(...page);
