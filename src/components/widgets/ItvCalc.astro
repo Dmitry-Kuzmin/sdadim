@@ -1,0 +1,57 @@
+---
+/**
+ * Когда машине на ITV (легковая, Real Decreto 920/2017, ст. 6):
+ * первая — через 4 года после первой регистрации, потом раз в 2 года, после 10 лет — каждый год.
+ */
+import { Wrench } from "@lucide/astro";
+---
+
+<div data-itv class="not-prose my-10 rounded-3xl border border-slate-200 bg-slate-50 p-6 md:p-8">
+  <div class="flex items-center gap-3">
+    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white"><Wrench class="h-5 w-5" /></span>
+    <div>
+      <h3 class="text-xl font-bold text-slate-900">Когда вашей машине на ITV</h3>
+      <p class="text-sm text-slate-500">Легковая машина, правила Real Decreto 920/2017</p>
+    </div>
+  </div>
+  <div class="mt-6 grid gap-4 sm:grid-cols-[1fr_1.4fr]">
+    <label class="block">
+      <span class="text-sm font-semibold text-slate-700">Дата первой регистрации</span>
+      <input data-date type="date" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-blue-500/50 focus:outline-none" />
+      <span class="mt-1.5 block text-xs text-slate-500">Поле «Fecha de primera matriculación» в техпаспорте</span>
+    </label>
+    <div data-out class="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+      <p class="text-sm text-slate-500">Укажите дату — покажем ближайшие техосмотры.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-itv]").forEach((root) => {
+    const input = root.querySelector<HTMLInputElement>("[data-date]")!;
+    const out = root.querySelector<HTMLElement>("[data-out]")!;
+    const fmt = (d: Date) => d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }).replace(/\s*г\.$/, "");
+    input.addEventListener("input", () => {
+      if (!input.value) return;
+      const reg = new Date(input.value + "T00:00:00");
+      const at = (years: number) => {
+        const d = new Date(reg);
+        d.setFullYear(d.getFullYear() + years);
+        return d;
+      };
+      // Возраста машины, когда нужна ITV: 4, 6, 8, 10, затем каждый год
+      const ages: number[] = [];
+      for (let a = 4; a <= 10; a += 2) ages.push(a);
+      for (let a = 11; a <= 40; a++) ages.push(a);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const next = ages.map(at).filter((d) => d >= today).slice(0, 3);
+      const age = (today.getTime() - reg.getTime()) / (365.25 * 86400000);
+      const rule = age < 4 ? "Первые 4 года ITV не нужна." : age < 10 ? "Сейчас — раз в 2 года." : "Машине больше 10 лет — ITV каждый год.";
+      out.innerHTML =
+        `<p class="text-sm font-semibold text-slate-700">${rule}</p>` +
+        `<ul class="mt-3 space-y-2">${next.map((d, i) => `<li class="flex items-center justify-between rounded-xl px-3 py-2 ${i === 0 ? "bg-blue-50 ring-1 ring-blue-200" : "bg-slate-50"}"><span class="text-sm text-slate-600">${i === 0 ? "Ближайшая" : "Затем"}</span><span class="font-semibold text-slate-900">${fmt(d)}</span></li>`).join("")}</ul>` +
+        `<p class="mt-3 text-xs leading-relaxed text-slate-500">Срок отсчитывается от даты первой регистрации. Действующая дата — на наклейке ITV на лобовом стекле; запись на станцию лучше брать за пару недель.</p>`;
+    });
+  });
+</script>

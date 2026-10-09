@@ -1,0 +1,65 @@
+---
+/**
+ * Чек-лист с галочками: отметки сохраняются в браузере (localStorage) по id.
+ *   <Checklist id="canje-docs" title="Что взять" items={["Паспорт", "…"]} />
+ * Пункты — строки, допускается inline-HTML.
+ */
+import { Check, ListChecks } from "@lucide/astro";
+
+interface Props {
+  id: string;
+  title: string;
+  items: string[];
+}
+
+const { id, title, items } = Astro.props;
+---
+
+<div data-checklist-kit={id} class="not-prose my-8 rounded-2xl border border-slate-200 bg-white">
+  <div class="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4">
+    <p class="flex items-center gap-2 text-sm font-bold text-slate-900"><ListChecks class="h-4 w-4 text-blue-600" /> {title}</p>
+    <span class="text-xs font-semibold tabular-nums text-slate-500"><span data-done>0</span> из {items.length}</span>
+  </div>
+  <div class="h-1 bg-slate-100"><div data-bar class="h-full w-0 bg-emerald-500 transition-all duration-300"></div></div>
+  <ul class="divide-y divide-slate-100">
+    {
+      items.map((item, i) => (
+        <li>
+          <label class="group flex cursor-pointer items-start gap-3 px-5 py-3.5 transition-colors hover:bg-slate-50">
+            <input type="checkbox" data-i={i} class="peer sr-only" />
+            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-slate-300 bg-white text-white transition-colors peer-checked:border-emerald-500 peer-checked:bg-emerald-500 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500/40">
+              <Check class="h-3.5 w-3.5" stroke-width={3} />
+            </span>
+            <span class="text-[15px] leading-snug text-slate-700 peer-checked:text-slate-400 peer-checked:line-through" set:html={item} />
+          </label>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-checklist-kit]").forEach((root) => {
+    const key = `sdadim:checklist:${root.dataset.checklistKit}`;
+    const boxes = [...root.querySelectorAll<HTMLInputElement>("input[type=checkbox]")];
+    let saved: number[] = [];
+    try {
+      saved = JSON.parse(localStorage.getItem(key) ?? "[]");
+    } catch {
+      /* приватный режим — отметки просто не сохранятся */
+    }
+    boxes.forEach((b) => (b.checked = saved.includes(Number(b.dataset.i))));
+    const sync = () => {
+      const done = boxes.filter((b) => b.checked);
+      root.querySelector("[data-done]")!.textContent = String(done.length);
+      root.querySelector<HTMLElement>("[data-bar]")!.style.width = `${(done.length / boxes.length) * 100}%`;
+      try {
+        localStorage.setItem(key, JSON.stringify(done.map((b) => Number(b.dataset.i))));
+      } catch {
+        /* не сохранить — не страшно */
+      }
+    };
+    boxes.forEach((b) => b.addEventListener("change", sync));
+    sync();
+  });
+</script>

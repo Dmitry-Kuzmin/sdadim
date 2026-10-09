@@ -169,6 +169,15 @@ export function articleSeo(post: Post): PageSeo {
         publisher: { "@id": `${SITE_URL}/#org` },
       },
       LD_ORGANIZATION,
+      ...(d.faq.length
+        ? [
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: d.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+            },
+          ]
+        : []),
       breadcrumbs([
         { name: "Главная", url: `${SITE_URL}/` },
         { name: "Блог", url: `${SITE_URL}/blog` },

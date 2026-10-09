@@ -1,0 +1,112 @@
+---
+/**
+ * «Можно ли обменять мои права?» — поиск страны и ответ: ЕС / соглашение / только экзамен.
+ * Данные — src/data/canje.ts (список DGT). Все три ответа — в HTML, скрипт показывает нужный.
+ */
+import { ArrowRight, CheckCircle2, GraduationCap, Search, ShieldCheck } from "@lucide/astro";
+import { CONVENIO, EU_EEA, NO_CONVENIO_POPULAR } from "@/data/canje";
+import { TASAS, TASA_DGT, eur } from "@/lib/license-costs";
+
+const QUICK = ["Россия", "Украина", "Беларусь", "Казахстан", "Грузия", "Молдова", "Великобритания"];
+const all = [...CONVENIO.map((c) => c.name), ...EU_EEA, ...NO_CONVENIO_POPULAR].sort((a, b) => a.localeCompare(b, "ru"));
+const data = {
+  convenio: Object.fromEntries(CONVENIO.map((c) => [c.name.toLowerCase(), c])),
+  eu: EU_EEA.map((c) => c.toLowerCase()),
+};
+---
+
+<div data-country-check data-db={JSON.stringify(data)} data-tasa-canje={eur(TASAS.canje)} data-tasa-exam={eur(TASA_DGT)} class="not-prose my-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.18)] md:p-8">
+  <p class="text-xs font-bold uppercase tracking-widest text-blue-600">Проверка за 10 секунд</p>
+  <h3 class="mt-2 text-2xl font-bold text-slate-900">Можно ли обменять ваши права?</h3>
+  <p class="mt-1 text-sm text-slate-500">Страна, которая выдала права, — не ваше гражданство.</p>
+
+  <div class="relative mt-5">
+    <Search class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+    <input
+      data-input
+      list="canje-countries"
+      type="search"
+      autocomplete="off"
+      placeholder="Начните вводить страну…"
+      aria-label="Страна, выдавшая права"
+      class="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-base text-slate-900 placeholder-slate-400 transition-all focus:border-blue-500/50 focus:bg-white focus:outline-none"
+    />
+    <datalist id="canje-countries">{all.map((c) => <option value={c} />)}</datalist>
+  </div>
+  <div class="mt-3 flex flex-wrap gap-2">
+    {QUICK.map((c) => <button type="button" data-quick={c} class="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900">{c}</button>)}
+  </div>
+
+  <div data-result="eu" hidden class="cc-result mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-50 p-5">
+    <p class="flex items-center gap-2 font-bold text-emerald-700"><ShieldCheck class="h-5 w-5" /> <span><span data-country></span>: обмен не нужен</span></p>
+    <p class="mt-2 text-[15px] leading-relaxed text-slate-700">Права стран ЕС и ЕЭЗ действуют в Испании без ограничений по сроку, пока не истекли. Когда срок подойдёт к концу, продлите их уже в Испании — экзаменов не будет.</p>
+  </div>
+
+  <div data-result="convenio" hidden class="cc-result mt-6 rounded-2xl border border-blue-500/30 bg-blue-50 p-5">
+    <p class="flex items-center gap-2 font-bold text-blue-700"><CheckCircle2 class="h-5 w-5" /> <span><span data-country></span>: меняется без экзаменов</span></p>
+    <ul class="mt-3 space-y-2 text-[15px] leading-relaxed text-slate-700">
+      <li>Машина и мотоцикл (A, B) — <strong class="text-slate-900">без экзаменов</strong>, пошлина DGT {eur(TASAS.canje)}.</li>
+      <li data-heavy>Грузовик и автобус (C, D) — <span data-heavy-text></span>.</li>
+      <li data-cond>Главное условие — права получены <strong class="text-slate-900">до того, как вы стали резидентом Испании</strong>.</li>
+    </ul>
+    <p data-note hidden class="mt-3 rounded-xl bg-white p-3 text-sm text-slate-600"></p>
+    <a href="#kak-obmenyat" class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700">Как обменять — по шагам <ArrowRight class="h-4 w-4" /></a>
+  </div>
+
+  <div data-result="none" hidden class="cc-result mt-6 rounded-2xl border border-amber-500/30 bg-amber-50 p-5">
+    <p class="flex items-center gap-2 font-bold text-amber-700"><GraduationCap class="h-5 w-5" /> <span><span data-country></span>: соглашения нет — только экзамены</span></p>
+    <ul class="mt-3 space-y-2 text-[15px] leading-relaxed text-slate-700">
+      <li>Ездить по своим правам можно <strong class="text-slate-900">6 месяцев</strong> с начала резиденции — посчитайте дату ниже.</li>
+      <li>Дальше — теория и вождение в DGT, как у всех. Опытному водителю на вождение обычно хватает нескольких уроков.</li>
+      <li>После экзамена стаж можно внести в базу DGT — и не быть «новичком» с 8 баллами и знаком L.</li>
+    </ul>
+    <a href="/blog/stazh-rossiyskih-prav-v-ispanii" class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700 hover:text-amber-800">Как зачесть стаж <ArrowRight class="h-4 w-4" /></a>
+  </div>
+</div>
+
+<style>
+  .cc-result:not([hidden]) { animation: cc-in 0.25s ease-out; }
+  @keyframes cc-in { from { opacity: 0; transform: translateY(6px); } }
+  @media (prefers-reduced-motion: reduce) { .cc-result { animation: none !important; } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-country-check]").forEach((root) => {
+    const db = JSON.parse(root.dataset.db!) as { convenio: Record<string, { name: string; heavy: string | null; note?: string; afterResidence?: boolean }>; eu: string[] };
+    const input = root.querySelector<HTMLInputElement>("[data-input]")!;
+    const results = root.querySelectorAll<HTMLElement>("[data-result]");
+    const norm = (s: string) => s.trim().toLowerCase().replace(/ё/g, "е");
+
+    const show = (raw: string) => {
+      const q = norm(raw);
+      results.forEach((r) => (r.hidden = true));
+      if (q.length < 3) return;
+      const conv = Object.entries(db.convenio).find(([k]) => norm(k) === q || norm(k).startsWith(q));
+      const eu = db.eu.find((k) => norm(k) === q || norm(k).startsWith(q));
+      const kind = conv ? "convenio" : eu ? "eu" : "none";
+      const box = root.querySelector<HTMLElement>(`[data-result="${kind}"]`)!;
+      const name = conv ? conv[1].name : eu ? eu[0].toUpperCase() + eu.slice(1) : raw.trim();
+      box.querySelector("[data-country]")!.textContent = name;
+      if (conv) {
+        const c = conv[1];
+        box.querySelector("[data-heavy-text]")!.textContent = c.heavy
+          ? `экзамены: ${c.heavy}, пошлина ${root.dataset.tasaExam}`
+          : `без экзаменов, пошлина ${root.dataset.tasaCanje}`;
+        box.querySelector<HTMLElement>("[data-cond]")!.hidden = !!c.afterResidence;
+        const note = box.querySelector<HTMLElement>("[data-note]")!;
+        note.textContent = c.note ?? "";
+        note.hidden = !c.note;
+      }
+      box.hidden = false;
+    };
+
+    input.addEventListener("input", () => show(input.value));
+    input.addEventListener("change", () => show(input.value));
+    root.querySelectorAll<HTMLButtonElement>("[data-quick]").forEach((b) =>
+      b.addEventListener("click", () => {
+        input.value = b.dataset.quick!;
+        show(input.value);
+      })
+    );
+  });
+</script>

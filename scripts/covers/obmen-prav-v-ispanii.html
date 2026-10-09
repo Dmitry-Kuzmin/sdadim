@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #dbeafe; }
+  .lic { width: 470px; height: 296px; padding: 30px 34px; border-radius: 24px; }
+  .lic .top { display: flex; justify-content: space-between; align-items: center; }
+  .lic .flag { width: 54px; height: 36px; border-radius: 6px; }
+  .lic .title { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .lic .photo { position: absolute; left: 34px; top: 96px; width: 120px; height: 150px; border-radius: 14px; background: linear-gradient(160deg, #e2e8f0, #cbd5e1); }
+  .lic .lines { position: absolute; left: 180px; top: 104px; right: 34px; }
+  .lic .lines div { height: 14px; border-radius: 7px; background: #e2e8f0; margin-bottom: 18px; }
+  .lic .cat { position: absolute; right: 30px; bottom: 26px; font-size: 44px; font-weight: 800; letter-spacing: -.03em; }
+  .old { left: 230px; top: 260px; transform: rotate(-8deg); }
+  .new { left: 830px; top: 360px; transform: rotate(5deg); }
+  .es { background: linear-gradient(#c60b1e 0 25%, #ffc400 25% 75%, #c60b1e 75%); }
+  .ua { background: linear-gradient(#0057b7 0 50%, #ffd700 50%); }
+  .arrow { position: absolute; left: 700px; top: 330px; font-size: 120px; color: var(--blue); font-weight: 800; transform: rotate(8deg); }
+  .stamp { position: absolute; left: 1100px; top: 210px; transform: rotate(-12deg); border: 5px solid var(--green); color: var(--green); border-radius: 16px; padding: 10px 22px; font-size: 34px; font-weight: 800; letter-spacing: .04em; background: rgba(255,255,255,.85); }
+  .note { position: absolute; left: 860px; top: 720px; font-size: 40px; transform: rotate(-3deg); }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="card lic old">
+    <div class="top"><span class="title">Permiso extranjero</span><span class="flag ua"></span></div>
+    <div class="photo"></div><div class="lines"><div style="width:90%"></div><div style="width:70%"></div><div style="width:80%"></div><div style="width:55%"></div></div>
+    <div class="cat">B</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="card lic new">
+    <div class="top"><span class="title">Permiso de conducción</span><span class="flag es"></span></div>
+    <div class="photo"></div><div class="lines"><div style="width:85%"></div><div style="width:75%"></div><div style="width:60%"></div><div style="width:80%"></div></div>
+    <div class="cat">B</div>
+  </div>
+  <div class="stamp">SIN EXAMEN</div>
+  <div class="note hand">33 страны · 28,87 €</div>
+  <div class="chip" style="left:120px; top:640px; width:330px"><div class="n tabular">6 мес.</div><div class="t">ездить на своих правах после резиденции</div></div>
+</body></html>

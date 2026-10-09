@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #fef3c7; }
+  .contract { left: 150px; top: 120px; width: 500px; padding: 44px 46px; transform: rotate(-5deg); }
+  .contract h2 { font-size: 28px; font-weight: 800; margin: 10px 0 24px; letter-spacing: -.02em; }
+  .contract .l { height: 13px; border-radius: 7px; background: #e2e8f0; margin-bottom: 16px; }
+  .contract .sign { margin-top: 26px; display: flex; justify-content: space-between; font-size: 34px; }
+  .itv { position: absolute; left: 780px; top: 170px; width: 230px; height: 230px; border-radius: 50%; background: #fff; box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; transform: rotate(8deg); border: 10px solid #0ea5e9; }
+  .itv b { font-size: 64px; font-weight: 900; letter-spacing: -.03em; }
+  .itv span { font-size: 18px; font-weight: 700; color: var(--muted); letter-spacing: .12em; }
+  .key { position: absolute; left: 1080px; top: 470px; width: 360px; height: 150px; transform: rotate(-14deg); }
+  .key .fob { position: absolute; left: 0; top: 0; width: 150px; height: 150px; border-radius: 40px; background: #0f172a; box-shadow: var(--shadow); }
+  .key .fob:after { content: ""; position: absolute; left: 50px; top: 50px; width: 50px; height: 50px; border-radius: 50%; background: #334155; }
+  .key .blade { position: absolute; left: 140px; top: 58px; width: 210px; height: 34px; background: linear-gradient(#e2e8f0, #94a3b8); border-radius: 0 12px 12px 0; }
+  .report { left: 700px; top: 560px; width: 360px; padding: 26px 30px; transform: rotate(3deg); }
+  .report .row { display: flex; justify-content: space-between; font-size: 20px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; color: #334155; }
+  .report .ok { color: var(--green); font-weight: 700; }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="card contract">
+    <div class="eyebrow">Contrato de compraventa</div>
+    <h2>Vehículo usado</h2>
+    <div class="l" style="width:90%"></div><div class="l" style="width:72%"></div><div class="l" style="width:84%"></div><div class="l" style="width:64%"></div><div class="l" style="width:78%"></div>
+    <div class="sign hand"><span>Vendedor</span><span>Comprador</span></div>
+  </div>
+  <div class="itv"><span>ITV</span><b class="tabular">2028</b></div>
+  <div class="key"><div class="fob"></div><div class="blade"></div></div>
+  <div class="card report">
+    <div class="eyebrow" style="margin-bottom:8px">Informe DGT</div>
+    <div class="row"><span>Embargos</span><span class="ok">Ninguno</span></div>
+    <div class="row"><span>Kilómetros</span><span class="ok">OK</span></div>
+    <div class="row" style="border:0"><span>ITV</span><span class="ok">Favorable</span></div>
+  </div>
+  <div class="chip" style="left:150px; top:690px; width:330px"><div class="n tabular">55,70 €</div><div class="t">переоформление в DGT, 30 дней</div></div>
+</body></html>

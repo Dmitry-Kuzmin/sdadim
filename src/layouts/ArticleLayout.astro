@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Clock } from "@lucide/astro";
 import Base from "@/layouts/Base.astro";
 import Sidebar from "@/components/blog/Sidebar.astro";
 import Prose from "@/components/blog/Prose.astro";
+import Accordion from "@/components/article/Accordion.astro";
 import { ARTICLE_ICONS } from "@/lib/article-icons";
 import { articleSeo } from "@/lib/seo";
 import { cardTitle, getPosts, postUrl, ruDate, type Post } from "@/lib/blog";
@@ -69,6 +70,15 @@ const related = [...all.filter((p) => p.data.category === d.category), ...all.fi
             </header>
 
             <Prose><slot /></Prose>
+
+            {
+              d.faq.length > 0 && (
+                <section aria-labelledby="faq-title" class="mt-12">
+                  <h2 id="faq-title" class="text-2xl font-bold text-slate-900 mb-4 pb-3 border-b border-slate-200 scroll-mt-24">Частые вопросы</h2>
+                  <Accordion items={d.faq.map((f) => ({ question: f.q, answer: f.a }))} />
+                </section>
+              )
+            }
           </article>
 
           {

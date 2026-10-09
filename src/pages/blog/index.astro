@@ -3,7 +3,7 @@
  * Блог: все карточки — в HTML, поиск и рубрики фильтруют их на месте (без React).
  * Рубрика и запрос живут в адресе (?cat=…&q=…) — ссылкой на отфильтрованный блог можно поделиться.
  */
-import { ArrowRight, BookOpen, Calendar, Clock, GraduationCap, Lightbulb, MapPin, Newspaper, Search, Users } from "@lucide/astro";
+import { ArrowRight, BookOpen, Calendar, Car, Clock, FileText, GraduationCap, Lightbulb, MapPin, Newspaper, Search, Users } from "@lucide/astro";
 import Base from "@/layouts/Base.astro";
 import { blogSeo } from "@/lib/seo";
 import { cardTitle, getPosts, postUrl } from "@/lib/blog";
@@ -16,6 +16,8 @@ const CATEGORIES = [
   { id: "Практика DGT", label: "Практика DGT", icon: GraduationCap },
   { id: "Истории сдачи", label: "Истории сдачи", icon: Users },
   { id: "Подготовка к DGT", label: "Подготовка", icon: Lightbulb },
+  { id: "Документы", label: "Документы", icon: FileText },
+  { id: "Машина", label: "Машина", icon: Car },
   { id: "Финансы", label: "Финансы", icon: MapPin },
   { id: "Закон и Штрафы", label: "Закон", icon: BookOpen },
   { id: "Полезно", label: "Полезно", icon: Newspaper },

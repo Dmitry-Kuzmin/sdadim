@@ -1,0 +1,53 @@
+---
+/**
+ * До какого числа можно ездить на иностранных правах: 6 месяцев с начала резиденции
+ * (RD 818/2009, ст. 21.2.c). Без резиденции — 6 месяцев с законного въезда.
+ */
+import { CalendarClock } from "@lucide/astro";
+---
+
+<div data-deadline class="not-prose my-10 rounded-3xl border border-slate-200 bg-slate-50 p-6 md:p-8">
+  <div class="flex items-center gap-3">
+    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white"><CalendarClock class="h-5 w-5" /></span>
+    <div>
+      <h3 class="text-xl font-bold text-slate-900">Сколько ещё можно ездить на своих правах</h3>
+      <p class="text-sm text-slate-500">Для прав не из ЕС: 6 месяцев с начала резиденции</p>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-4 sm:grid-cols-2">
+    <label class="block">
+      <span class="text-sm font-semibold text-slate-700">Дата начала резиденции</span>
+      <input data-date type="date" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 focus:border-blue-500/50 focus:outline-none" />
+      <span class="mt-1.5 block text-xs text-slate-500">На практике — дата одобрения ВНЖ (resolución). Сомневаетесь — берите более раннюю дату</span>
+    </label>
+    <div data-out class="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+      <p class="text-sm text-slate-500">Укажите дату — посчитаем последний день.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-deadline]").forEach((root) => {
+    const input = root.querySelector<HTMLInputElement>("[data-date]")!;
+    const out = root.querySelector<HTMLElement>("[data-out]")!;
+    const fmt = (d: Date) => d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }).replace(/\s*г\.$/, "");
+    input.addEventListener("input", () => {
+      if (!input.value) return;
+      const start = new Date(input.value + "T00:00:00");
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 6);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const days = Math.round((end.getTime() - today.getTime()) / 86400000);
+      const tone = days < 0 ? "text-red-600" : days <= 60 ? "text-amber-600" : "text-emerald-600";
+      const status =
+        days < 0
+          ? "Срок прошёл: за руль по этим правам уже нельзя. Обменяйте их или сдайте экзамен."
+          : days <= 60
+            ? "Времени мало: запись в DGT и экзамены занимают недели. Начинайте сейчас."
+            : "Время есть — но экзамен с подготовкой занимает 1–3 месяца, планируйте заранее.";
+      out.innerHTML = `<p class="text-sm text-slate-500">Ездить можно до</p><p class="mt-1 text-2xl font-bold text-slate-900">${fmt(end)}</p><p class="mt-1 text-sm font-semibold ${tone}">${days < 0 ? `просрочено на ${-days} дн.` : `осталось ${days} дн.`}</p><p class="mt-3 text-sm leading-relaxed text-slate-600">${status}</p>`;
+    });
+  });
+</script>

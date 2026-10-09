@@ -61,6 +61,8 @@ const blog = defineCollection({
     /** Строка под лидом. Не задана — дата публикации и время чтения */
     meta: z.array(z.object({ icon, text: z.string(), iconClass: z.string().optional() })).optional(),
     sidebar: z.array(sidebarBlock).default([]),
+    /** Частые вопросы в конце статьи + FAQPage-схема. Ответ — текст, допускается inline-HTML */
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
     draft: z.boolean().default(false),
   }),
 });

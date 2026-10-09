@@ -4,6 +4,7 @@
 import Accordion from "./Accordion.astro";
 import Banner from "./Banner.astro";
 import Callout from "./Callout.astro";
+import Checklist from "./Checklist.astro";
 import CardGrid from "./CardGrid.astro";
 import Comparison from "./Comparison.astro";
 import Divider from "./Divider.astro";
@@ -19,4 +20,4 @@ import Table from "./Table.astro";
 import Tabs from "./Tabs.astro";
 import Video from "./Video.astro";
 
-export const ARTICLE_KIT = { Accordion, Banner, Callout, CardGrid, Comparison, Divider, Figure, LinkCard, List, Quiz, Quote, Spoiler, Stats, TabPanel, Table, Tabs, Video };
+export const ARTICLE_KIT = { Accordion, Banner, Callout, Checklist, CardGrid, Comparison, Divider, Figure, LinkCard, List, Quiz, Quote, Spoiler, Stats, TabPanel, Table, Tabs, Video };
