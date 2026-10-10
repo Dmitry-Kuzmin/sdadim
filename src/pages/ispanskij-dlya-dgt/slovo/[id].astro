@@ -141,17 +141,20 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
                   </div>
                   <div class="xq-ru">
                     <div>
-                      {x.main && (
-                        <div class="mt-4 space-y-2 rounded-xl bg-slate-50 p-4 text-[15px] leading-relaxed text-slate-700 sm:p-5 [&>p]:max-w-3xl">
-                          <p>{x.main}</p>
-                          {x.tip && <p class="font-semibold text-blue-700">💡 {x.tip}</p>}
-                          {x.ru && <p class="text-sm text-slate-500">🇷🇺 {x.ru}</p>}
-                        </div>
-                      )}
                       {i < qs.length - 1 && (
                         <button type="button" class="wx-chip mt-4" data-next>
                           Следующий вопрос →
                         </button>
+                      )}
+                      {x.main && (
+                        <div class="mt-4 space-y-2 rounded-xl bg-slate-50 p-4 text-[15px] leading-relaxed text-slate-700 sm:p-5 [&>p]:max-w-3xl">
+                          <p class="xq-more">{x.main}</p>
+                          <button type="button" class="font-semibold text-blue-700 sm:hidden" data-more hidden>
+                            Читать разбор полностью ↓
+                          </button>
+                          {x.tip && <p class="font-semibold text-blue-700">💡 {x.tip}</p>}
+                          {x.ru && <p class="text-sm text-slate-500">🇷🇺 {x.ru}</p>}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -299,6 +302,16 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
 
   document.querySelectorAll<HTMLElement>("[data-xq]").forEach((q) => {
     q.querySelectorAll<HTMLButtonElement>(".xq-opt").forEach((b) => b.addEventListener("click", () => q.dispatchEvent(new CustomEvent("xq:answer", { detail: answer(q, b) }))));
+    // «Читать полностью» — только если разбор правда обрезан (телефон и текст длиннее 4 строк)
+    const more = q.querySelector<HTMLButtonElement>("[data-more]");
+    const text = q.querySelector<HTMLElement>(".xq-more");
+    if (more && text) {
+      q.addEventListener("xq:answer", () => setTimeout(() => (more.hidden = text.scrollHeight <= text.clientHeight + 2), 400));
+      more.addEventListener("click", () => {
+        text.classList.add("is-open");
+        more.hidden = true;
+      });
+    }
   });
 
   // Клавиши a/b/c или 1/2/3 — ответ на вопрос, который сейчас на экране (первый неотвеченный видимый)
@@ -399,6 +412,10 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
   .xq-ru { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.35s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.3s; }
   .xq-ru > * { overflow: hidden; min-height: 0; }
   .is-done .xq-ru { grid-template-rows: 1fr; opacity: 1; }
+  /* Разбор на телефоне — первые 4 строки, остальное по кнопке: «Следующий вопрос» не уезжает за экран */
+  @media (max-width: 639px) {
+    .xq-more:not(.is-open) { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+  }
   /* Баннер Skilyapp — после ответа на все вопросы */
   .xq-promo { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s cubic-bezier(0.2, 0.9, 0.3, 1); }
   .xq-promo > * { overflow: hidden; min-height: 0; }

@@ -41,7 +41,7 @@ const others = WORD_SETS.filter((s) => s.slug !== set.slug);
     <section class="mt-14" aria-labelledby="list">
       <h2 id="list" class="text-xl font-bold text-slate-900">Все слова темы — от частых к редким</h2>
       <p class="mt-1 text-sm text-slate-500">«в N вопр.» — в скольких официальных вопросах DGT встречается слово. 🔊 — послушать произношение.</p>
-      <ul class="mt-5 grid gap-3 lg:grid-cols-2">
+      <ul class="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-2">
         {words.map((w, i) => <WordItem w={w} eager={i < 2} />)}
       </ul>
     </section>
