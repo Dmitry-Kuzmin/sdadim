@@ -15,13 +15,13 @@ const NAV_LINKS = [
   { href: "/#how", label: "Как проходит" },
   { href: "/#pricing", label: "Цены" },
   { href: "/#faq", label: "Вопросы" },
-  // «DGT» — своя плашка в стиле номерного знака, не официальный логотип (знак госоргана = намёк на партнёрство)
-  { href: "/ispanskij-dlya-dgt", label: "Испанский для", badge: "DGT" },
+  // Логотип DGT вместо слова: /dgt.svg — знак с Wikimedia Commons без подписи «Dirección General de Tráfico»
+  { href: "/ispanskij-dlya-dgt", label: "Испанский для", logo: "DGT" },
   { href: "/blog", label: "Блог" },
 ];
 
-const badgeClass =
-  "ml-1 inline-block rounded-[4px] bg-[#003399] px-1.5 py-0.5 align-[1px] text-[10.5px] font-bold leading-none tracking-wider text-white";
+// Белая подложка — синий знак читается и в тёмной теме (bg-white там перекрашен токенами, поэтому #fff)
+const logoClass = "ml-1.5 inline-block h-6 w-auto rounded bg-[#fff] px-1 py-0.5 align-[-7px]";
 
 const isActive = (href: string) => !href.includes("#") && currentPath.startsWith(href);
 const toggleClass =
@@ -46,7 +46,7 @@ const toggleClass =
             )}
           >
             {link.label}
-            {link.badge && <span class={badgeClass}>{link.badge}</span>}
+            {link.logo && <img src="/dgt.svg" alt={link.logo} width="58" height="24" class={logoClass} />}
           </a>
         ))
       }
@@ -80,7 +80,7 @@ const toggleClass =
         NAV_LINKS.map((link) => (
           <a href={link.href} class="border-b border-slate-100 py-4 text-base font-medium text-slate-900">
             {link.label}
-            {link.badge && <span class={badgeClass}>{link.badge}</span>}
+            {link.logo && <img src="/dgt.svg" alt={link.logo} width="58" height="24" class={logoClass} />}
           </a>
         ))
       }
