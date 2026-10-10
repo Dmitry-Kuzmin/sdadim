@@ -20,8 +20,8 @@ const NAV_LINKS = [
   { href: "/blog", label: "Блог" },
 ];
 
-// Белая подложка — синий знак читается и в тёмной теме (bg-white там перекрашен токенами, поэтому #fff)
-const logoClass = "ml-1.5 inline-block h-6 w-auto rounded bg-[#fff] px-1 py-0.5 align-[-7px]";
+// В тёмной теме — негатив (dgt-dark.svg: синий → белый, голубая полоса та же)
+const logoClass = "ml-1.5 h-[22px] w-auto align-[-6px]";
 
 const isActive = (href: string) => !href.includes("#") && currentPath.startsWith(href);
 const toggleClass =
@@ -46,7 +46,12 @@ const toggleClass =
             )}
           >
             {link.label}
-            {link.logo && <img src="/dgt.svg" alt={link.logo} width="58" height="24" class={logoClass} />}
+            {link.logo && (
+              <>
+                <img src="/dgt.svg" alt={link.logo} width="53" height="22" class={cn(logoClass, "inline-block dark:hidden")} />
+                <img src="/dgt-dark.svg" alt={link.logo} width="53" height="22" class={cn(logoClass, "hidden dark:inline-block")} />
+              </>
+            )}
           </a>
         ))
       }
@@ -80,7 +85,12 @@ const toggleClass =
         NAV_LINKS.map((link) => (
           <a href={link.href} class="border-b border-slate-100 py-4 text-base font-medium text-slate-900">
             {link.label}
-            {link.logo && <img src="/dgt.svg" alt={link.logo} width="58" height="24" class={logoClass} />}
+            {link.logo && (
+              <>
+                <img src="/dgt.svg" alt={link.logo} width="53" height="22" class={cn(logoClass, "inline-block dark:hidden")} />
+                <img src="/dgt-dark.svg" alt={link.logo} width="53" height="22" class={cn(logoClass, "hidden dark:inline-block")} />
+              </>
+            )}
           </a>
         ))
       }
