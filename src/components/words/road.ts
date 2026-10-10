@@ -117,6 +117,8 @@ function play(ctx: Ctx) {
   let gates: HTMLElement[] = [];
   const mistakes = new Map<string, Word>();
   const skids: Mark[] = [];
+  /** Проеханные мачты: уезжают вниз сами, а следующее слово уже на указателе. */
+  const passed: Mark[] = [];
   const motor = fx.engine();
   const land = scenery(ground, decoLayer, sky);
   const wheels = [...car.querySelectorAll<SVGGElement>(".whl")];
@@ -280,6 +282,13 @@ function play(ctx: Ctx) {
     }
     paintHud();
     fx.streak(streakEl, combo);
+    const old = row.cloneNode(true) as HTMLElement;
+    old.classList.remove("is-in");
+    row.after(old);
+    passed.push({ el: old, y: rowY });
+    row.replaceChildren();
+    rowOn = false;
+    if (lives > 0) ctx.later(spawn, 400);
     if (lives <= 0) {
       over = true;
       running = false;
@@ -361,11 +370,13 @@ function play(ctx: Ctx) {
       if (rowOn) {
         rowY += dy;
         row.style.transform = `translate3d(0,${rowY}px,0)`;
-        if (!resolved && rowY + rowH >= carTop) resolve();
-        if (resolved && rowY > H) {
-          rowOn = false;
-          if (!over) ctx.later(spawn, 250);
-        }
+        if (rowY + rowH >= carTop) resolve();
+      }
+      for (let i = passed.length - 1; i >= 0; i--) {
+        const p = passed[i];
+        p.y += dy;
+        p.el.style.transform = `translate3d(0,${p.y}px,0)`;
+        if (p.y > H) (p.el.remove(), passed.splice(i, 1));
       }
       const k = target ? v / target : 0;
       motor.set(Math.min(1, (kmh / 140) * k));
