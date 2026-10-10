@@ -89,7 +89,7 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
           <Shell
             icon={ClipboardCheck}
             title={`«${w.es}» на экзамене DGT`}
-            sub="По-испански, как на экзамене. Ответьте — покажем перевод и разбор."
+            sub="Ответьте — и увидите перевод и разбор."
             bleed
             class="mb-0 mt-12"
             data-xq-set
@@ -113,8 +113,8 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
               const x = explain(q.x);
               return (
                 <div data-xq hidden={i > 0}>
-                  <div class:list={["grid gap-4 sm:gap-5", q.img && "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-start"]}>
-                    {q.img && <img src={qImg(q.img.src)} srcset={qSrcset(q.img.src)} sizes="(min-width: 1024px) 640px, (min-width: 768px) 55vw, 100vw" alt="" width={q.img.w} height={q.img.h} loading={i ? "lazy" : "eager"} decoding="async" class="block w-full rounded-xl bg-slate-100 shadow-sm" />}
+                  <div class:list={["grid gap-4 sm:gap-5", q.img && "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start"]}>
+                    {q.img && <img src={qImg(q.img.src)} srcset={qSrcset(q.img.src)} sizes="(min-width: 1024px) 640px, (min-width: 640px) 576px, 100vw" alt="" width={q.img.w} height={q.img.h} loading={i ? "lazy" : "eager"} decoding="async" class="block w-full rounded-xl bg-slate-100 shadow-sm sm:max-w-xl lg:max-w-none" />}
                     <div>
                       <p class="text-[17px] font-semibold leading-snug text-slate-900" lang="es">
                         {a}
@@ -142,7 +142,7 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
                   <div class="xq-ru">
                     <div>
                       {x.main && (
-                        <div class="mt-4 space-y-2 rounded-xl bg-slate-50 p-4 text-[15px] leading-relaxed text-slate-700">
+                        <div class="mt-4 space-y-2 rounded-xl bg-slate-50 p-4 text-[15px] leading-relaxed text-slate-700 sm:p-5 [&>p]:max-w-3xl">
                           <p>{x.main}</p>
                           {x.tip && <p class="font-semibold text-blue-700">💡 {x.tip}</p>}
                           {x.ru && <p class="text-sm text-slate-500">🇷🇺 {x.ru}</p>}
@@ -215,11 +215,11 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
         )
       }
 
-      <section class="mt-10 rounded-3xl bg-blue-600 p-6 text-white sm:p-8">
-        <h2 class="text-xl font-bold">Запомните «{w.es}» за 5 минут</h2>
-        <p class="mt-1 text-[#fff]/85">Тренировка дня по теме «{set.short}»: картинка, слух, сборка по буквам и пропуск в вопросе. Слово вернётся на повторение, когда начнёте его забывать.</p>
-        <div class="mt-5 flex flex-wrap gap-2">
-          <button type="button" data-play="daily" data-module={set.module} class="rounded-xl bg-[#fff] px-5 py-3 font-bold text-[#1d4ed8]">🎯 Учить тему</button>
+      <section class="mt-10 rounded-3xl bg-blue-600 p-5 text-white sm:p-8">
+        <h2 class="text-xl font-bold sm:text-2xl">Запомните «{w.es}» за 5 минут</h2>
+        <p class="mt-2 max-w-2xl text-[15px] leading-relaxed text-[#fff]/85 sm:text-base">Тренировка дня по теме «{set.short}»: картинка, слух, сборка по буквам и пропуск в вопросе. Слово вернётся на повторение, когда начнёте его забывать.</p>
+        <div class="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <button type="button" data-play="daily" data-module={set.module} class="col-span-2 rounded-xl bg-[#fff] px-5 py-3 font-bold text-[#1d4ed8]">🎯 Учить тему</button>
           <button type="button" data-play="road" data-module={set.module} class="rounded-xl bg-[#fff]/15 px-5 py-3 font-bold text-white hover:bg-[#fff]/25">🏁 Трасса</button>
           <button type="button" data-play="radar" data-module={set.module} class="rounded-xl bg-[#fff]/15 px-5 py-3 font-bold text-white hover:bg-[#fff]/25">📡 Радар</button>
         </div>
@@ -253,12 +253,12 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
         near.length > 0 && (
           <section class="mt-12" aria-labelledby="near">
             <h2 id="near" class="mb-4 text-xl font-bold text-slate-900">Похожие слова из темы «{set.short}»</h2>
-            <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <ul class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {near.map((x) => (
                 <li>
-                  <a href={wordUrl(x)} class="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 px-4 py-3 hover:border-blue-300">
-                    <span class="font-bold text-slate-900">{x.es}</span>
-                    <span class="truncate text-sm text-slate-500">{x.ru}</span>
+                  <a href={wordUrl(x)} class="block rounded-xl border border-slate-200 px-4 py-2.5 transition hover:border-blue-300">
+                    <span class="block truncate font-bold text-slate-900">{x.es}</span>
+                    <span class="block truncate text-sm text-slate-500">{x.ru}</span>
                   </a>
                 </li>
               ))}
