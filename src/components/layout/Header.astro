@@ -15,9 +15,13 @@ const NAV_LINKS = [
   { href: "/#how", label: "Как проходит" },
   { href: "/#pricing", label: "Цены" },
   { href: "/#faq", label: "Вопросы" },
-  { href: "/ispanskij-dlya-dgt", label: "Испанский" },
+  // «DGT» — своя плашка в стиле номерного знака, не официальный логотип (знак госоргана = намёк на партнёрство)
+  { href: "/ispanskij-dlya-dgt", label: "Испанский для", badge: "DGT" },
   { href: "/blog", label: "Блог" },
 ];
+
+const badgeClass =
+  "ml-1 inline-block rounded-[4px] bg-[#003399] px-1.5 py-0.5 align-[1px] text-[10.5px] font-bold leading-none tracking-wider text-white";
 
 const isActive = (href: string) => !href.includes("#") && currentPath.startsWith(href);
 const toggleClass =
@@ -42,6 +46,7 @@ const toggleClass =
             )}
           >
             {link.label}
+            {link.badge && <span class={badgeClass}>{link.badge}</span>}
           </a>
         ))
       }
@@ -75,6 +80,7 @@ const toggleClass =
         NAV_LINKS.map((link) => (
           <a href={link.href} class="border-b border-slate-100 py-4 text-base font-medium text-slate-900">
             {link.label}
+            {link.badge && <span class={badgeClass}>{link.badge}</span>}
           </a>
         ))
       }
