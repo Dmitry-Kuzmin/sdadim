@@ -88,8 +88,9 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
         qs.length > 0 ? (
           <Shell
             icon={ClipboardCheck}
-            title={`«${w.es}» в ${qs.length > 1 ? "вопросах" : "вопросе"} экзамена DGT`}
-            sub="Как на экзамене — по-испански. Ответьте, и покажем перевод и объяснение."
+            title={`«${w.es}» на экзамене DGT`}
+            sub="По-испански, как на экзамене. Ответьте — покажем перевод и разбор."
+            bleed
             class="mb-0 mt-12"
             data-xq-set
           >
@@ -226,7 +227,7 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
 
       {
         quiz && opts.length > 0 && (
-          <Shell icon={CircleHelp} title={`Проверьте себя: что значит «${quiz.es}»?`} sub="Слово из той же темы — выберите перевод." tone="violet" class="mb-0 mt-12">
+          <Shell icon={CircleHelp} title={`Проверьте себя: что значит «${quiz.es}»?`} sub="Слово из той же темы — выберите перевод." tone="violet" bleed class="mb-0 mt-12">
             <div data-xq>
               <div class="grid gap-2 sm:grid-cols-2">
                 {opts.map((o, j) => (
@@ -365,6 +366,7 @@ const opts = quiz && wrong.length === 3 ? [quiz, ...wrong].sort((a, b) => a.ru.l
   }
   [data-xq]:not(.is-done) .xq-opt:hover { border-color: rgb(var(--c-blue-300)); box-shadow: 0 6px 16px -10px rgb(37 99 235 / 0.45); transform: translateY(-1px); }
   [data-xq]:not(.is-done) .xq-opt:active { transform: scale(0.99); }
+  @media (max-width: 639px) { .xq-opt { gap: 0.6rem; padding: 0.6rem 0.75rem; } }
   .xq-opt:focus-visible { outline: 2px solid rgb(var(--c-blue-500) / 0.5); outline-offset: 2px; }
   .xq-key {
     display: grid;
