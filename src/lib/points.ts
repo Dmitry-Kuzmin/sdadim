@@ -28,19 +28,23 @@ export const POINTS_PLAN: Record<"novice" | "staj", PointsStep[]> = {
 
 const fmt = (d: Date) => d.toLocaleDateString("ru-RU", { month: "long", year: "numeric" }).replace(/\s*г\.$/, "");
 
-/** Карточки шагов — одна разметка для сервера и скрипта */
+/** Карточки шагов — одна разметка для сервера и скрипта (стили — PointsTimeline.astro) */
 export function pointsStepsHtml(mode: keyof typeof POINTS_PLAN, start: Date | null): string {
   const years = start ? (Date.now() - start.getTime()) / (365.25 * 86400000) : -1;
-  return POINTS_PLAN[mode]
-    .map((s) => {
+  const plan = POINTS_PLAN[mode];
+  const cur = start ? plan.filter((s) => !s.summary && years >= s.at).pop() : undefined;
+  return plan
+    .map((s, i) => {
       const reached = !s.summary && start && years >= s.at;
       let when = "";
       if (start && !s.summary) {
         const d = new Date(start);
         d.setFullYear(d.getFullYear() + s.at);
-        when = ` · ${fmt(d)}`;
+        when = fmt(d);
       }
-      return `<li class="bg-white p-5"><p class="text-xs font-semibold uppercase tracking-wider ${reached ? "text-emerald-600" : "text-slate-400"}">${s.label}${when}</p><p class="mt-2 text-3xl font-bold tabular-nums ${s.summary ? "text-blue-600" : "text-slate-900"}">${s.summary ? "−2 года" : `${s.pts} <span class=\"text-base font-semibold text-slate-500\">баллов</span>`}</p><p class="mt-1 text-sm leading-snug text-slate-600">${s.note}</p></li>`;
+      const pips = s.summary ? "" : `<span class="pt-pips" aria-hidden="true">${Array.from({ length: 15 }, (_, k) => `<i${k < s.pts ? ' class="on"' : ""}></i>`).join("")}</span>`;
+      const state = s === cur ? " is-now" : reached ? " is-done" : "";
+      return `<li class="pt-step${s.summary ? " pt-sum" : ""}${state}" style="--i:${i}"><p class="pt-when">${reached ? '<span class="pt-ok" aria-label="пройдено"></span>' : ""}${s.label}</p>${when ? `<p class="pt-date">${when}</p>` : ""}<p class="pt-pts">${s.summary ? "−2 года" : `${s.pts} <small>баллов</small>`}</p>${pips}<p class="pt-note">${s.note}</p></li>`;
     })
     .join("");
 }

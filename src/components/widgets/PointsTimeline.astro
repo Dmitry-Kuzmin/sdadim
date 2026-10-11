@@ -1,46 +1,65 @@
 ---
 /** График баллов с зачётом стажа и без — логика и тексты в @/lib/points */
-import { pointsNowHtml, pointsStepsHtml } from "@/lib/points";
+import { CalendarRange } from "@lucide/astro";
+import { pointsStepsHtml } from "@/lib/points";
+import Shell from "./Shell.astro";
 ---
 
-<div data-points class="not-prose my-10 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.18)]">
-  <div class="border-b border-slate-200 p-6 md:p-8">
-    <p class="text-xs font-bold uppercase tracking-widest text-blue-600">Ваши баллы по годам</p>
-    <h3 class="mt-2 text-2xl font-bold text-slate-900">Что даёт зачёт стажа</h3>
-    <div class="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end">
-      <label class="block flex-1">
-        <span class="text-sm font-semibold text-slate-700">Когда получили испанские права</span>
-        <input data-date type="date" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900 focus:border-blue-500/50 focus:outline-none" />
-      </label>
-      <div class="flex rounded-xl bg-slate-100 p-1 text-sm font-semibold" role="radiogroup" aria-label="Стаж">
-        <button type="button" data-mode="novice" aria-checked="true" role="radio" class="rounded-lg px-4 py-2.5 transition-colors aria-checked:bg-blue-600 aria-checked:text-white aria-checked:shadow-sm aria-[checked=false]:text-slate-500">Без зачёта</button>
-        <button type="button" data-mode="staj" aria-checked="false" role="radio" class="rounded-lg px-4 py-2.5 transition-colors aria-checked:bg-blue-600 aria-checked:text-white aria-checked:shadow-sm aria-[checked=false]:text-slate-500">Стаж внесён</button>
-      </div>
+<Shell icon={CalendarRange} title="Что даёт зачёт стажа" sub="Ваши баллы по годам — с зачётом прошлых прав и без" data-points>
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <label class="block flex-1">
+      <span class="wx-label">Когда получили испанские права <span class="wx-tip" tabindex="0" data-side="start" data-tip="Дата выдачи — поле 10 на карточке прав. Покажем, на какой вы ступени сейчас."></span></span>
+      <input data-date type="date" class="wx-field mt-2" />
+    </label>
+    <div class="wx-seg sm:w-64" role="radiogroup" aria-label="Стаж" data-modes>
+      <button type="button" data-mode="novice" aria-checked="true" role="radio">Без зачёта</button>
+      <button type="button" data-mode="staj" aria-checked="false" role="radio">Стаж внесён</button>
     </div>
   </div>
 
-  <ol data-steps class="grid gap-px bg-slate-200 sm:grid-cols-4" set:html={pointsStepsHtml("novice", null)} />
-  <p data-now class="border-t border-slate-200 bg-slate-50 px-6 py-4 text-sm text-slate-600 md:px-8">Укажите дату — покажем, где вы сейчас.</p>
-</div>
+  <ol data-steps class="pt-steps mt-5" set:html={pointsStepsHtml("novice", null)} />
+  <p data-now class="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-[13px] leading-snug text-slate-600 ring-1 ring-slate-200">Укажите дату — покажем, где вы сейчас.</p>
+</Shell>
+
+<style>
+  .pt-steps { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr)); }
+  .pt-steps :global(.pt-step) { border-radius: 14px; border: 1px solid rgb(var(--c-slate-200)); padding: 0.85rem; animation: wx-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) both; animation-delay: calc(var(--i) * 60ms); transition: border-color 0.2s, background 0.2s; }
+  .pt-steps :global(.pt-when) { display: flex; align-items: center; gap: 0.35rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgb(var(--c-slate-500)); }
+  .pt-steps :global(.pt-date) { margin-top: 1px; font-size: 0.75rem; color: rgb(var(--c-slate-500)); }
+  .pt-steps :global(.pt-pts) { margin-top: 0.35rem; font-size: 1.75rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; color: rgb(var(--c-slate-900)); }
+  .pt-steps :global(.pt-pts small) { font-size: 0.8125rem; font-weight: 600; color: rgb(var(--c-slate-500)); }
+  .pt-steps :global(.pt-pips) { display: grid; grid-template-columns: repeat(15, 1fr); gap: 2px; margin-top: 0.6rem; }
+  .pt-steps :global(.pt-pips i) { height: 6px; border-radius: 2px; background: rgb(var(--c-slate-200)); }
+  .pt-steps :global(.pt-pips i.on) { background: rgb(var(--c-blue-500)); }
+  .pt-steps :global(.pt-note) { margin-top: 0.5rem; font-size: 0.8125rem; line-height: 1.35; color: rgb(var(--c-slate-600)); }
+  .pt-steps :global(.pt-sum) { border-color: transparent; background: rgb(var(--c-blue-50)); }
+  .pt-steps :global(.pt-sum .pt-pts) { color: rgb(var(--c-blue-600)); }
+  .pt-steps :global(.is-done .pt-pips i.on) { background: rgb(var(--c-emerald-500)); }
+  .pt-steps :global(.is-done .pt-when), .pt-steps :global(.is-now .pt-when) { color: rgb(var(--c-emerald-600)); }
+  .pt-steps :global(.is-now) { border-color: rgb(var(--c-emerald-500)); background: rgb(var(--c-emerald-50)); box-shadow: 0 6px 18px -10px rgb(var(--c-emerald-600) / 0.6); }
+  .pt-steps :global(.pt-ok) { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: rgb(var(--c-emerald-500)); position: relative; }
+  .pt-steps :global(.pt-ok::after) { content: ""; position: absolute; left: 4px; top: 2px; width: 3px; height: 6px; border: solid #fff; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+  @media (prefers-reduced-motion: reduce) { .pt-steps :global(.pt-step) { animation: none; } }
+</style>
 
 <script>
   import { pointsNowHtml, pointsStepsHtml, type POINTS_PLAN } from "@/lib/points";
+  import { radios, replay } from "@/lib/widget-fx";
 
   document.querySelectorAll<HTMLElement>("[data-points]").forEach((root) => {
     let mode: keyof typeof POINTS_PLAN = "novice";
     const input = root.querySelector<HTMLInputElement>("[data-date]")!;
+    const now = root.querySelector<HTMLElement>("[data-now]")!;
     const render = () => {
       const start = input.value ? new Date(input.value + "T00:00:00") : null;
       root.querySelector("[data-steps]")!.innerHTML = pointsStepsHtml(mode, start);
-      root.querySelector("[data-now]")!.innerHTML = pointsNowHtml(mode, start);
+      now.innerHTML = pointsNowHtml(mode, start);
+      replay(now, "wx-in");
     };
-    root.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach((b, _, all) =>
-      b.addEventListener("click", () => {
-        mode = b.dataset.mode as keyof typeof POINTS_PLAN;
-        all.forEach((x) => x.setAttribute("aria-checked", String(x === b)));
-        render();
-      })
-    );
+    radios(root.querySelector<HTMLElement>("[data-modes]")!, (b) => {
+      mode = b.dataset.mode as keyof typeof POINTS_PLAN;
+      render();
+    });
     input.addEventListener("input", render);
   });
 </script>
