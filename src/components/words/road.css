@@ -24,7 +24,7 @@
   will-change: transform;
 }
 /* Трасса · пейзаж (scenery.ts). Земля зон, декорации, море, птицы — вид сверху. */
-.r3-ground { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.r3-ground { position: absolute; inset: 0; pointer-events: none; overflow: hidden; contain: strict; }
 .r3-zone {
   position: absolute;
   left: 0;
@@ -75,7 +75,7 @@
 }
 @keyframes r3-waves { to { transform: translate(64px, 32px); } }
 
-.r3-deco { position: absolute; inset: 0; pointer-events: none; }
+.r3-deco { position: absolute; inset: 0; pointer-events: none; contain: strict; }
 .r3-d { position: absolute; top: 0; will-change: transform; }
 .r3-d > svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .r3-d.is-tree, .r3-d.is-bush, .r3-d.is-orange { filter: hue-rotate(var(--hue, 0deg)); }
@@ -208,7 +208,7 @@
 .r3-cloud { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; background: radial-gradient(40% 50% at 35% 50%, rgb(15 23 42 / 0.17), transparent), radial-gradient(35% 45% at 65% 45%, rgb(15 23 42 / 0.14), transparent), radial-gradient(30% 40% at 50% 70%, rgb(15 23 42 / 0.1), transparent); }
 @media (prefers-reduced-motion: reduce) { .r3-spin, .r3-flag, .r3-twinkle, .r3-ripple i, .r3-glint, .r3-ped i { animation: none; } }
 
-.r3-sky { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.r3-sky { position: absolute; inset: 0; pointer-events: none; overflow: hidden; contain: strict; }
 .r3-bird { position: absolute; left: 0; top: 0; width: 46px; height: 31px; margin: -15px 0 0 -23px; will-change: transform; }
 .r3-bird.is-stork { width: 64px; height: 43px; }
 .r3-bird svg { width: 100%; height: 100%; overflow: visible; }
@@ -233,7 +233,7 @@
   background: linear-gradient(90deg, #a8a29e, #c4beb6 40%, #a8a29e);
   box-shadow: 0 0 0 3px rgb(0 0 0 / 0.08), 0 0 40px rgb(0 0 0 / 0.25);
 }
-.r3-asphalt { position: absolute; inset: 0 14px; overflow: hidden; background: linear-gradient(90deg, #4b5058, #585e66 50%, #4b5058); }
+.r3-asphalt { position: absolute; inset: 0 14px; overflow: hidden; contain: strict; background: linear-gradient(90deg, #4b5058, #585e66 50%, #4b5058); }
 .r3-tex {
   position: absolute;
   left: 0;
@@ -250,34 +250,65 @@
 .r3-marks { position: absolute; inset: 0; pointer-events: none; }
 .r3-skid { position: absolute; top: 0; width: 34px; height: 140px; will-change: transform; background: linear-gradient(90deg, rgb(0 0 0 / 0.45) 0 7px, transparent 7px 27px, rgb(0 0 0 / 0.45) 27px); border-radius: 4px; opacity: 0.7; }
 
-/* Мачта над дорогой: балка + три синих таблички */
-.r3-row { position: absolute; left: 0; right: 0; top: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0 6px; will-change: transform; }
-.r3-row.is-in .r3-gate { animation: r3-in 0.35s cubic-bezier(.2, 1.3, .4, 1) backwards; }
+/* Мачта над дорогой: стальная ферма + три таблички-указателя полос, как на испанских автовиях */
+.r3-row { position: absolute; left: 0; right: 0; top: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0 6px; will-change: transform; contain: layout style; }
+.r3-row.is-in .r3-gate { animation: r3-in 0.4s cubic-bezier(.2, 1.3, .4, 1) backwards; }
 .r3-row.is-in .r3-gate:nth-child(3) { animation-delay: 0.05s; }
 .r3-row.is-in .r3-gate:nth-child(4) { animation-delay: 0.1s; }
-@keyframes r3-in { from { opacity: 0; transform: scale(0.7); } }
-.r3-beam { position: absolute; left: -14px; right: -14px; top: 50%; height: 10px; transform: translateY(-50%); background: linear-gradient(#9ca3af, #6b7280); box-shadow: 0 12px 10px rgb(0 0 0 / 0.3); border-radius: 3px; }
+@keyframes r3-in { from { opacity: 0; transform: translateY(-10px) scale(0.8); } }
+.r3-beam {
+  position: absolute;
+  left: -14px;
+  right: -14px;
+  top: 50%;
+  height: 14px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(60deg, transparent 0 7px, rgb(30 41 59 / 0.55) 7px 9px),
+    repeating-linear-gradient(-60deg, transparent 0 7px, rgb(30 41 59 / 0.55) 7px 9px),
+    linear-gradient(#e2e8f0, #94a3b8 45%, #64748b);
+  box-shadow: inset 0 1px 0 #f8fafc, inset 0 -1px 0 #334155, 0 16px 12px -4px rgb(0 0 0 / 0.35);
+}
+.r3-beam::before, .r3-beam::after { content: ""; position: absolute; top: -5px; width: 16px; height: 24px; border-radius: 3px; background: linear-gradient(90deg, #64748b, #cbd5e1 45%, #64748b); box-shadow: 4px 8px 8px rgb(0 0 0 / 0.35); }
+.r3-beam::before { left: -4px; }
+.r3-beam::after { right: -4px; }
 .r3-gate {
+  --g1: #2d6cf6;
+  --g2: #1846c7;
   position: relative;
-  min-height: 74px;
-  display: grid;
-  place-items: center;
-  padding: 8px 6px;
-  border-radius: 10px;
-  background: linear-gradient(#2563eb, #1d4ed8);
-  border: 3px solid #fff;
-  outline: 2px solid #1e3a8a;
-  box-shadow: 0 14px 14px rgb(0 0 0 / 0.35);
+  min-height: 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 12px 10px 6px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 46%), linear-gradient(165deg, var(--g1), var(--g2));
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.35), 0 3px 4px rgb(0 0 0 / 0.25), 0 16px 22px -8px rgb(0 0 0 / 0.55);
   text-align: center;
   font-weight: 800;
-  font-size: clamp(12px, 3.4vw, 17px);
+  font-size: clamp(13px, 3.5vw, 17px);
   line-height: 1.15;
+  letter-spacing: -0.005em;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  text-wrap: balance;
   overflow-wrap: anywhere;
   hyphens: auto;
-  transition: background 0.2s, transform 0.35s cubic-bezier(.2, 1.4, .4, 1);
+  transition: transform 0.35s cubic-bezier(.2, 1.4, .4, 1), box-shadow 0.2s;
 }
-.r3-gate.is-ok { background: linear-gradient(#10b981, #059669); outline-color: #065f46; transform: scale(1.06); }
-.r3-gate.is-bad { background: linear-gradient(#f43f5e, #be123c); outline-color: #881337; animation: r3-wobble 0.4s; }
+/* Белая кайма внутри — как у настоящего дорожного знака */
+.r3-gate::before { content: ""; position: absolute; inset: 4px; border: 2px solid rgb(255 255 255 / 0.92); border-radius: 10px; pointer-events: none; }
+.r3-gate > span { position: relative; }
+.r3-arrow { display: block; width: 18px; height: 18px; opacity: 0.85; transition: color 0.2s, opacity 0.2s, transform 0.2s; }
+.r3-arrow svg { display: block; width: 100%; height: 100%; }
+/* Полоса, где сейчас машина: жёлтая подсветка и стрелка */
+.r3-gate.is-lane { box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.35), 0 0 0 3px #facc15, 0 0 22px 2px rgb(250 204 21 / 0.55), 0 16px 22px -8px rgb(0 0 0 / 0.55); }
+.r3-gate.is-lane .r3-arrow { color: #fde047; opacity: 1; transform: translateY(2px); }
+.r3-gate.is-ok { --g1: #1fc98e; --g2: #047857; transform: scale(1.06); }
+.r3-gate.is-bad { --g1: #fb5a78; --g2: #b3123a; animation: r3-wobble 0.4s; }
+.r3-gate.is-ok .r3-arrow, .r3-gate.is-bad .r3-arrow { color: #fff; }
 @keyframes r3-wobble { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
 
 /* Машина: положение, поворот кузова и колёс — из физики в road.ts (transform каждый кадр) */
@@ -287,7 +318,6 @@
   bottom: 17%;
   z-index: 2;
   width: var(--car);
-  filter: drop-shadow(6px 12px 6px rgb(0 0 0 / 0.4));
   will-change: transform;
 }
 .r3-car svg { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 50% 50%; }
@@ -306,17 +336,17 @@
 /* HUD */
 .r3-hud { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: max(12px, env(safe-area-inset-top)) 14px 0; pointer-events: none; }
 .r3-hud > *, .r3-stats > * { pointer-events: auto; }
-.r3-btn { width: 44px; height: 44px; border-radius: 14px; background: rgb(15 23 42 / 0.55); backdrop-filter: blur(8px); color: #fff; font-size: 18px; }
+.r3-btn { width: 44px; height: 44px; border-radius: 14px; background: rgb(15 23 42 / 0.72); color: #fff; font-size: 18px; }
 .r3-stats { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .r3-streak { pointer-events: none; }
-.r3-hearts { display: flex; gap: 2px; padding: 6px 10px; border-radius: 12px; background: rgb(15 23 42 / 0.55); backdrop-filter: blur(8px); font-size: 18px; line-height: 1; }
+.r3-hearts { display: flex; gap: 2px; padding: 6px 10px; border-radius: 12px; background: rgb(15 23 42 / 0.72); font-size: 18px; line-height: 1; }
 .r3-hearts i { font-style: normal; color: #f43f5e; text-shadow: 0 0 8px rgb(244 63 94 / 0.6); }
 .r3-hearts i.is-off { color: rgb(255 255 255 / 0.25); text-shadow: none; }
-.r3-box, .r3-speed { display: flex; align-items: baseline; gap: 4px; padding: 5px 10px; border-radius: 12px; background: rgb(15 23 42 / 0.55); backdrop-filter: blur(8px); font-variant-numeric: tabular-nums; }
+.r3-box, .r3-speed { display: flex; align-items: baseline; gap: 4px; padding: 5px 10px; border-radius: 12px; background: rgb(15 23 42 / 0.72); font-variant-numeric: tabular-nums; }
 .r3-box b, .r3-speed b { font-size: 20px; font-weight: 800; }
 .r3-box small, .r3-speed small { font-size: 11px; opacity: 0.75; }
 
-/* Указатель со словом: синий испанский дорожный знак */
+/* Указатель со словом: синий испанский дорожный знак с белой каймой */
 .r3-sign {
   position: absolute;
   top: max(12px, env(safe-area-inset-top));
@@ -324,35 +354,37 @@
   transform: translateX(-50%);
   min-width: min(64vw, 320px);
   max-width: calc(100vw - 150px);
-  padding: 8px 18px 10px;
-  border-radius: 12px;
-  background: linear-gradient(#2563eb, #1e40af);
-  border: 3px solid #fff;
-  outline: 3px solid #1e3a8a;
-  box-shadow: 0 12px 30px rgb(0 0 0 / 0.35);
+  padding: 12px 26px 14px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 50%), linear-gradient(165deg, #2d6cf6, #1846c7);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.35), 0 4px 6px rgb(0 0 0 / 0.2), 0 20px 36px -10px rgb(0 0 0 / 0.55);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 2px;
+  contain: layout style;
 }
-.r3-sign small { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.75; }
-.r3-sign b { font-size: clamp(22px, 5.6vw, 36px); font-weight: 900; line-height: 1.1; overflow-wrap: anywhere; }
+.r3-sign::before { content: ""; position: absolute; inset: 5px; border: 2px solid rgb(255 255 255 / 0.92); border-radius: 13px; pointer-events: none; }
+.r3-sign small { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; opacity: 0.78; }
+.r3-sign b { font-size: clamp(24px, 6vw, 40px); font-weight: 900; line-height: 1.08; letter-spacing: -0.015em; text-shadow: 0 2px 4px rgb(0 0 0 / 0.3); overflow-wrap: anywhere; }
 .r3-sign.is-new { animation: r3-sign 0.35s cubic-bezier(.2, 1.4, .4, 1); }
 @keyframes r3-sign { from { transform: translateX(-50%) scale(0.85); opacity: 0.4; } }
-.r3-say { position: absolute; right: -14px; bottom: -14px; width: 34px; height: 34px; border-radius: 50%; background: #fff; box-shadow: 0 4px 10px rgb(0 0 0 / 0.3); font-size: 15px; }
+.r3-say { position: absolute; right: -14px; bottom: -14px; width: 36px; height: 36px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px #1846c7, 0 6px 14px rgb(0 0 0 / 0.35); font-size: 15px; transition: transform 0.15s; }
+.r3-say:active { transform: scale(0.9); }
 
-.r3-toast { position: absolute; left: 50%; bottom: calc(5% + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; max-width: calc(100vw - 150px); padding: 10px 16px; border-radius: 14px; background: rgb(15 23 42 / 0.82); backdrop-filter: blur(8px); font-weight: 700; text-align: center; transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
+.r3-toast { position: absolute; left: 50%; bottom: calc(5% + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; max-width: calc(100vw - 150px); padding: 10px 16px; border-radius: 14px; background: rgb(15 23 42 / 0.82); font-weight: 700; text-align: center; transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
 .r3-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
 .r3-toast.is-bad { background: rgb(190 18 60 / 0.9); }
 .r3-toast.is-good { background: rgb(234 88 12 / 0.9); }
-.r3-place { position: absolute; left: 50%; top: 42%; transform: translateX(-50%); padding: 8px 18px; border-radius: 10px; background: #15803d; border: 3px solid #fff; outline: 2px solid #14532d; box-shadow: 0 12px 30px rgb(0 0 0 / 0.35); font-size: clamp(18px, 4.5vw, 26px); font-weight: 900; white-space: nowrap; opacity: 0; pointer-events: none; }
+.r3-place { position: absolute; left: 50%; top: 42%; transform: translateX(-50%); padding: 8px 18px; border-radius: 14px; background: linear-gradient(180deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0) 50%), linear-gradient(165deg, #16a34a, #0f6b33); box-shadow: inset 0 0 0 4px #0f6b33, inset 0 0 0 6px rgb(255 255 255 / 0.92), 0 20px 36px -10px rgb(0 0 0 / 0.55); padding: 12px 24px; font-size: clamp(18px, 4.5vw, 26px); font-weight: 900; white-space: nowrap; opacity: 0; pointer-events: none; }
 .r3-place.is-on { animation: r3-place 2.6s cubic-bezier(.2, 1.3, .4, 1); }
 @keyframes r3-place { 0% { opacity: 0; transform: translateX(-50%) scale(0.6); } 12% { opacity: 1; transform: translateX(-50%) scale(1); } 80% { opacity: 1; transform: translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
 .r3-banner { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font-size: clamp(34px, 9vw, 64px); font-weight: 900; letter-spacing: -0.02em; text-shadow: 0 4px 0 #1e3a8a, 0 10px 30px rgb(0 0 0 / 0.4); opacity: 0; pointer-events: none; }
 .r3-banner.is-on { animation: r3-banner 1.4s ease-out; }
 @keyframes r3-banner { 0% { opacity: 0; transform: scale(0.6); } 20% { opacity: 1; transform: scale(1.05); } 70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.1); } }
 
-.r3-pad { position: absolute; bottom: calc(4% + env(safe-area-inset-bottom)); width: 64px; height: 64px; border-radius: 50%; background: rgb(15 23 42 / 0.45); backdrop-filter: blur(6px); color: #fff; font-size: 38px; line-height: 1; box-shadow: 0 6px 20px rgb(0 0 0 / 0.25); }
+.r3-pad { position: absolute; bottom: calc(4% + env(safe-area-inset-bottom)); width: 64px; height: 64px; border-radius: 50%; background: rgb(15 23 42 / 0.6); color: #fff; font-size: 38px; line-height: 1; box-shadow: 0 6px 20px rgb(0 0 0 / 0.25); }
 .r3-pad:active { transform: scale(0.92); background: rgb(15 23 42 / 0.65); }
 .r3-pad.is-l { left: 14px; }
 .r3-pad.is-r { right: 14px; }

@@ -651,6 +651,7 @@ export function scenery(ground: HTMLElement, decoLayer: HTMLElement, sky: HTMLEl
     const tex = h("div.r3-ztex", {}, SEA.has(b) ? h("div.r3-sea", {}, h("i")) : null, urban ? h("i.r3-walk.is-l") : null, urban ? h("i.r3-walk.is-r") : null);
     const el = h("div.r3-zone.is-" + b, {}, tex);
     el.style.setProperty("--sea", `${seaW(b)}px`);
+    el.style.height = `${zoneH()}px`;
     ground.append(el);
     return { b, el, tex, near: 0, far: -Infinity };
   };
@@ -679,6 +680,9 @@ export function scenery(ground: HTMLElement, decoLayer: HTMLElement, sky: HTMLEl
     p.el.style.cssText = `left:${f(x)}px;--c:${one(SHIRT)};--hc:${one(HAIR)};--p:${one(PANTS)};--s:${f(rnd(0.26, 0.36))}s;--dc:${one(["#e11d48", "#dc2626", "#16a34a", "#1d4ed8", "#facc15", "#f8fafc"])}`;
   };
 
+  /** Высота зоны постоянная — экран с запасом на плитку: меняется только transform, без перерисовки маски. */
+  const zoneH = () => H + 2 * T + 240;
+
   /** Тень облака плывёт по земле. */
   const cloud = () => {
     if (calm || clouds.length >= 2) return;
@@ -696,7 +700,7 @@ export function scenery(ground: HTMLElement, decoLayer: HTMLElement, sky: HTMLEl
       gap = (w - rw) / 2;
       ground.style.setProperty("--gap", `${gap}px`);
       ground.style.setProperty("--walk", `${walkW()}px`);
-      for (const z of zones) z.el.style.setProperty("--sea", `${seaW(z.b)}px`);
+      for (const z of zones) (z.el.style.setProperty("--sea", `${seaW(z.b)}px`), (z.el.style.height = `${zoneH()}px`));
     },
     plant(n = 22) {
       for (let i = 0; i < n; i++) {
@@ -719,9 +723,12 @@ export function scenery(ground: HTMLElement, decoLayer: HTMLElement, sky: HTMLEl
     },
     step(dy: number, dt = 1 / 60) {
       y += dy;
+      // Новая декорация — разбор SVG: не больше одной за кадр, остальные ждут за нижним краем экрана.
+      let fresh = 1;
       for (const d of decos) {
         d.y += dy;
-        if (d.y > H + 20) dress(d, -d.h - Math.random() * 160);
+        if (d.y > H + 20 && fresh) (fresh--, dress(d, -d.h - Math.random() * 160));
+        else if (d.y > H + 20) continue;
         d.el.style.transform = `translate3d(0,${f(d.y)}px,0) rotate(var(--r))`;
       }
       for (let i = zones.length - 1; i >= 0; i--) {
@@ -733,9 +740,9 @@ export function scenery(ground: HTMLElement, decoLayer: HTMLElement, sky: HTMLEl
           zones.splice(i, 1);
           continue;
         }
-        const top = Math.max(z.far, -T - 120), bottom = Math.min(z.near, H + T + 120);
+        // Край зоны на экране совпадает с краем блока (там маска-переход), второй край — за экраном.
+        const top = z.near > H + T + 120 ? Math.max(z.far, -T - 120) : Math.max(z.far, z.near - zoneH());
         z.el.style.transform = `translate3d(0,${f(top)}px,0)`;
-        z.el.style.height = `${f(Math.max(0, bottom - top))}px`;
         const phase = (((y - top) % T) + T) % T;
         z.tex.style.transform = `translate3d(0,${f(phase)}px,0)`;
       }

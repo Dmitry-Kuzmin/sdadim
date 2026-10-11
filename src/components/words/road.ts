@@ -42,6 +42,7 @@ const CAR = `<svg viewBox="0 0 64 120" aria-hidden="true">
     <linearGradient id="r3g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1220"/><stop offset="1" stop-color="#3b4a63"/></linearGradient>
     <radialGradient id="r3i"><stop offset="0" stop-color="#fff7cc"/><stop offset=".35" stop-color="#fbbf24"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></radialGradient>
   </defs>
+  <path class="sh" d="M15 5 Q32 -1 49 5 Q58 9 58 26 L58 100 Q58 115 45 117 L19 117 Q6 115 6 100 L6 26 Q6 9 15 5Z" transform="translate(7 11)" fill="#000" opacity=".3"/>
   <g class="whl"><rect x="2" y="15" width="9" height="19" rx="3.5" fill="#0f172a"/><path d="M4 18h5M4 22h5M4 26h5M4 30h5" stroke="#475569" stroke-width="1"/></g>
   <g class="whl"><rect x="53" y="15" width="9" height="19" rx="3.5" fill="#0f172a"/><path d="M55 18h5M55 22h5M55 26h5M55 30h5" stroke="#475569" stroke-width="1"/></g>
   <rect x="2" y="84" width="9" height="19" rx="3.5" fill="#0f172a"/><rect x="53" y="84" width="9" height="19" rx="3.5" fill="#0f172a"/>
@@ -59,6 +60,9 @@ const CAR = `<svg viewBox="0 0 64 120" aria-hidden="true">
   <g class="ind-l"><circle cx="8" cy="15" r="9" fill="url(#r3i)"/><circle cx="8" cy="108" r="9" fill="url(#r3i)"/></g>
   <g class="ind-r"><circle cx="56" cy="15" r="9" fill="url(#r3i)"/><circle cx="56" cy="108" r="9" fill="url(#r3i)"/></g>
 </svg>`;
+
+/** Стрелка вниз на табличке — как на настоящих указателях полос над автомагистралью. */
+const ARROW = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v15m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /** Светофор обратного отсчёта: красный → жёлтый → зелёный. */
 const LIGHT = `<div class="r3-light"><i></i><i></i><i></i></div>`;
@@ -101,7 +105,9 @@ function play(ctx: Ctx) {
   const scoreEl = h("b.r3-score", {}, "0");
   const scoreBox = h("span.r3-box", {}, scoreEl, h("small", {}, "очков"));
   const streakEl = h("span.wt-streak.r3-streak", { "aria-live": "polite" });
-  const speedEl = h("span.r3-speed");
+  const kmhEl = h("b", {}, "0");
+  const speedEl = h("span.r3-speed", {}, kmhEl, h("small", {}, "км/ч"));
+  let shownKmh = 0;
   const quit = h("button.r3-btn", { type: "button", "aria-label": "Закрыть", onclick: () => ctx.exit(), html: ICON.x });
   const hud = h("div.r3-hud", {}, quit, h("div.r3-stats", {}, hearts, streakEl, scoreBox, speedEl));
   const toast = h("div.r3-toast", { role: "status" });
@@ -168,6 +174,7 @@ function play(ctx: Ctx) {
     car.classList.remove("is-l", "is-r");
     void car.offsetWidth;
     car.classList.add(dir < 0 ? "is-l" : "is-r");
+    markLane();
     fx.sfx("tap");
   };
   left.onclick = () => setLane(lane - 1);
@@ -207,6 +214,11 @@ function play(ctx: Ctx) {
     banner.classList.add("is-on");
   };
 
+  /** Табличка над полосой машины подсвечена: видно, какой ответ сейчас выбран. */
+  const markLane = () => {
+    if (!resolved) gates.forEach((g, i) => g.classList.toggle("is-lane", i === lane));
+  };
+
   /* ─── Мачта с ответами ─── */
   const spawn = () => {
     if (over) return;
@@ -223,7 +235,7 @@ function play(ctx: Ctx) {
     }
     const opts = E.shuffle([w, ...E.distractors(w, others, "ru", LANES - 1)]);
     right_ = opts.indexOf(w);
-    gates = opts.map((o) => h("div.r3-gate", { lang: "ru" }, h("span", {}, o.ru)));
+    gates = opts.map((o) => h("div.r3-gate", { lang: "ru" }, h("span", {}, o.ru), h("i.r3-arrow", { html: ARROW })));
     row.replaceChildren(h("i.r3-beam"), ...gates);
     sign.replaceChildren(h("small", {}, "¿Qué significa?"), h("b", { lang: "es" }, w.es), h("button.r3-say", { type: "button", "aria-label": "Произнести", onclick: () => fx.speak(w.es), html: ICON.sound }));
     sign.classList.remove("is-new");
@@ -242,12 +254,14 @@ function play(ctx: Ctx) {
     kmh = kmhOf(n);
     rowOn = true;
     resolved = false;
+    markLane();
   };
 
   const resolve = () => {
     resolved = true;
     const w = cur!;
     n++;
+    for (const g of gates) g.classList.remove("is-lane");
     gates[right_].classList.add("is-ok");
     ctx.arcadeAnswer?.(w, lane === right_);
     if (lane === right_) {
@@ -332,6 +346,7 @@ function play(ctx: Ctx) {
   };
   const rnd = (a: number, b: number) => a + Math.random() * (b - a);
 
+  let lastPos = "", lastRot = "", lastSteer = "";
   /** Шаг физики машины. */
   const drive = (dt: number) => {
     const tx = laneX(lane);
@@ -350,9 +365,11 @@ function play(ctx: Ctx) {
     steer += (steerT - steer) * Math.min(1, dt * 20);
     if (drift && Math.abs(yaw) > 5 && (trail -= dt) <= 0) (tire(), (trail = 0.03));
     if (drift && Math.abs(tx - cx) < 1.5 && Math.abs(vx) < 12 && Math.abs(yaw) < 2) drift = 0;
-    car.style.transform = `translate3d(${cx}px,0,0) translateX(-50%)`;
-    body.style.transform = `rotate(${yaw.toFixed(2)}deg)`;
-    for (const w of wheels) w.style.transform = `rotate(${steer.toFixed(1)}deg)`;
+    // Писать в стиль только изменения: на прямой кузов и колёса не трогаем — SVG не перерисовывается.
+    const pos = cx.toFixed(1), rot = yaw.toFixed(1), st = steer.toFixed(0);
+    if (pos !== lastPos) car.style.transform = `translate3d(${(lastPos = pos)}px,0,0) translateX(-50%)`;
+    if (rot !== lastRot) body.style.transform = `rotate(${(lastRot = rot)}deg)`;
+    if (st !== lastSteer) for (const w of wheels) w.style.transform = `rotate(${(lastSteer = st)}deg)`;
   };
 
   /* ─── Главный цикл ─── */
@@ -385,7 +402,8 @@ function play(ctx: Ctx) {
       }
       const k = target ? v / target : 0;
       motor.set(Math.min(1, (kmh / 140) * k));
-      speedEl.innerHTML = `<b>${Math.round(kmh * k)}</b><small>км/ч</small>`;
+      const sp = Math.round(kmh * k);
+      if (sp !== shownKmh) kmhEl.textContent = String((shownKmh = sp));
     }
     drive(dt);
     // Фактуры травы и асфальта — повторяющиеся плитки: сдвиг по модулю размера плитки.
@@ -405,7 +423,6 @@ function play(ctx: Ctx) {
     ctx.later(birds, 6000 + Math.random() * 4000);
   };
   ctx.later(birds, 2500);
-  speedEl.innerHTML = `<b>0</b><small>км/ч</small>`;
   sign.replaceChildren(h("small", {}, "Приготовьтесь"), h("b", {}, "¡Vamos!"));
   requestAnimationFrame(frame);
 
