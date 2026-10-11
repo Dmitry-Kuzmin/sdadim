@@ -6,6 +6,7 @@ import type { Word } from "@/lib/words";
 import type { Ctx } from "./trainer";
 import { MODES, type ModeId } from "./modes";
 import { h, picture } from "./dom";
+import { ICON } from "./icons";
 import * as E from "./engine";
 import * as fx from "./fx";
 
@@ -35,8 +36,8 @@ export function intro(ctx: Ctx, mode: ModeId, rules: [string, string][], start: 
       {},
       h("div.wt-intro-icon", { "aria-hidden": "true" }, info.emoji),
       h("h2", {}, info.title),
-      h("ul", {}, ...rules.map(([icon, text]) => h("li", {}, h("span", { "aria-hidden": "true" }, icon), h("span", { html: text })))),
-      best != null ? h("p.wt-intro-best", {}, `🏆 Ваш рекорд: ${best}${mode === "pairs" ? " с" : ""}`) : null,
+      h("ul", {}, ...rules.map(([icon, text]) => h("li", {}, h("span", { "aria-hidden": "true", html: icon }), h("span", { html: text })))),
+      best != null ? h("p.wt-intro-best", { html: `${ICON.trophy} Ваш рекорд: ${best}${mode === "pairs" ? " с" : ""}` }) : null,
       btn,
       h("p.wt-intro-kbd", {}, "Enter — старт"),
     ),

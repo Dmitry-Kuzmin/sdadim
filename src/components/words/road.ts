@@ -15,6 +15,7 @@ import { intro, source } from "./arcade";
 import * as E from "./engine";
 import * as fx from "./fx";
 import { BIOMES, scenery } from "./scenery";
+import { ICON } from "./icons";
 
 const LANES = 3;
 const LIVES = 3;
@@ -68,9 +69,9 @@ const PER_BIOME = 4;
 
 /** Правила перед стартом — общие для тренажёра и встраивания (embed.ts). */
 export const ROAD_RULES: [string, string][] = [
-  ["🪧", "Испанское слово — на синем указателе, переводы — на табличках над тремя полосами."],
-  ["🚗", "Перестройтесь в полосу с <b>правильным переводом</b>: ← → на клавиатуре, свайп или тап по полосе."],
-  ["❤️", "Три жизни. Сначала времени много, с каждым словом дорога <b>быстрее</b>."],
+  [ICON.signpost, "Испанское слово — на синем указателе, переводы — на табличках над тремя полосами."],
+  [ICON.car, "Перестройтесь в полосу с <b>правильным переводом</b>: ← → на клавиатуре, свайп или тап по полосе."],
+  [ICON.heart, "Три жизни. Сначала времени много, с каждым словом дорога <b>быстрее</b>."],
 ];
 
 export function road(ctx: Ctx) {
@@ -101,7 +102,7 @@ function play(ctx: Ctx) {
   const scoreBox = h("span.r3-box", {}, scoreEl, h("small", {}, "очков"));
   const streakEl = h("span.wt-streak.r3-streak", { "aria-live": "polite" });
   const speedEl = h("span.r3-speed");
-  const quit = h("button.r3-btn", { type: "button", "aria-label": "Закрыть", onclick: () => ctx.exit() }, "✕");
+  const quit = h("button.r3-btn", { type: "button", "aria-label": "Закрыть", onclick: () => ctx.exit(), html: ICON.x });
   const hud = h("div.r3-hud", {}, quit, h("div.r3-stats", {}, hearts, streakEl, scoreBox, speedEl));
   const toast = h("div.r3-toast", { role: "status" });
   const banner = h("div.r3-banner");
@@ -191,7 +192,7 @@ function play(ctx: Ctx) {
 
   /* ─── HUD ─── */
   const paintHud = () => {
-    hearts.innerHTML = Array.from({ length: LIVES }, (_, i) => `<i class="${i < lives ? "" : "is-off"}">♥</i>`).join("");
+    hearts.innerHTML = Array.from({ length: LIVES }, (_, i) => `<i class="${i < lives ? "" : "is-off"}">${ICON.heart}</i>`).join("");
     scoreEl.textContent = String(score);
   };
   const say = (text: string, cls = "") => {
@@ -224,7 +225,7 @@ function play(ctx: Ctx) {
     right_ = opts.indexOf(w);
     gates = opts.map((o) => h("div.r3-gate", { lang: "ru" }, h("span", {}, o.ru)));
     row.replaceChildren(h("i.r3-beam"), ...gates);
-    sign.replaceChildren(h("small", {}, "¿Qué significa?"), h("b", { lang: "es" }, w.es), h("button.r3-say", { type: "button", "aria-label": "Произнести", onclick: () => fx.speak(w.es) }, "🔊"));
+    sign.replaceChildren(h("small", {}, "¿Qué significa?"), h("b", { lang: "es" }, w.es), h("button.r3-say", { type: "button", "aria-label": "Произнести", onclick: () => fx.speak(w.es), html: ICON.sound }));
     sign.classList.remove("is-new");
     void sign.offsetWidth;
     sign.classList.add("is-new");
@@ -260,7 +261,7 @@ function play(ctx: Ctx) {
       fx.floatText(roadEl, `+${add}${mult > 1 ? ` ×${mult}` : ""}`, "is-ok r3-plus");
       fx.burst(gates[right_], true, scoreBox, 18);
       if (combo % 5 === 0) fx.burst(car, "gold", streakEl, 24);
-      if (combo % 5 === 0) say(`🔥 Серия ${combo}!`, "is-good");
+      if (combo % 5 === 0) say(`Серия ${combo}!`, "is-good");
       if (correct % PER_LEVEL === 0) {
         level++;
         shout(`Nivel ${level}`);

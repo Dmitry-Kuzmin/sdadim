@@ -26,18 +26,18 @@ import { h } from "./dom";
 
 export type Biome = "campo" | "pueblo" | "costa" | "mancha" | "valencia" | "feria" | "barcelona" | "pirineos" | "bilbao" | "euskadi" | "gijon" | "asturias";
 export const BIOMES: { id: Biome; name: string }[] = [
-  { id: "campo", name: "🌳 Campiña" },
-  { id: "pueblo", name: "🏘️ Pueblo blanco" },
-  { id: "costa", name: "🌊 Costa del Sol" },
-  { id: "mancha", name: "🌾 La Mancha" },
-  { id: "valencia", name: "🍊 València" },
-  { id: "feria", name: "🎪 Feria y circo" },
-  { id: "barcelona", name: "⛪ Barcelona" },
-  { id: "pirineos", name: "🏔️ Pirineos" },
-  { id: "bilbao", name: "🏛️ Bilbao" },
-  { id: "euskadi", name: "🌊 Euskadi" },
-  { id: "gijon", name: "⚓ Gijón" },
-  { id: "asturias", name: "⛰️ Picos de Europa" },
+  { id: "campo", name: "Campiña" },
+  { id: "pueblo", name: "Pueblo blanco" },
+  { id: "costa", name: "Costa del Sol" },
+  { id: "mancha", name: "La Mancha" },
+  { id: "valencia", name: "València" },
+  { id: "feria", name: "Feria y circo" },
+  { id: "barcelona", name: "Barcelona" },
+  { id: "pirineos", name: "Pirineos" },
+  { id: "bilbao", name: "Bilbao" },
+  { id: "euskadi", name: "Euskadi" },
+  { id: "gijon", name: "Gijón" },
+  { id: "asturias", name: "Picos de Europa" },
 ];
 /** Слева море. */
 const SEA = new Set<Biome>(["costa", "euskadi", "gijon"]);

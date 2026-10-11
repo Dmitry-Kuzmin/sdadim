@@ -371,3 +371,11 @@
   .r3-sign { top: calc(max(12px, env(safe-area-inset-top)) + 54px); max-width: calc(100vw - 32px); }
 }
 @media (prefers-reduced-motion: reduce) { .r3-banner.is-on, .r3-sails, .r3-sea i { animation: none; } }
+/* Иконки Lucide (icons.ts) вместо эмодзи */
+.r3 .ico { display: block; flex: none; }
+.r3-btn, .r3-say { display: grid; place-items: center; }
+.r3-say { color: #1d4ed8; }
+.r3-hearts { gap: 3px; }
+.r3-hearts i { display: block; filter: drop-shadow(0 0 6px rgb(244 63 94 / 0.6)); }
+.r3-hearts i.is-off { filter: none; }
+.r3-hearts .ico { fill: currentColor; }

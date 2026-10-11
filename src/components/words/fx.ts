@@ -2,6 +2,7 @@
  * Эффекты тренажёра без файлов и библиотек: звуки — синтез Web Audio, озвучка — голос браузера
  * (Web Speech API, испанский Испании), конфетти — один canvas на пару секунд, вибрация на телефоне.
  */
+import { ICON } from "./icons";
 let ctx: AudioContext | null = null;
 let muted = false;
 export const setMuted = (m: boolean) => (muted = m);
@@ -272,7 +273,7 @@ export function streak(el: HTMLElement, n: number) {
   const prev = Number(el.dataset.n || 0);
   el.dataset.n = String(n);
   el.dataset.tier = n >= 10 ? "hot" : n >= 6 ? "warm" : n >= 3 ? "mild" : n >= 2 ? "seed" : "";
-  el.innerHTML = n >= 2 ? `<b aria-hidden="true">🔥</b><span>${n}</span>` : "";
+  el.innerHTML = n >= 2 ? `<b>${ICON.flame}</b><span>${n}</span>` : "";
   el.setAttribute("aria-label", n >= 2 ? `Серия: ${n} подряд` : "");
   if (n > prev && n >= 2) pop(el);
 }

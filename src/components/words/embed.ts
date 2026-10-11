@@ -15,6 +15,7 @@ import type { Ctx, Summary } from "./trainer";
 import { h } from "./dom";
 import * as fx from "./fx";
 import { road, ROAD_RULES } from "./road";
+import { ICON } from "./icons";
 import css from "./road.css?inline";
 import embedCss from "./embed.css?inline";
 
@@ -107,10 +108,10 @@ export function mount(o: EmbedOptions) {
   const rules = () => {
     const b = best();
     card(
-      h("div.r3e-icon", { "aria-hidden": "true" }, "🚗"),
+      h("div.r3e-icon", { html: ICON.car }),
       h("h2", {}, "Трасса"),
-      h("ul", {}, ...ROAD_RULES.map(([icon, text]) => h("li", {}, h("span", { "aria-hidden": "true" }, icon), h("span", { html: text })))),
-      b ? h("p.r3e-best", {}, `🏆 Ваш рекорд: ${b}`) : null,
+      h("ul", {}, ...ROAD_RULES.map(([icon, text]) => h("li", {}, h("span", { html: icon }), h("span", { html: text })))),
+      b ? h("p.r3e-best", { html: `${ICON.trophy} Ваш рекорд: ${b}` }) : null,
       h("div.r3e-btns", {}, h("button.r3e-btn.is-ghost", { type: "button", onclick: exit }, "Выйти"), h("button.r3e-btn.r3e-go", { type: "button", onclick: play }, "Старт")),
     );
     keyFns.push((e) => e.key === "Enter" && (e.preventDefault(), play()));
@@ -126,7 +127,7 @@ export function mount(o: EmbedOptions) {
     const mistakes = s.mistakes.map((w) => ({ id: w.id, es: w.es, ru: w.ru }));
     o.onFinish?.({ score, correct: s.correct, total: s.total, combo: s.combo ?? 0, best: top, mistakes });
     card(
-      h("div.r3e-icon", { "aria-hidden": "true" }, score > was ? "🏆" : "🏁"),
+      h("div.r3e-icon", { html: score > was ? ICON.trophy : ICON.flag }),
       h("h2", {}, score > was && was ? "Новый рекорд!" : "Финиш"),
       h("p.r3e-score", {}, h("b", {}, String(score)), " очков"),
       h("p.r3e-sub", {}, `Верно ${s.correct} из ${s.total} · лучшая серия ${s.combo ?? 0}`),
