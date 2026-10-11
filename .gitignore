@@ -17,3 +17,6 @@ Icon?
 public/assets/blog/w/
 .vercel
 .env*
+
+# Встраиваемая «Трасса» — собирается при сборке (scripts/build-embed.mjs)
+public/embed/

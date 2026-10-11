@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --port 4321",
-    "prebuild": "node scripts/cover-variants.mjs",
+    "prebuild": "node scripts/cover-variants.mjs && node scripts/build-embed.mjs",
     "build": "astro build && node scripts/seo-assert-dist.mjs && node scripts/check-links.mjs && node scripts/indexnow.mjs",
     "seo:assert:dist": "node scripts/seo-assert-dist.mjs",
     "preview": "astro preview",
@@ -14,6 +14,7 @@
     "check": "node scripts/seo-assert-dist.mjs && node scripts/check-links.mjs",
     "fines:snapshot": "node scripts/fines-snapshot.mjs",
     "icons": "node scripts/render-icons.mjs",
+    "embed": "node scripts/build-embed.mjs",
     "words:sync": "node scripts/words-sync.mjs",
     "words:watermark": "node scripts/words-watermark.mjs"
   },

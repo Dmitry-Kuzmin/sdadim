@@ -1,0 +1,39 @@
+/* Встраиваемая «Трасса» (embed.ts): слой на весь экран, правила и итоги. Цвета свои — тема чужого сайта не влияет. */
+.r3-embed { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; padding: 16px; overflow: auto; background: #0f172a; color: #0f172a; font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+.r3-embed *, .r3-embed *::before, .r3-embed *::after { box-sizing: border-box; }
+.r3-embed .r3 { font-family: inherit; }
+.r3e-card { width: 100%; max-width: 460px; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 28px 20px; border-radius: 28px; background: #fff; text-align: center; animation: r3e-rise 0.4s cubic-bezier(.2, 1, .3, 1) both; }
+.r3e-card h2 { margin: 4px 0 0; font-size: 28px; font-weight: 900; }
+.r3e-card ul { width: 100%; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.r3e-card li { list-style: none; display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 16px; background: #f1f5f9; font-size: 15px; }
+.r3e-card li > span:first-child { font-size: 20px; line-height: 1.1; }
+.r3e-icon { width: 88px; height: 88px; display: grid; place-items: center; font-size: 46px; border-radius: 28px; background: #dbeafe; box-shadow: 0 0 0 10px #eff6ff; }
+.r3e-best { margin: 0; font-weight: 700; color: #b45309; }
+.r3e-score { margin: 0; font-size: 18px; color: #475569; }
+.r3e-score b { font-size: 44px; font-weight: 900; color: #1d4ed8; }
+.r3e-sub { margin: 0; color: #64748b; }
+.r3e-miss { max-height: 30vh; overflow: auto; }
+.r3e-miss li { display: block; background: #fff1f2; }
+.r3e-btns { width: 100%; display: flex; gap: 10px; margin-top: 4px; }
+.r3e-btn { flex: 1; min-height: 54px; border: 0; border-radius: 16px; font: inherit; font-size: 17px; font-weight: 800; color: #fff; background: #2563eb; box-shadow: 0 4px 0 #1e40af; cursor: pointer; }
+.r3e-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e40af; }
+.r3e-btn.is-ghost { flex: 0 0 auto; padding: 0 20px; color: #334155; background: #e2e8f0; box-shadow: 0 4px 0 #cbd5e1; }
+@keyframes r3e-rise { from { opacity: 0; transform: translateY(16px); } }
+
+/* Из words.css — то, чем пользуется Трасса: искры, «+20», бейдж серии */
+.wt-fx { position: fixed; inset: 0; z-index: 2147483001; pointer-events: none; overflow: hidden; }
+.wt-fx > i { position: absolute; left: 0; top: 0; border-radius: 50%; will-change: transform, opacity; }
+.wt-fx > i.is-ring { margin: 0; background: none; border: 3px solid; box-shadow: none; }
+.r3-embed .wt-float { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); font-weight: 800; font-size: 22px; pointer-events: none; animation: wt-float 0.9s ease-out forwards; z-index: 3; }
+.r3-embed .wt-float.is-ok { color: #10b981; }
+.r3-embed .wt-float.is-bad { color: #f43f5e; }
+@keyframes wt-float { to { transform: translate(-50%, -50px); opacity: 0; } }
+@keyframes wt-badge { from { transform: scale(0) rotate(-25deg); } }
+@keyframes wt-hot { 50% { box-shadow: 0 0 34px 9px rgb(220 38 38 / 0.7); } }
+.wt-streak:empty { display: none; }
+.wt-streak { display: inline-flex; align-items: center; gap: 3px; height: 30px; padding: 0 10px 0 8px; border-radius: 99px; color: #fff; font-weight: 900; font-size: 14px; font-variant-numeric: tabular-nums; animation: wt-badge 0.35s cubic-bezier(.3, 1.6, .5, 1); }
+.wt-streak b { font-size: 14px; filter: drop-shadow(0 0 4px rgb(253 186 36 / 0.9)); }
+.wt-streak[data-tier="seed"] { background: linear-gradient(90deg, #fbbf24, #f97316); box-shadow: 0 0 12px 2px rgb(251 146 60 / 0.45); }
+.wt-streak[data-tier="mild"] { background: linear-gradient(90deg, #f97316, #ef4444); box-shadow: 0 0 16px 3px rgb(249 115 22 / 0.5); }
+.wt-streak[data-tier="warm"] { background: linear-gradient(90deg, #ef4444, #e11d48); box-shadow: 0 0 20px 4px rgb(239 68 68 / 0.55); }
+.wt-streak[data-tier="hot"] { background: linear-gradient(90deg, #e11d48, #ef4444, #f97316); box-shadow: 0 0 28px 6px rgb(220 38 38 / 0.6); animation: wt-hot 1.2s ease-in-out infinite; }
