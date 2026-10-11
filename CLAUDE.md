@@ -62,6 +62,8 @@ Frontmatter — единственный источник: страница, к�
 - «Трасса» на других сайтах (migran.es, SkilyApp RU): `src/components/words/embed.ts` → `public/embed/trassa.js`
   (собирает `scripts/build-embed.mjs` в prebuild, стили внутри, CORS и кэш 5 мин — `vercel.json`). Правим игру только здесь:
   после деплоя её сразу получают все сайты. API `mount({ words, onAnswer, onFinish, onExit })` менять только совместимо.
+  Потребители: migran — `import()` бандла в рантайме; SkilyApp — вшитая копия `src/features/road-game/trassa.js`
+  (`scripts/sync-trassa.mjs`, типы — копия `EmbedOptions` в `trassa.d.ts`), обновляется ежедневным Action в skilyapp.
 - Испанские слова в статьях блога сами становятся ссылками на страницы слов (`src/lib/word-links.ts` в `Prose.astro`,
   1 ссылка на абзац, до 12 на статью) с подсказкой `WordTip.astro`. Rehype-плагины MDX в Astro 7 (Satteri) не работают — правим HTML.
 
