@@ -3,6 +3,7 @@
  * (Web Speech API, испанский Испании), конфетти — один canvas на пару секунд, вибрация на телефоне.
  */
 import { ICON } from "./icons";
+import { tr } from "./road-i18n";
 let ctx: AudioContext | null = null;
 let muted = false;
 export const setMuted = (m: boolean) => (muted = m);
@@ -274,6 +275,6 @@ export function streak(el: HTMLElement, n: number) {
   el.dataset.n = String(n);
   el.dataset.tier = n >= 10 ? "hot" : n >= 6 ? "warm" : n >= 3 ? "mild" : n >= 2 ? "seed" : "";
   el.innerHTML = n >= 2 ? `<b>${ICON.flame}</b><span>${n}</span>` : "";
-  el.setAttribute("aria-label", n >= 2 ? `Серия: ${n} подряд` : "");
+  el.setAttribute("aria-label", n >= 2 ? tr().streakAria(n) : "");
   if (n > prev && n >= 2) pop(el);
 }

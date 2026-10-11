@@ -62,6 +62,8 @@ Frontmatter — единственный источник: страница, к�
 - «Трасса» на других сайтах (migran.es, SkilyApp RU): `src/components/words/embed.ts` → `public/embed/trassa.js`
   (собирает `scripts/build-embed.mjs` в prebuild, стили внутри, CORS и кэш 5 мин — `vercel.json`). Правим игру только здесь:
   после деплоя её сразу получают все сайты. API `mount({ words, onAnswer, onFinish, onExit })` менять только совместимо.
+  Язык интерфейса игры — `mount({ lang: "ru" | "en" })`, тексты в `road-i18n.ts` (новая строка — в оба языка); перевод слова — поле `tr`
+  (`ru` оставлен для совместимости). Копия SkilyApp не знает про `lang` — при следующем `sync-trassa` обновить и `trassa.d.ts`.
   После релиза игры — чек-лист по потребителям:
   - **migran** — копии нет (`TrassaButton.astro` делает `import()` бандла по клику): ничего не делать, проверить, что прод отдаёт
     новую версию (`curl -s https://sdadim.eu/embed/trassa.js | grep <новый класс>`). Если копия когда-то появится — это баг, вернуть `import()`.

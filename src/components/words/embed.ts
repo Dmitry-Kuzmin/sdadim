@@ -14,22 +14,26 @@ import type { Word } from "@/lib/words";
 import type { Ctx, Summary } from "./trainer";
 import { h } from "./dom";
 import * as fx from "./fx";
-import { road, ROAD_RULES } from "./road";
+import { road, roadRules } from "./road";
+import { type RoadLang, setRoadLang, tr } from "./road-i18n";
 import { ICON } from "./icons";
 import css from "./road.css?inline";
 import embedCss from "./embed.css?inline";
 
-export type EmbedWord = { id?: string; es: string; ru: string; /** Тема: дистракторы берутся из неё. */ theme?: string };
+/** Перевод — `tr` (любой язык игры); `ru` — прежнее имя, остаётся для совместимости. */
+export type EmbedWord = { id?: string; es: string; ru?: string; tr?: string; /** Тема: дистракторы берутся из неё. */ theme?: string };
 export type EmbedResult = {
   score: number;
   correct: number;
   total: number;
   combo: number;
   best: number;
-  mistakes: { id: string; es: string; ru: string }[];
+  mistakes: { id: string; es: string; ru: string; tr: string }[];
 };
 export type EmbedOptions = {
   words: EmbedWord[];
+  /** Язык интерфейса игры: ru (по умолчанию) или en. Язык переводов слов задаёт сайт полем `tr`. */
+  lang?: RoadLang;
   /** Каждый ответ — для прогресса слов на стороне сайта. */
   onAnswer?: (id: string, ok: boolean) => void;
   onFinish?: (r: EmbedResult) => void;
@@ -51,12 +55,13 @@ const style = () => {
 
 export function mount(o: EmbedOptions) {
   style();
+  setRoadLang(o.lang === "en" ? "en" : "ru");
   fx.setMuted(!!o.muted);
   const key = o.storageKey ?? "trassa:best";
   const words: Word[] = o.words
-    .filter((w) => w.es && w.ru)
-    .map((w) => ({ id: w.id ?? w.es, es: w.es, ru: w.ru, m: w.theme ?? "", q: 1 }) as Word);
-  const root = h("div.r3-embed", { role: "dialog", "aria-modal": "true", "aria-label": "Трасса" });
+    .filter((w) => w.es && (w.tr ?? w.ru))
+    .map((w) => ({ id: w.id ?? w.es, es: w.es, ru: (w.tr ?? w.ru) as string, m: w.theme ?? "", q: 1 }) as Word);
+  const root = h("div.r3-embed", { role: "dialog", "aria-modal": "true", "aria-label": tr().title, lang: o.lang === "en" ? "en" : "ru" });
   document.body.append(root);
   const overflow = document.documentElement.style.overflow;
   document.documentElement.style.overflow = "hidden";
@@ -92,6 +97,7 @@ export function mount(o: EmbedOptions) {
     clear();
     removeEventListener("keydown", onKeyDown);
     root.remove();
+    setRoadLang("ru");
     document.documentElement.style.overflow = overflow;
   };
   const exit = () => {
@@ -109,10 +115,10 @@ export function mount(o: EmbedOptions) {
     const b = best();
     card(
       h("div.r3e-icon", { html: ICON.car }),
-      h("h2", {}, "Трасса"),
-      h("ul", {}, ...ROAD_RULES.map(([icon, text]) => h("li", {}, h("span", { html: icon }), h("span", { html: text })))),
-      b ? h("p.r3e-best", { html: `${ICON.trophy} Ваш рекорд: ${b}` }) : null,
-      h("div.r3e-btns", {}, h("button.r3e-btn.is-ghost", { type: "button", onclick: exit }, "Выйти"), h("button.r3e-btn.r3e-go", { type: "button", onclick: play }, "Старт")),
+      h("h2", {}, tr().title),
+      h("ul", {}, ...roadRules().map(([icon, text]) => h("li", {}, h("span", { html: icon }), h("span", { html: text })))),
+      b ? h("p.r3e-best", { html: `${ICON.trophy} ${tr().best}: ${b}` }) : null,
+      h("div.r3e-btns", {}, h("button.r3e-btn.is-ghost", { type: "button", onclick: exit }, tr().exit), h("button.r3e-btn.r3e-go", { type: "button", onclick: play }, tr().start)),
     );
     keyFns.push((e) => e.key === "Enter" && (e.preventDefault(), play()));
   };
@@ -124,15 +130,15 @@ export function mount(o: EmbedOptions) {
     try {
       localStorage.setItem(key, String(top));
     } catch {}
-    const mistakes = s.mistakes.map((w) => ({ id: w.id, es: w.es, ru: w.ru }));
+    const mistakes = s.mistakes.map((w) => ({ id: w.id, es: w.es, ru: w.ru, tr: w.ru }));
     o.onFinish?.({ score, correct: s.correct, total: s.total, combo: s.combo ?? 0, best: top, mistakes });
     card(
       h("div.r3e-icon", { html: score > was ? ICON.trophy : ICON.flag }),
-      h("h2", {}, score > was && was ? "Новый рекорд!" : "Финиш"),
-      h("p.r3e-score", {}, h("b", {}, String(score)), " очков"),
-      h("p.r3e-sub", {}, `Верно ${s.correct} из ${s.total} · лучшая серия ${s.combo ?? 0}`),
+      h("h2", {}, score > was && was ? tr().newRecord : tr().finish),
+      h("p.r3e-score", {}, h("b", {}, String(score)), tr().score(score)),
+      h("p.r3e-sub", {}, tr().summary(s.correct, s.total, s.combo ?? 0)),
       mistakes.length ? h("ul.r3e-miss", {}, ...mistakes.map((w) => h("li", {}, h("b", { lang: "es" }, w.es), " — ", w.ru))) : null,
-      h("div.r3e-btns", {}, h("button.r3e-btn.is-ghost", { type: "button", onclick: exit }, "Выйти"), h("button.r3e-btn.r3e-go", { type: "button", onclick: play }, "Ещё раз")),
+      h("div.r3e-btns", {}, h("button.r3e-btn.is-ghost", { type: "button", onclick: exit }, tr().exit), h("button.r3e-btn.r3e-go", { type: "button", onclick: play }, tr().again)),
     );
     keyFns.push((e) => e.key === "Enter" && (e.preventDefault(), play()));
   };
@@ -171,7 +177,7 @@ export function mount(o: EmbedOptions) {
   }
 
   if (words.length < 3) {
-    card(h("h2", {}, "Трасса"), h("p.r3e-sub", {}, "Нужно хотя бы 3 слова."), h("div.r3e-btns", {}, h("button.r3e-btn.r3e-go", { type: "button", onclick: exit }, "Закрыть")));
+    card(h("h2", {}, tr().title), h("p.r3e-sub", {}, tr().needWords), h("div.r3e-btns", {}, h("button.r3e-btn.r3e-go", { type: "button", onclick: exit }, tr().close)));
   } else rules();
 
   return { destroy };

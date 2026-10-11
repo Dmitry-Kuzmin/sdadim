@@ -16,6 +16,7 @@ import * as E from "./engine";
 import * as fx from "./fx";
 import { BIOMES, scenery } from "./scenery";
 import { ICON } from "./icons";
+import { roadLang, tr } from "./road-i18n";
 
 const LANES = 3;
 const LIVES = 3;
@@ -72,14 +73,14 @@ type Mark = { el: HTMLElement; y: number };
 const PER_BIOME = 4;
 
 /** Правила перед стартом — общие для тренажёра и встраивания (embed.ts). */
-export const ROAD_RULES: [string, string][] = [
-  [ICON.signpost, "Испанское слово — на синем указателе, переводы — на табличках над тремя полосами."],
-  [ICON.car, "Перестройтесь в полосу с <b>правильным переводом</b>: ← → на клавиатуре, свайп или тап по полосе."],
-  [ICON.heart, "Три жизни. Сначала времени много, с каждым словом дорога <b>быстрее</b>."],
+export const roadRules = (): [string, string][] => [
+  [ICON.signpost, tr().rule1],
+  [ICON.car, tr().rule2],
+  [ICON.heart, tr().rule3],
 ];
 
 export function road(ctx: Ctx) {
-  intro(ctx, "road", ROAD_RULES, () => play(ctx));
+  intro(ctx, "road", roadRules(), () => play(ctx));
 }
 
 function play(ctx: Ctx) {
@@ -103,20 +104,20 @@ function play(ctx: Ctx) {
   const sign = h("div.r3-sign", { "aria-live": "polite" });
   const hearts = h("span.r3-hearts");
   const scoreEl = h("b.r3-score", {}, "0");
-  const scoreBox = h("span.r3-box", {}, scoreEl, h("small", {}, "очков"));
+  const scoreBox = h("span.r3-box", {}, scoreEl, h("small", {}, tr().pts));
   const streakEl = h("span.wt-streak.r3-streak", { "aria-live": "polite" });
   const kmhEl = h("b", {}, "0");
-  const speedEl = h("span.r3-speed", {}, kmhEl, h("small", {}, "км/ч"));
+  const speedEl = h("span.r3-speed", {}, kmhEl, h("small", {}, tr().kmh));
   let shownKmh = 0;
-  const quit = h("button.r3-btn", { type: "button", "aria-label": "Закрыть", onclick: () => ctx.exit(), html: ICON.x });
+  const quit = h("button.r3-btn", { type: "button", "aria-label": tr().close, onclick: () => ctx.exit(), html: ICON.x });
   const hud = h("div.r3-hud", {}, quit, h("div.r3-stats", {}, hearts, streakEl, scoreBox, speedEl));
   const toast = h("div.r3-toast", { role: "status" });
   const banner = h("div.r3-banner");
   const place = h("div.r3-place", { "aria-live": "polite" });
-  const left = h("button.r3-pad.is-l", { type: "button", "aria-label": "Влево" }, "‹");
-  const right = h("button.r3-pad.is-r", { type: "button", "aria-label": "Вправо" }, "›");
+  const left = h("button.r3-pad.is-l", { type: "button", "aria-label": tr().left }, "‹");
+  const right = h("button.r3-pad.is-r", { type: "button", "aria-label": tr().right }, "›");
   const start = svgEl(LIGHT, "r3-start");
-  const scene = h("div.r3", { role: "application", "aria-label": "Трасса: выберите полосу с правильным переводом" }, grass, ground, decoLayer, roadEl, sky, flash, hud, sign, toast, place, banner, left, right, start);
+  const scene = h("div.r3", { role: "application", "aria-label": tr().scene }, grass, ground, decoLayer, roadEl, sky, flash, hud, sign, toast, place, banner, left, right, start);
   ctx.layer(scene);
 
   /* ─── Состояние ─── */
@@ -237,9 +238,9 @@ function play(ctx: Ctx) {
     right_ = opts.indexOf(w);
     // Длинный перевод или длинное слово — шрифт мельче: слова целиком, без переносов через дефис.
     const long = (t: string) => t.length > 18 || Math.max(...t.split(/\s+/).map((x) => x.length)) > 10;
-    gates = opts.map((o) => h(long(o.ru) ? "div.r3-gate.is-long" : "div.r3-gate", { lang: "ru" }, h("span", {}, o.ru), h("i.r3-arrow", { html: ARROW })));
+    gates = opts.map((o) => h(long(o.ru) ? "div.r3-gate.is-long" : "div.r3-gate", { lang: roadLang() }, h("span", {}, o.ru), h("i.r3-arrow", { html: ARROW })));
     row.replaceChildren(h("i.r3-beam"), ...gates);
-    sign.replaceChildren(h("small", {}, "¿Qué significa?"), h("b", { lang: "es" }, w.es), h("button.r3-say", { type: "button", "aria-label": "Произнести", onclick: () => fx.speak(w.es), html: ICON.sound }));
+    sign.replaceChildren(h("small", {}, "¿Qué significa?"), h("b", { lang: "es" }, w.es), h("button.r3-say", { type: "button", "aria-label": tr().say, onclick: () => fx.speak(w.es), html: ICON.sound }));
     sign.classList.remove("is-new");
     void sign.offsetWidth;
     sign.classList.add("is-new");
@@ -277,7 +278,7 @@ function play(ctx: Ctx) {
       fx.floatText(roadEl, `+${add}${mult > 1 ? ` ×${mult}` : ""}`, "is-ok r3-plus");
       fx.burst(gates[right_], true, scoreBox, 18);
       if (combo % 5 === 0) fx.burst(car, "gold", streakEl, 24);
-      if (combo % 5 === 0) say(`Серия ${combo}!`, "is-good");
+      if (combo % 5 === 0) say(tr().streakToast(combo), "is-good");
       if (correct % PER_LEVEL === 0) {
         level++;
         shout(`Nivel ${level}`);
@@ -426,7 +427,7 @@ function play(ctx: Ctx) {
     ctx.later(birds, 6000 + Math.random() * 4000);
   };
   ctx.later(birds, 2500);
-  sign.replaceChildren(h("small", {}, "Приготовьтесь"), h("b", {}, "¡Vamos!"));
+  sign.replaceChildren(h("small", {}, tr().ready), h("b", {}, "¡Vamos!"));
   requestAnimationFrame(frame);
 
   // Светофор: 3 сигнала по 0,6 с, на зелёный — поехали.
