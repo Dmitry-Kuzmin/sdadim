@@ -288,6 +288,7 @@ function play(ctx: Ctx) {
       lives--;
       mistakes.set(w.id, w);
       gates[lane].classList.add("is-bad");
+      gates[right_].classList.add("is-hint");
       fx.ring(gates[lane], false);
       fx.sfx("crash");
       fx.shake(scene);
