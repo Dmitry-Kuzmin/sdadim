@@ -68,6 +68,8 @@ Frontmatter — единственный источник: страница, к�
   - **SkilyApp** — вшитая копия `src/features/road-game/trassa.js` (`scripts/sync-trassa.mjs`, типы — копия `EmbedOptions`
     в `trassa.d.ts`), обновляется вручную ради ревью диффа: `node scripts/sync-trassa.mjs` в skilyapp и коммит
     (Actions с cron там запрещены). Из этой сессии — отдельной задачей (spawn_task), не забывать.
+    Копия там намеренно, на `import()` не переводить: SkilyApp — платное приложение с сессией пользователя, чужой по origin
+    код в рантайме получил бы доступ к токенам; плюс не зависит от доступности sdadim.eu и обновляется через ревью диффа.
 - Испанские слова в статьях блога сами становятся ссылками на страницы слов (`src/lib/word-links.ts` в `Prose.astro`,
   1 ссылка на абзац, до 12 на статью) с подсказкой `WordTip.astro`. Rehype-плагины MDX в Astro 7 (Satteri) не работают — правим HTML.
 
