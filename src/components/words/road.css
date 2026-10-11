@@ -294,13 +294,13 @@
   letter-spacing: -0.005em;
   text-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
   text-wrap: balance;
-  overflow-wrap: anywhere;
-  hyphens: auto;
+  overflow-wrap: break-word;
   transition: transform 0.35s cubic-bezier(.2, 1.4, .4, 1), box-shadow 0.2s;
 }
 /* Белая кайма внутри — как у настоящего дорожного знака */
 .r3-gate::before { content: ""; position: absolute; inset: 4px; border: 2px solid rgb(255 255 255 / 0.92); border-radius: 10px; pointer-events: none; }
 .r3-gate > span { position: relative; }
+.r3-gate.is-long { font-size: clamp(11px, 2.9vw, 15px); line-height: 1.12; letter-spacing: -0.015em; }
 .r3-arrow { display: block; width: 18px; height: 18px; opacity: 0.85; transition: color 0.2s, opacity 0.2s, transform 0.2s; }
 .r3-arrow svg { display: block; width: 100%; height: 100%; }
 /* Полоса, где сейчас машина: жёлтая подсветка и стрелка */

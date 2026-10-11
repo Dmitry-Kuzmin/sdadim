@@ -235,7 +235,9 @@ function play(ctx: Ctx) {
     }
     const opts = E.shuffle([w, ...E.distractors(w, others, "ru", LANES - 1)]);
     right_ = opts.indexOf(w);
-    gates = opts.map((o) => h("div.r3-gate", { lang: "ru" }, h("span", {}, o.ru), h("i.r3-arrow", { html: ARROW })));
+    // Длинный перевод или длинное слово — шрифт мельче: слова целиком, без переносов через дефис.
+    const long = (t: string) => t.length > 18 || Math.max(...t.split(/\s+/).map((x) => x.length)) > 10;
+    gates = opts.map((o) => h(long(o.ru) ? "div.r3-gate.is-long" : "div.r3-gate", { lang: "ru" }, h("span", {}, o.ru), h("i.r3-arrow", { html: ARROW })));
     row.replaceChildren(h("i.r3-beam"), ...gates);
     sign.replaceChildren(h("small", {}, "¿Qué significa?"), h("b", { lang: "es" }, w.es), h("button.r3-say", { type: "button", "aria-label": "Произнести", onclick: () => fx.speak(w.es), html: ICON.sound }));
     sign.classList.remove("is-new");
