@@ -5,6 +5,7 @@
  *   <PicCards cols={2} items={[{ src: "/assets/blog/<slug>/belt.webp", alt: "…", title: "…", text: "…", tag: "cinturón", mark: "ok" }]} />
  * mark — жетон в углу (ok / no / warn): только если на самой картинке нет своих ✓ / ✗.
  * size="term" — компактные карточки словаря (картинки из /img/slova/). Клик по картинке — увеличить.
+ * Картинки вопросов DGT широкие (1200×670): вся сетка из них — ratio="16/9", одна среди сцен — у неё fit: "contain".
  */
 import { AlertTriangle, Check, X } from "@lucide/astro";
 import { cn } from "@/lib/utils";
@@ -18,13 +19,17 @@ interface Item {
   /** Строка над заголовком — испанский термин */
   tag?: string;
   mark?: "ok" | "no" | "warn";
+  /** contain — показать картинку целиком (широкая картинка вопроса DGT в сетке 4:3), по умолчанию cover */
+  fit?: "cover" | "contain";
 }
 interface Props {
   items: Item[];
   cols?: 2 | 3 | 4;
   size?: "scene" | "term";
+  /** Кадр карточек: 4/3 — сцены и словарь, 16/9 — картинки вопросов DGT (1200×670) */
+  ratio?: "4/3" | "16/9";
 }
-const { items, cols = 2, size = "scene" } = Astro.props;
+const { items, cols = 2, size = "scene", ratio = "4/3" } = Astro.props;
 const grid = {
   2: "grid-cols-1 sm:grid-cols-2",
   3: size === "term" ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-3",
@@ -43,7 +48,7 @@ const MARK = {
       return (
         <figure class={cn("m-0 flex flex-col overflow-hidden rounded-2xl border bg-slate-50", m ? m.border : "border-slate-200")}>
           <button type="button" data-piczoom class="relative block w-full cursor-zoom-in bg-slate-100" aria-label={`Увеличить: ${it.alt}`}>
-            <img src={it.src} alt={it.alt} width="1200" height="900" loading="lazy" decoding="async" class="block aspect-[4/3] h-auto w-full object-cover" />
+            <img src={it.src} alt={it.alt} width="1200" height="900" loading="lazy" decoding="async" class={cn("block h-auto w-full", ratio === "16/9" ? "aspect-[16/9]" : "aspect-[4/3]", it.fit === "contain" ? "object-contain" : "object-cover")} />
             {m && (
               <span class={cn("absolute left-2.5 top-2.5 grid h-7 w-7 place-items-center rounded-full text-white shadow", m.cls)} title={m.label}>
                 <m.icon class="h-4 w-4" stroke-width={3} />
