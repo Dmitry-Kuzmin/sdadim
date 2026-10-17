@@ -1,0 +1,86 @@
+---
+/**
+ * Картинки карточками по 2–4 в ряд: сравнения «верно / неверно», словарь темы с картинками.
+ * Одна картинка на весь экран — <Figure>, но сначала подумайте о карточках.
+ *   <PicCards cols={2} items={[{ src: "/assets/blog/<slug>/belt.webp", alt: "…", title: "…", text: "…", tag: "cinturón", mark: "ok" }]} />
+ * mark — жетон в углу (ok / no / warn): только если на самой картинке нет своих ✓ / ✗.
+ * size="term" — компактные карточки словаря (картинки из /img/slova/). Клик по картинке — увеличить.
+ */
+import { AlertTriangle, Check, X } from "@lucide/astro";
+import { cn } from "@/lib/utils";
+
+interface Item {
+  src: string;
+  alt: string;
+  title: string;
+  /** Пояснение, допускается inline-HTML */
+  text?: string;
+  /** Строка над заголовком — испанский термин */
+  tag?: string;
+  mark?: "ok" | "no" | "warn";
+}
+interface Props {
+  items: Item[];
+  cols?: 2 | 3 | 4;
+  size?: "scene" | "term";
+}
+const { items, cols = 2, size = "scene" } = Astro.props;
+const grid = {
+  2: "grid-cols-1 sm:grid-cols-2",
+  3: size === "term" ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-3",
+  4: "grid-cols-2 sm:grid-cols-4",
+}[cols];
+const MARK = {
+  ok: { icon: Check, cls: "bg-emerald-600", border: "border-emerald-500/30", label: "Верно" },
+  no: { icon: X, cls: "bg-red-600", border: "border-red-500/30", label: "Неверно" },
+  warn: { icon: AlertTriangle, cls: "bg-amber-500", border: "border-amber-500/30", label: "Осторожно" },
+};
+---
+<div class={cn("my-8 not-prose grid", size === "term" ? "gap-3" : "gap-4", grid)}>
+  {
+    items.map((it) => {
+      const m = it.mark ? MARK[it.mark] : null;
+      return (
+        <figure class={cn("m-0 flex flex-col overflow-hidden rounded-2xl border bg-slate-50", m ? m.border : "border-slate-200")}>
+          <button type="button" data-piczoom class="relative block w-full cursor-zoom-in bg-slate-100" aria-label={`Увеличить: ${it.alt}`}>
+            <img src={it.src} alt={it.alt} width="1200" height="900" loading="lazy" decoding="async" class="block aspect-[4/3] h-auto w-full object-cover" />
+            {m && (
+              <span class={cn("absolute left-2.5 top-2.5 grid h-7 w-7 place-items-center rounded-full text-white shadow", m.cls)} title={m.label}>
+                <m.icon class="h-4 w-4" stroke-width={3} />
+              </span>
+            )}
+          </button>
+          <figcaption class={cn("flex flex-col gap-1", size === "term" ? "px-3 py-2.5" : "px-4 pb-4 pt-3")}>
+            {it.tag && <span class="text-[10px] font-bold uppercase tracking-widest text-blue-600">{it.tag}</span>}
+            <span class={cn("font-bold leading-snug text-slate-900", size === "term" ? "text-[13px]" : "text-sm")}>{it.title}</span>
+            {it.text && <span class="text-[13px] leading-relaxed text-slate-600" set:html={it.text} />}
+          </figcaption>
+        </figure>
+      );
+    })
+  }
+</div>
+
+<dialog data-piczoom-dialog class="m-auto max-h-[92vh] max-w-[min(1100px,94vw)] rounded-2xl bg-transparent p-0 backdrop:bg-black/80">
+  <img alt="" class="block max-h-[92vh] w-auto rounded-2xl" />
+</dialog>
+
+<script>
+  // Один диалог на страницу, сколько бы сеток ни было
+  const dialogs = document.querySelectorAll<HTMLDialogElement>("[data-piczoom-dialog]");
+  const dialog = dialogs[0];
+  dialogs.forEach((d, i) => i > 0 && d.remove());
+  if (dialog && !dialog.dataset.ready) {
+    dialog.dataset.ready = "1";
+    const img = dialog.querySelector("img")!;
+    document.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-piczoom]");
+      if (!btn) return;
+      const src = btn.querySelector("img")!;
+      img.src = src.currentSrc || src.src;
+      img.alt = src.alt;
+      dialog.showModal();
+    });
+    dialog.addEventListener("click", () => dialog.close());
+  }
+</script>

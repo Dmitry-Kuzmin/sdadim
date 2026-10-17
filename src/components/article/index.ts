@@ -12,6 +12,7 @@ import Fine from "./Fine.astro";
 import Figure from "./Figure.astro";
 import LinkCard from "./LinkCard.astro";
 import List from "./List.astro";
+import PicCards from "./PicCards.astro";
 import Quiz from "./Quiz.astro";
 import Quote from "./Quote.astro";
 import Skily from "./Skily.astro";
@@ -24,4 +25,4 @@ import Tabs from "./Tabs.astro";
 import Video from "./Video.astro";
 import Year from "./Year.astro";
 
-export const ARTICLE_KIT = { Accordion, Banner, Callout, Checklist, CardGrid, Comparison, Divider, Fine, Figure, LinkCard, List, Quiz, Quote, Skily, Spoiler, Stats, TabPanel, Table, Tabs, Tasa, Video, Year };
+export const ARTICLE_KIT = { Accordion, Banner, Callout, Checklist, CardGrid, Comparison, Divider, Fine, Figure, LinkCard, List, PicCards, Quiz, Quote, Skily, Spoiler, Stats, TabPanel, Table, Tabs, Tasa, Video, Year };

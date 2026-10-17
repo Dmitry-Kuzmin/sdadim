@@ -10,14 +10,16 @@ interface Props {
   feature?: SkilyFeature;
   title?: string;
   text?: string;
+  /** Свой путь в Skilyapp вместо пути возможности (например, модуль курса — skilyCoursePath(7)) */
+  path?: string;
 }
 
-const { feature = "tests", title, text } = Astro.props;
+const { feature = "tests", title, text, path } = Astro.props;
 const f = SKILY_FEATURES[feature];
 ---
 
 <a
-  href={skilyUrl(f.path, `article-${feature}`)}
+  href={skilyUrl(path ?? f.path, `article-${feature}`)}
   target="_blank"
   rel="noopener"
   class="my-8 not-prose group flex items-start gap-4 rounded-2xl border border-blue-500/20 bg-gradient-to-r from-blue-500/[0.07] to-orange-500/[0.05] p-5 no-underline transition-colors hover:border-blue-500/40"

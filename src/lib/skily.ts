@@ -5,7 +5,7 @@
 const BASE = "https://skilyapp.com";
 
 /** Ссылка в Skilyapp с UTM: видно, какой блок на sdadim.eu привёл человека */
-export const skilyUrl = (path: string, place: string) => `${BASE}${path}?utm_source=sdadim&utm_medium=${place}&utm_campaign=skily`;
+export const skilyUrl = (path: string, place: string) => `${BASE}${path}${path.includes("?") ? "&" : "?"}utm_source=sdadim&utm_medium=${place}&utm_campaign=skily`;
 
 export const SKILY_FEATURES = {
   tests: {
@@ -36,6 +36,13 @@ export const SKILY_FEATURES = {
     cta: "Начать курс",
     path: "/lingo",
   },
+  course: {
+    emoji: "🎓",
+    title: "Курс DGT по темам учебника",
+    text: "Короткие уроки с картинками и тестами из банка DGT после каждого — тема за темой, как в официальном учебнике. Курс входит в Premium, первые 3 дня бесплатно.",
+    cta: "Открыть курс",
+    path: "/learning",
+  },
   ai: {
     emoji: "🤖",
     title: "ИИ-наставник Skily",
@@ -46,6 +53,18 @@ export const SKILY_FEATURES = {
 } as const;
 
 export type SkilyFeature = keyof typeof SKILY_FEATURES;
+
+/** Модули курса Skilyapp (course_modules): ссылка «/learning?m=<id>» открывает карту сразу на нужной теме */
+export const SKILY_COURSE_MODULES = {
+  1: "bef4ce90-5902-49d1-a082-173faeefda12",
+  2: "b5eb6fa0-5d1f-46bc-8af1-cf953255e07d",
+  3: "326eb027-5ee7-4609-bbc8-1e92acf6720f",
+  4: "782c62e0-2011-4cce-8753-8d0933c92ea5",
+  5: "19a0624a-f953-4bf0-9d32-ecb849dccb9b",
+  6: "e55587a7-4fa0-4fcf-ba30-b0ff25bc4732",
+  7: "3cb740fc-982f-428a-9939-109a18a97990",
+} as const;
+export const skilyCoursePath = (tema: keyof typeof SKILY_COURSE_MODULES) => `/learning?m=${SKILY_COURSE_MODULES[tema]}`;
 
 /** Баннер после вопросов экзамена на странице слова (/ispanskij-dlya-dgt/slovo/…). Число — как в самом Skilyapp. */
 export const SKILY_EXAM = {
