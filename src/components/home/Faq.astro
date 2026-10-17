@@ -3,7 +3,7 @@
  * FAQ главной: все вопросы всех рубрик — в HTML (их видят поисковики и FAQPage-схема),
  * скрипт только переключает рубрику. Ответ раскрывается нативным <details>.
  */
-import { ChevronDown } from "@lucide/astro";
+import { ArrowRight, ChevronDown } from "@lucide/astro";
 import { FAQ_CATEGORIES, FAQ_DATA } from "@/lib/home-faq";
 import SectionHead from "./SectionHead.astro";
 
@@ -43,6 +43,12 @@ const keys = Object.keys(FAQ_CATEGORIES) as (keyof typeof FAQ_CATEGORIES)[];
                   </span>
                 </summary>
                 <p class="pb-6 pr-4 text-[15px] leading-relaxed text-slate-600 whitespace-pre-line sm:pr-12">{item.answer}</p>
+                {item.more && (
+                  <a href={item.more.href} class="-mt-3 mb-6 inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline">
+                    {item.more.label}
+                    <ArrowRight class="h-3.5 w-3.5" />
+                  </a>
+                )}
               </details>
             ))}
           </div>
