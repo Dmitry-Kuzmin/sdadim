@@ -42,9 +42,11 @@ const C = 2 * Math.PI * 42;
       questions.map((q, qi) => (
         <div data-q={qi} data-correct={q.correct} hidden={qi > 0} class="quiz-step">
           {q.image && (
-            <div class="rounded-2xl overflow-hidden mb-5 border border-slate-200 max-h-52">
-              <img src={q.image} alt="Иллюстрация к вопросу" class="w-full h-52 object-cover" loading="lazy" />
-            </div>
+            <a href={q.image} target="_blank" rel="noopener" title="Открыть картинку целиком" class="block mb-5 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 cursor-zoom-in">
+              {/* Не обрезаем: в картинке DGT может быть ответ (знак, стрелка, машина у края). Кадр — родной (16:9),
+                  на низких экранах (телефон боком) вписываем по высоте, а не режем. */}
+              <img src={q.image} alt="Иллюстрация к вопросу" width="1600" height="893" class="block w-full h-auto max-h-[70vh] object-contain" loading="lazy" decoding="async" />
+            </a>
           )}
           <div class="mb-1">
             <p class="text-slate-900 font-semibold text-base leading-snug">{q.question_es}</p>
