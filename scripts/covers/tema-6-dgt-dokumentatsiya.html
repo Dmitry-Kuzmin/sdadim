@@ -1,0 +1,29 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+  body { --glow: #dbeafe; }
+  .plate { position: absolute; left: 150px; top: 170px; width: 300px; height: 300px; border-radius: 34px; background: #2563eb; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: var(--shadow); transform: rotate(-6deg); color: #fff; }
+  .plate small { font-size: 34px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .85; }
+  .plate span { font-size: 210px; font-weight: 900; line-height: .9; }
+  .shot { position: absolute; left: 560px; top: 120px; width: 600px; border-radius: 28px; overflow: hidden; box-shadow: var(--shadow); transform: rotate(3deg); border: 10px solid #fff; }
+  .shot img { display: block; width: 100%; }
+  .nums { left: 1060px; top: 520px; width: 420px; padding: 30px 36px; transform: rotate(-3deg); }
+  .nums .row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-bottom: 1px solid #f1f5f9; font-size: 22px; color: #334155; }
+  .nums .row b { font-size: 34px; font-weight: 800; color: var(--ink); }
+  .title { position: absolute; left: 150px; top: 610px; width: 820px; font-size: 76px; font-weight: 800; line-height: 1.02; letter-spacing: -.02em; }
+  .title em { font-style: normal; color: #2563eb; }
+  .note { position: absolute; left: 160px; top: 860px; font-size: 42px; transform: rotate(-2deg); color: #b45309; }
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="plate"><small>Тема</small><span>6</span></div>
+  <div class="shot"><img src="../../public/img/slova/documentacion-del-vehiculo.webp" alt=""></div>
+  <div class="card nums">
+    <div class="eyebrow" style="margin-bottom:6px">Documentación</div>
+    <div class="row"><span>Права B</span><b>3 500 кг</b></div>
+    <div class="row"><span>Срок прав</span><b>10 · 5 лет</b></div>
+    <div class="row" style="border:0"><span>ITV легковой</span><b>4 · 2 · 1</b></div>
+  </div>
+  <div class="title">Документы: <em>ловушки</em> темы DGT</div>
+  <div class="note hand">права, ITV, страховка и тест</div>
+</body></html>

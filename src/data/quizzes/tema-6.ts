@@ -1,0 +1,103 @@
+import type { QuizQuestion } from "@/data/quizzes";
+
+/** Мини-тест статьи «Тема 6 DGT «Документация»» — только бесплатные вопросы банка DGT (is_premium = false) */
+const IMG = "/assets/blog/tema-6-dgt-dokumentatsiya";
+
+export const TEMA6_QUESTIONS: QuizQuestion[] = [
+  {
+    id: 1,
+    question_es: "Un turismo, ¿qué documentos debe llevar?",
+    question_ru: "Какие документы должны быть в легковой машине?",
+    image: `${IMG}/q-documents.webp`,
+    options: [
+      "El permiso de conducción y la licencia de conducción.",
+      "El recibo del impuesto de circulación y certificado de garantía.",
+      "El permiso de circulación, la tarjeta de inspección técnica y el recibo del seguro obligatorio.",
+    ],
+    correct: 2,
+    explanation: "Вопрос о документах машины: регистрационное свидетельство, техкарта ITV и подтверждение страховки. Налог и гарантия — обычные бумаги, их не требуют. Права — документ водителя, а не машины.",
+    principle: "Машине — permiso de circulación + tarjeta ITV + seguro.",
+  },
+  {
+    id: 2,
+    question_es: "¿Se puede llevar una fotocopia del permiso de conducción en lugar del original?",
+    question_ru: "Можно ли возить фотокопию водительских прав вместо оригинала?",
+    image: `${IMG}/q-licence-copy.webp`,
+    options: ["No.", "Sí, siempre que la fotocopia esté debidamente cotejada.", "Sí, sólo si es a color."],
+    correct: 1,
+    explanation: "Копия действует, если её заверили (cotejada) в Jefatura de Tráfico. Цвет ничего не решает — решает штамп.",
+    principle: "Копия — только заверенная.",
+  },
+  {
+    id: 3,
+    question_es: "¿Quién es el responsable de pasar la ITV a un turismo?",
+    question_ru: "Кто отвечает за прохождение ITV легковой машины?",
+    image: `${IMG}/q-itv-owner.webp`,
+    options: ["El titular del vehículo.", "El conductor habitual.", "El tomador del seguro."],
+    correct: 0,
+    explanation: "За документы, ITV и техническое состояние машины отвечает её владелец (titular). Постоянный водитель и страхователь — другие роли.",
+    principle: "Документы и ITV — владелец.",
+  },
+  {
+    id: 4,
+    question_es: "Si el resultado de la inspección técnica de su vehículo es desfavorable, ¿qué debe hacer?",
+    question_ru: "Результат ITV — «desfavorable». Что делать?",
+    image: `${IMG}/q-itv-fail.webp`,
+    options: [
+      "Dar de baja el vehículo temporalmente, hasta que se subsanen los defectos.",
+      "Dirigirse inmediatamente a otra estación ITV, para contrastar el resultado.",
+      "Reparar los defectos observados y pasar una nueva revisión.",
+    ],
+    correct: 2,
+    explanation: "Desfavorable — серьёзные дефекты: машину чинят и в течение 2 месяцев везут на повторную проверку. Снимать с учёта и искать «другое мнение» не нужно.",
+    principle: "Desfavorable — починить и вернуться. Negativa — только эвакуатором.",
+  },
+  {
+    id: 5,
+    question_es: "¿Cuáles son los daños no cubiertos por el seguro obligatorio al causante de un accidente?",
+    question_ru: "Какой ущерб обязательная страховка виновника аварии не покрывает?",
+    image: `${IMG}/q-insurance.webp`,
+    options: [
+      "Los daños personales que sufra el conductor responsable.",
+      "Los daños personales que sufran los ocupantes del vehículo causante del accidente.",
+      "Los daños que se produzcan en el vehículo contrario.",
+    ],
+    correct: 0,
+    explanation: "Обязательная страховка платит другим: пострадавшим в чужой машине, пешеходам и пассажирам виновника. Травмы самого виновного водителя и его машину она не покрывает.",
+    principle: "Виновник сам себе не платит.",
+  },
+  {
+    id: 6,
+    question_es: "Para conducir un turismo de 3.000 kg de MMA que arrastra un remolque de 800 kg de MMA, ¿qué permiso se necesita?",
+    question_ru: "Легковая с MMA 3 000 кг тянет прицеп с MMA 800 кг. Какие права нужны?",
+    image: `${IMG}/q-b96.webp`,
+    options: ["El permiso de la clase E.", "Sólo el permiso de la clase B.", "La autorización B-96."],
+    correct: 2,
+    explanation: "Прицеп тяжелее 750 кг, значит, считаем сцепку: 3 000 + 800 = 3 800 кг. Это больше 3 500, но меньше 4 250 — нужна отметка B-96. «Прав класса E» отдельно не бывает: E всегда идёт после базовой категории.",
+    principle: "Сцепка до 3 500 — B, до 4 250 — B-96, дальше — B+E.",
+  },
+  {
+    id: 7,
+    question_es: "El titular de un permiso A, ¿puede conducir motocicletas con sidecar?",
+    question_ru: "Может ли владелец прав категории A водить мотоцикл с коляской?",
+    image: `${IMG}/q-sidecar.webp`,
+    options: ["Sí.", "No.", "Sí, si la motocicleta supera los 125 cm³."],
+    correct: 0,
+    explanation: "Права A разрешают любой мотоцикл, с коляской и без. Коляска не меняет категорию ни у A, ни у A1 и A2.",
+    principle: "Коляска категорию не меняет.",
+  },
+  {
+    id: 8,
+    question_es: "¿Cuántas placas de matrícula debe llevar una motocicleta?",
+    question_ru: "Сколько номерных знаков должно быть у мотоцикла?",
+    image: `${IMG}/q-moto-plate.webp`,
+    options: [
+      "Una sola placa en la parte posterior, en posición vertical o casi vertical.",
+      "Dos placas, una en la parte delantera y otra en la parte posterior.",
+      "Una sola placa en la parte delantera, en posición vertical o casi vertical.",
+    ],
+    correct: 0,
+    explanation: "У мотоцикла один номер — сзади, вертикально или почти вертикально. Переднего номера нет: «два номера» выбирают те, кто сравнивает мотоцикл с машиной.",
+    principle: "Мотоцикл — один номер, сзади.",
+  },
+];
