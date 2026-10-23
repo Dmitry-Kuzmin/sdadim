@@ -19,6 +19,51 @@
       "source": "/index",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/faq",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/oferta",
+      "destination": "/legal/terms",
+      "permanent": true
+    },
+    {
+      "source": "/confidentiality-policy",
+      "destination": "/legal/privacy",
+      "permanent": true
+    },
+    {
+      "source": "/tpost/m93xxza9a1-slovarik-buduschego-voditelya-v-ispanii",
+      "destination": "/blog/slovar-dgt",
+      "permanent": true
+    },
+    {
+      "source": "/tpost/ezctdkxes1-ekonomim-toplivo-i-snizhaem-rashodi",
+      "destination": "/blog/ekonomichnoe-vozhdenie",
+      "permanent": true
+    },
+    {
+      "source": "/tpost/eejzsmhbi1-chastie-oshibki-na-teoreticheskom-ekzame",
+      "destination": "/blog/teoreticheskiy-ekzamen-dgt",
+      "permanent": true
+    },
+    {
+      "source": "/tpost/y3ayp1alc1-kak-poluchit-voditelskie-prava-v-ispanii",
+      "destination": "/blog/kak-poluchit-prava-v-ispanii",
+      "permanent": true
+    },
+    {
+      "source": "/tpost/4l1vzzs981-kak-sdat-prakticheskii-ekzamen-po-vozhde",
+      "destination": "/blog/prakticheskiy-ekzamen",
+      "permanent": true
+    },
+    {
+      "source": "/tpost/:path*",
+      "destination": "/blog",
+      "permanent": true
     }
   ],
   "headers": [

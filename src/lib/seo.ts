@@ -5,7 +5,7 @@
 import { cardTitle, getPosts, modified, type Post } from "@/lib/blog";
 import { getPlans } from "@/lib/plans";
 import { FAQ_DATA } from "@/lib/home-faq";
-import { BASE, cap, plural, setUrl, setWords, wordQuestions, wordSet, wordUrl, type Word, type WordSet } from "@/lib/words";
+import { BASE, cap, hasPage, plural, setUrl, setWords, wordQuestions, wordSet, wordUrl, type Word, type WordSet } from "@/lib/words";
 
 export const SITE_URL = "https://sdadim.eu";
 export const SITE_NAME = "Сдадим";
@@ -228,7 +228,8 @@ const termLd = (w: Word, set?: WordSet) => ({
   name: w.es,
   description: `${w.ru}${w.d ? `. ${w.d}` : ""}`,
   inLanguage: "es",
-  url: abs(wordUrl(w)),
+  // url только у слов со своей страницей: иначе Google находит в разметке адреса с 404
+  ...(hasPage(w) ? { url: abs(wordUrl(w)) } : {}),
   ...(set ? { inDefinedTermSet: abs(setUrl(set)) } : {}),
 });
 /** Описание в пределах ~160 символов: обрезаем по слову. */
